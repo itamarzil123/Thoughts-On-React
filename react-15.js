@@ -24,21 +24,37 @@
   var define, module, exports;
 
   console.func = function (text) {
-    console.log(
-      "%c                                          ",
-      "background: grey; color: #bada55"
-    );
-    console.log("%c ---> Calling: ", "background: grey; color: #bada55", text);
-    console.log(
-      "%c                                          ",
-      "background: grey; color: #bada55"
-    );
+    var styles = [
+      "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+      "color: white",
+      "display: block",
+      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+      "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+      "line-height: 20px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 12px",
+    ].join(";");
+
+    console.log("%c ---> Calling %s ", styles, text);
   };
   console.param = function (text) {
     console.log("%c ---> Parameter: ", "color: purple", text);
   };
   console.desc = function (text) {
-    console.log("%c [ Description:", "color: purple", text);
+    var styles = [
+      "background: linear-gradient(rgba(77, 5, 232,0.4), rgba(77, 5, 232, 0.8))",
+      "color: white",
+      "display: block",
+      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+      "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+      "line-height: 20px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 12px",
+    ].join(";");
+
+    console.log("%c ---> Calling %s ", styles, text);
   };
   console.init = function (text) {
     var styles = [
@@ -2624,7 +2640,7 @@
            * `ResponderEventPlugin` must occur before `SimpleEventPlugin` so that
            * preventing default on events is convenient in `SimpleEventPlugin` handlers.
            */
-          console.init("DefaultEventPluginOrder");
+          console.init("DefaultEventPluginOrder: ");
           var DefaultEventPluginOrder = [
             keyOf({ ResponderEventPlugin: null }),
             keyOf({ SimpleEventPlugin: null }),
@@ -2672,6 +2688,7 @@
               ],
             },
           };
+          console.init("EnterLeaveEventPlugin");
 
           var EnterLeaveEventPlugin = {
             eventTypes: eventTypes,
@@ -2796,6 +2813,7 @@
           /**
            * Types of raw signals from the browser caught at the top level.
            */
+          console.init("EventConstants.topLevelTypes");
           var topLevelTypes = keyMirror({
             topAbort: null,
             topAnimationEnd: null,
@@ -2947,6 +2965,7 @@
            *
            * @public
            */
+          console.init("EventPluginHub");
           var EventPluginHub = {
             /**
              * Methods for injecting dependencies.
@@ -2974,6 +2993,7 @@
              * @param {function} listener The callback to store.
              */
             putListener: function (inst, registrationName, listener) {
+              console.func("EventPluginHub.putListener");
               !(typeof listener === "function")
                 ? "development" !== "production"
                   ? invariant(
@@ -3003,6 +3023,8 @@
              * @return {?function} The stored callback.
              */
             getListener: function (inst, registrationName) {
+              console.func("EventPluginHub.getListener");
+
               var bankForRegistrationName = listenerBank[registrationName];
               return (
                 bankForRegistrationName &&
@@ -3017,6 +3039,8 @@
              * @param {string} registrationName Name of listener (e.g. `onClick`).
              */
             deleteListener: function (inst, registrationName) {
+              console.func("EventPluginHub.deleteListener");
+
               var PluginModule =
                 EventPluginRegistry.registrationNameModules[registrationName];
               if (PluginModule && PluginModule.willDeleteListener) {
@@ -3036,6 +3060,8 @@
              * @param {object} inst The instance, which is the source of events.
              */
             deleteAllListeners: function (inst) {
+              console.func("EventPluginHub.deleteAllListeners");
+
               for (var registrationName in listenerBank) {
                 if (!listenerBank[registrationName][inst._rootNodeID]) {
                   continue;
@@ -3064,6 +3090,8 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("EventPluginHub.extractEvents");
+
               var events;
               var plugins = EventPluginRegistry.plugins;
               for (var i = 0; i < plugins.length; i++) {
@@ -3092,6 +3120,8 @@
              * @internal
              */
             enqueueEvents: function (events) {
+              console.func("EventPluginHub.enqueueEvents");
+
               if (events) {
                 eventQueue = accumulateInto(eventQueue, events);
               }
@@ -3103,6 +3133,8 @@
              * @internal
              */
             processEventQueue: function (simulated) {
+              console.func("EventPluginHub.processEventQueue");
+
               // Set `eventQueue` to null before processing it so that we can tell if more
               // events get enqueued while processing.
               var processingEventQueue = eventQueue;
@@ -3361,6 +3393,11 @@
              * @see {EventPluginHub.injection.injectEventPluginOrder}
              */
             injectEventPluginOrder: function (InjectedEventPluginOrder) {
+              console.func("injectEventPluginOrder");
+              console.log(
+                "InjectedEventPluginOrder:",
+                InjectedEventPluginOrder
+              );
               !!EventPluginOrder
                 ? "development" !== "production"
                   ? invariant(
@@ -3388,6 +3425,9 @@
              * @see {EventPluginHub.injection.injectEventPluginsByName}
              */
             injectEventPluginsByName: function (injectedNamesToPlugins) {
+              console.func("injectEventPluginsByName");
+              console.log("injectedNamesToPlugins:", injectedNamesToPlugins);
+
               var isOrderingDirty = false;
               for (var pluginName in injectedNamesToPlugins) {
                 if (!injectedNamesToPlugins.hasOwnProperty(pluginName)) {
@@ -3425,6 +3465,8 @@
              * @internal
              */
             getPluginModuleForEvent: function (event) {
+              console.func("getPluginModuleForEvent");
+
               var dispatchConfig = event.dispatchConfig;
               if (dispatchConfig.registrationName) {
                 return (
@@ -3455,6 +3497,8 @@
              * @private
              */
             _resetEventPlugins: function () {
+              console.func("_resetEventPlugins");
+
               EventPluginOrder = null;
               for (var pluginName in namesToPlugins) {
                 if (namesToPlugins.hasOwnProperty(pluginName)) {
@@ -3521,8 +3565,13 @@
            */
           var ComponentTree;
           var TreeTraversal;
+          console.init("EventPluginUtils.injection");
+          console.desc(
+            "that includes injectComponentTree, injectTreeTraversal"
+          );
           var injection = {
             injectComponentTree: function (Injected) {
+              console.func("injectComponentTree:", Injected);
               ComponentTree = Injected;
               if ("development" !== "production") {
                 "development" !== "production"
@@ -3613,6 +3662,8 @@
            * @param {*} inst Internal component instance
            */
           function executeDispatch(event, simulated, listener, inst) {
+            console.func("executeDispatch");
+            console.log("event:", event);
             var type = event.type || "unknown-event";
             event.currentTarget = EventPluginUtils.getNodeFromInstance(inst);
             if (simulated) {
@@ -3631,6 +3682,7 @@
            * Standard/simple iteration through an event's collected dispatches.
            */
           function executeDispatchesInOrder(event, simulated) {
+            console.func("executeDispatchesInOrder");
             var dispatchListeners = event._dispatchListeners;
             var dispatchInstances = event._dispatchInstances;
             if ("development" !== "production") {
@@ -3746,6 +3798,7 @@
           /**
            * General utilities that are useful in creating custom Event Plugins.
            */
+          console.init("EventPluginUtils");
           var EventPluginUtils = {
             isEndish: isEndish,
             isMoveish: isMoveish,
@@ -3815,6 +3868,7 @@
            * "phases" of propagation. This finds listeners by a given phase.
            */
           function listenerAtPhase(inst, event, propagationPhase) {
+            console.func("listenerAtPhase");
             var registrationName =
               event.dispatchConfig.phasedRegistrationNames[propagationPhase];
             return getListener(inst, registrationName);
@@ -3951,6 +4005,11 @@
            *
            * @constructor EventPropagators
            */
+          console.init("EventPropagators");
+          console.desc(`that includes accumulateTwoPhaseDispatches: accumulateTwoPhaseDispatches,
+          accumulateTwoPhaseDispatchesSkipTarget: accumulateTwoPhaseDispatchesSkipTarget,
+          accumulateDirectDispatches: accumulateDirectDispatches,
+          accumulateEnterLeaveDispatches: accumulateEnterLeaveDispatches,`);
           var EventPropagators = {
             accumulateTwoPhaseDispatches: accumulateTwoPhaseDispatches,
             accumulateTwoPhaseDispatchesSkipTarget: accumulateTwoPhaseDispatchesSkipTarget,
@@ -4746,6 +4805,7 @@
           // For events like 'submit' which don't consistently bubble (which we trap at a
           // lower node than `document`), binding at `document` would cause duplicate
           // events so we don't include them here
+          console.init("topEventMapping");
           var topEventMapping = {
             topAbort: "abort",
             topAnimationEnd:
@@ -4857,6 +4917,8 @@
                * @param {object} ReactEventListener
                */
               injectReactEventListener: function (ReactEventListener) {
+                console.func("injectReactEventListener");
+                console.log("ReactEventListener:", ReactEventListener);
                 ReactEventListener.setHandleTopLevel(
                   ReactBrowserEventEmitter.handleTopLevel
                 );
@@ -7894,6 +7956,8 @@
           var getNativeComponentFromComposite = _dereq_(126);
           var renderSubtreeIntoContainer = _dereq_(135);
           var warning = _dereq_(166);
+
+          console.init("ReactDefaultInjection.inject()");
 
           ReactDefaultInjection.inject();
 
@@ -11890,13 +11954,6 @@
       57: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ReactDefaultInjection
            */
 
@@ -11925,6 +11982,7 @@
           var alreadyInjected = false;
 
           function inject() {
+            console.func("ReactDefaultInjection.inject()");
             if (alreadyInjected) {
               // TODO: This is currently true because these injections are shared between
               // the client and the server package. They should be built independently
@@ -23272,6 +23330,7 @@
            * Upstream version of event listener. Does not take into account specific
            * nature of platform.
            */
+          console.init("EventListener");
           var EventListener = {
             /**
              * Listen to DOM events during the bubble phase.
@@ -23282,6 +23341,10 @@
              * @return {object} Object with a `remove` method.
              */
             listen: function (target, eventType, callback) {
+              console.func("listen");
+              console.log("target:", target);
+              console.log("eventType:", eventType);
+              console.log("cb:", callback);
               if (target.addEventListener) {
                 target.addEventListener(eventType, callback, false);
                 return {
@@ -23308,6 +23371,10 @@
              * @return {object} Object with a `remove` method.
              */
             capture: function (target, eventType, callback) {
+              console.func("capture");
+              console.log("target:", target);
+              console.log("eventType:", eventType);
+              console.log("cb:", callback);
               if (target.addEventListener) {
                 target.addEventListener(eventType, callback, true);
                 return {
@@ -23338,16 +23405,6 @@
       ],
       142: [
         function (_dereq_, module, exports) {
-          /**
-           * Copyright (c) 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
-           */
-
           "use strict";
 
           var canUseDOM = !!(
@@ -23362,6 +23419,10 @@
            * whether or not they are in a Worker, even if they never include the main
            * `ReactWorker` dependency.
            */
+          console.init("ExecutionEnvironment");
+          console.desc(
+            "that includes canUseDOM, canUseWorkers, canUseEventListeners, canUseViewport, isInWorker"
+          );
           var ExecutionEnvironment = {
             canUseDOM: canUseDOM,
 
@@ -23384,13 +23445,6 @@
           "use strict";
 
           /**
-           * Copyright (c) 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @typechecks
            */
 
@@ -23418,13 +23472,6 @@
       144: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright (c) 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @typechecks
            */
 

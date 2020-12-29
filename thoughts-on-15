@@ -31,6 +31,8 @@ my observations:
       validateCallback: ƒ (callback, callerName)
       __proto__: Object
 
+4. all the AccumulateDispatch methods survived v15 (existed from v0.3)
+
 0. this.updater inside ReactClass is the same as in v0.14. this.updater is the object inside ReactClass
    which stores methods like enqueueSetState and replaceState
 
