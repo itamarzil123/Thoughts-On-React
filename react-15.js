@@ -3586,6 +3586,8 @@
               }
             },
             injectTreeTraversal: function (Injected) {
+              console.func("injectTreeTraversal");
+              console.log("Injected:", Injected);
               TreeTraversal = Injected;
               if ("development" !== "production") {
                 "development" !== "production"
@@ -4918,7 +4920,11 @@
                */
               injectReactEventListener: function (ReactEventListener) {
                 console.func("injectReactEventListener");
+                console.desc(
+                  "that includes ReactEventListener.setHandleTopLevel(ReactBrowserEventEmitter.handleTopLevel)"
+                );
                 console.log("ReactEventListener:", ReactEventListener);
+
                 ReactEventListener.setHandleTopLevel(
                   ReactBrowserEventEmitter.handleTopLevel
                 );
@@ -12092,13 +12098,6 @@
       58: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ReactDefaultPerf
            */
 
@@ -15718,6 +15717,7 @@
             // This accepts a class that receives the tag string. This is a catch all
             // that can render any kind of tag.
             injectGenericComponentClass: function (componentClass) {
+              console.func("injectGenericComponentClass");
               genericComponentClass = componentClass;
             },
             // This accepts a text component class that takes the text string to be

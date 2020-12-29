@@ -1,3 +1,4 @@
+console.log("{{{ REACT APPLICATION }}}");
 var Button = React.createClass({
   render: function () {
     return <div>Hello World</div>;
