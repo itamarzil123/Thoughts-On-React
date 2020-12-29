@@ -1,0 +1,103 @@
+React-15: (vs previous versions v0.14, v0.3)
+--------------------------------
+from the official changeLog:
+         document.createElement is in and data-reactid is out
+         No more extra <span>s
+         React.cloneElement() now resolves defaultProps
+         Function components can now return null too
+
+         Deprecated APIs are removed from the React top-level export:
+         findDOMNode, render, renderToString, renderToStaticMarkup, and unmountComponentAtNode.
+         As a reminder, they are now available on ReactDOM and ReactDOMServer.
+         Deprecated addons are removed: batchedUpdates and cloneWithProps.
+         Deprecated component instance methods are removed: setProps, replaceProps, and getDOMNode.
+         React-specific properties on DOM refs (e.g. this.refs.div.props) were deprecated,
+         and are removed now
+my observations:
+
+0. this.updater inside ReactClass is the same as in v0.14. this.updater is the object inside ReactClass
+   which stores methods like enqueueSetState and replaceState
+
+1. module system resolver: recognize the module system used by the React user.
+   commonJS? AMD? otherwise just put React on the global object
+2. sub modules resolver function that manages the entire inner 'require' of internals modules inside
+   the React library. it is very ugly and bad designed.. it is a good decision by the React team to abandon
+   this attitude.
+3. until line 700, I see no interesting/important code to research, but only React internal Event system
+   meaningless names
+
+4. in line 900, CallbackQueue is defined (with Pooledclass) just like ReactOnDOMReady in version 0.3, 0.14
+   this module is responsible for handling callbacks like componentDidMount/DidUpdate to run after component's
+   markup has been injected to the DOM. the queue itself is a list of React components ready to be notified
+   after their DOM has been injected. callbackQueue holds _callbacks and _contexts. and for example
+   notifyAll will call each callback with the matching context. (callback.call(context))
+5. reading through lines 1200+ it seems like React overall suffers from tightling coupling of different units
+   such as the React Event system and the DOM utils and the React API (or namings), etc  . . .
+   the way React is written is not modular. the way the reader reads the code is very not clear,
+   too much complexity, and too much chaos. not clear which are the basic units and which are the bigger/higher
+   units of engineering.
+6. module 28: React policies still exist apparently (as in v0.3 and v.14) except for additions:
+   DEFINE_MANY_MERGED,
+   ReactClassInterface I believe is the new ReactCompositeComponentInterface
+   bindAutoBindMethod also still exists.
+
+7. ReactClass is a the module to create composite components in v15
+
+NOTES:
+    key code snippets:
+    ReactDOMComponentTree.getNodeFromInstance,
+    ReactDOMComponentTree.getClosestInstanceFromNode,
+    DOMLazyTree,
+    createNodesFromMarkup,
+    dangerouslyRenderMarkup,
+    EventPropagators,
+    EventPluginRegistry,
+    EventPluginUtils,
+    ReactEventEmitterMixin,
+    ReactEventListener,
+    ReactChildren,
+    ReactComponent,
+    ReactClass,
+    ReactElement,
+    createElement,
+    ReactReconciler,
+    ReactInstrumentation
+
+
+
+
+          /**
+           * Internal store for event listeners
+           */
+          var listenerBank = {};
+
+          /**
+           * Internal queue of events that have accumulated their dispatches and are
+           * waiting to have their dispatches executed.
+           */
+          var eventQueue = null;
+                    /**
+           * - `ComponentTree`: [required] Module that can convert between React instances
+           *   and actual node references.
+           */
+           /**
+           * Standard/simple iteration through an event's collected dispatches.
+           */
+          function executeDispatchesInOrder
+
+
+
+
+NOTES: even in versions 0.14, 0.3, and in 15, still it all feels like a magic.
+How exactly React works internally ?
+
+
+
+
+
+
+
+
+
+NOTES:
+    The DOM CompositionEvent represents events that occur due to the user indirectly entering text.
