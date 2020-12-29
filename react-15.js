@@ -174,6 +174,7 @@
           var topLevelTypes = EventConstants.topLevelTypes;
 
           // Events and their corresponding property names.
+          console.init("eventTypes");
           var eventTypes = {
             beforeInput: {
               phasedRegistrationNames: {
@@ -336,6 +337,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
+            console.func("extractCompositionEvent");
             var eventType;
             var fallbackData;
 
@@ -556,6 +558,7 @@
            * allowing us to share composition fallback code for both `beforeInput` and
            * `composition` event types.
            */
+          console.init("BeforeInputEventPlugin");
           var BeforeInputEventPlugin = {
             eventTypes: eventTypes,
 
@@ -597,7 +600,6 @@
           /**
            * CSS properties which accept numbers but are not in units of "px".
            */
-
           var isUnitlessNumber = {
             animationIterationCount: true,
             borderImageOutset: true,
@@ -724,6 +726,7 @@
             },
           };
 
+          console.init("CSSProperty");
           var CSSProperty = {
             isUnitlessNumber: isUnitlessNumber,
             shorthandPropertyExpansions: shorthandPropertyExpansions,
@@ -896,6 +899,8 @@
           /**
            * Operations for dealing with CSS properties.
            */
+          console.init("CSSPropertyOperations");
+
           var CSSPropertyOperations = {
             /**
              * Serializes a mapping of style properties for use as inline styles:
@@ -1034,6 +1039,7 @@
              * @internal
              */
             enqueue: function (callback, context) {
+              console.func("CallbackQueue.enqueue");
               this._callbacks = this._callbacks || [];
               this._contexts = this._contexts || [];
               this._callbacks.push(callback);
@@ -1047,6 +1053,7 @@
              * @internal
              */
             notifyAll: function () {
+              console.func("CallbackQueue.notifyAll");
               var callbacks = this._callbacks;
               var contexts = this._contexts;
               if (callbacks) {
@@ -1085,6 +1092,8 @@
              * @internal
              */
             reset: function () {
+              console.func("CallbackQueue.reset");
+
               this._callbacks = null;
               this._contexts = null;
             },
@@ -1122,8 +1131,10 @@
           var isEventSupported = _dereq_(131);
           var isTextInputElement = _dereq_(132);
           var keyOf = _dereq_(160);
-
+          console.init("ChangeEventPlugin.topLevelTypes");
           var topLevelTypes = EventConstants.topLevelTypes;
+
+          console.init("ChangeEventPlugin.eventTypes");
 
           var eventTypes = {
             change: {
@@ -1172,6 +1183,7 @@
           }
 
           function manualDispatchChangeEvent(nativeEvent) {
+            console.func("manualDispatchChangeEvent");
             var event = SyntheticEvent.getPooled(
               eventTypes.change,
               activeElementInst,
@@ -1195,6 +1207,7 @@
           }
 
           function runEventInBatch(event) {
+            console.func("runEventInBatch");
             EventPluginHub.enqueueEvents(event);
             EventPluginHub.processEventQueue(false);
           }
@@ -1433,6 +1446,7 @@
            * - textarea
            * - select
            */
+          console.init("ChangeEventPlugin");
           var ChangeEventPlugin = {
             eventTypes: eventTypes,
 
@@ -1638,6 +1652,7 @@
           /**
            * Operations for updating with DOM children.
            */
+          console.init("DOMChildrenOperations");
           var DOMChildrenOperations = {
             dangerouslyReplaceNodeWithMarkup:
               Danger.dangerouslyReplaceNodeWithMarkup,
@@ -1652,6 +1667,7 @@
              * @internal
              */
             processUpdates: function (parentNode, updates) {
+              console.func("processUpdates");
               for (var k = 0; k < updates.length; k++) {
                 var update = updates[k];
                 switch (update.type) {
@@ -1773,6 +1789,7 @@
           }
 
           function queueHTML(tree, html) {
+            console.func("queueHTML");
             if (enableLazy) {
               tree.html = html;
             } else {
@@ -1781,6 +1798,8 @@
           }
 
           function queueText(tree, text) {
+            console.func("queueText");
+
             if (enableLazy) {
               tree.text = text;
             } else {
@@ -1789,6 +1808,8 @@
           }
 
           function DOMLazyTree(node) {
+            console.func("DOMLazyTree");
+
             return {
               node: node,
               children: [],
@@ -1839,6 +1860,7 @@
             return (value & bitmask) === bitmask;
           }
 
+          console.init("DOMPropertyInjection");
           var DOMPropertyInjection = {
             /**
              * Mapping from normalized, camelcased property names to a configuration that
@@ -1879,6 +1901,7 @@
              *
              * @param {object} domPropertyConfig the config as described above.
              */
+
             injectDOMPropertyConfig: function (domPropertyConfig) {
               var Injection = DOMPropertyInjection;
               var Properties = domPropertyConfig.Properties || {};
@@ -2157,6 +2180,7 @@
           /**
            * Operations for dealing with DOM properties.
            */
+          console.init("DOMPropertyOperations");
           var DOMPropertyOperations = {
             /**
              * Creates markup for the ID property.
@@ -2398,6 +2422,7 @@
             return markup.substring(1, markup.indexOf(" "));
           }
 
+          console.init("Danger");
           var Danger = {
             /**
              * Renders markup into an array of nodes. The markup is expected to render
@@ -2599,6 +2624,7 @@
            * `ResponderEventPlugin` must occur before `SimpleEventPlugin` so that
            * preventing default on events is convenient in `SimpleEventPlugin` handlers.
            */
+          console.init("DefaultEventPluginOrder");
           var DefaultEventPluginOrder = [
             keyOf({ ResponderEventPlugin: null }),
             keyOf({ SimpleEventPlugin: null }),

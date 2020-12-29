@@ -19,6 +19,18 @@ my observations:
 
 2. data-reactroot is used (as opposed to ReactRootId[] in v0.3, v0.14)
 
+
+3. the updater in a React component in v15 has the following fields:
+      enqueueCallback: ƒ (publicInstance, callback, callerName)
+      enqueueCallbackInternal: ƒ (internalInstance, callback)
+      enqueueElementInternal: ƒ (internalInstance, newElement)
+      enqueueForceUpdate: ƒ (publicInstance)
+      enqueueReplaceState: ƒ (publicInstance, completeState)
+      enqueueSetState: ƒ (publicInstance, partialState)
+      isMounted: ƒ (publicInstance)
+      validateCallback: ƒ (callback, callerName)
+      __proto__: Object
+
 0. this.updater inside ReactClass is the same as in v0.14. this.updater is the object inside ReactClass
    which stores methods like enqueueSetState and replaceState
 
