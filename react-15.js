@@ -584,6 +584,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("BeforeInputEventPlugin.extractEvents");
               return [
                 extractCompositionEvent(
                   topLevelType,
@@ -1472,6 +1473,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("ChangeEventPlugin.extractEvents");
               var targetNode = targetInst
                 ? ReactDOMComponentTree.getNodeFromInstance(targetInst)
                 : window;
@@ -2706,6 +2708,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("EnterLeaveEventPlugin.extractEvents");
               if (
                 topLevelType === topLevelTypes.topMouseOver &&
                 (nativeEvent.relatedTarget || nativeEvent.fromElement)
@@ -3121,9 +3124,11 @@
              */
             enqueueEvents: function (events) {
               console.func("EventPluginHub.enqueueEvents");
+              console.log("events:", events);
 
               if (events) {
                 eventQueue = accumulateInto(eventQueue, events);
+                console.log("eventQueue:", eventQueue);
               }
             },
 
@@ -3138,6 +3143,7 @@
               // Set `eventQueue` to null before processing it so that we can tell if more
               // events get enqueued while processing.
               var processingEventQueue = eventQueue;
+              console.log("processingEventQueue:", processingEventQueue);
               eventQueue = null;
               if (simulated) {
                 forEachAccumulated(
@@ -3685,8 +3691,12 @@
            */
           function executeDispatchesInOrder(event, simulated) {
             console.func("executeDispatchesInOrder");
+            console.log("event:", event);
+            console.log("sumulated:", simulated);
             var dispatchListeners = event._dispatchListeners;
             var dispatchInstances = event._dispatchInstances;
+            console.log("dispatchListeners:", dispatchListeners);
+            console.log("dispatchInstances:", dispatchInstances);
             if ("development" !== "production") {
               validateEventDispatches(event);
             }
@@ -13663,10 +13673,11 @@
           var EventPluginHub = _dereq_(16);
 
           function runEventQueueInBatch(events) {
+            console.func("runEventQueueInBatch");
             EventPluginHub.enqueueEvents(events);
             EventPluginHub.processEventQueue(false);
           }
-
+          console.init("ReactEventEmitterMixin");
           var ReactEventEmitterMixin = {
             /**
              * Streams a fired top-level event to `EventPluginHub` where plugins have the
@@ -13678,6 +13689,9 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("ReactEventEmitterMixin.handleTopLevel");
+              console.log("topLevelType:", topLevelType);
+              console.log("nativeEvent:", nativeEvent);
               var events = EventPluginHub.extractEvents(
                 topLevelType,
                 targetInst,
@@ -13695,13 +13709,6 @@
       65: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ReactEventListener
            */
 
@@ -18440,13 +18447,6 @@
       95: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SelectEventPlugin
            */
 
@@ -18595,6 +18595,8 @@
            * - Fires for collapsed selection.
            * - Fires after user input.
            */
+          console.init("SelectEventPlugin");
+
           var SelectEventPlugin = {
             eventTypes: eventTypes,
 
@@ -18604,6 +18606,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("SelectEventPlugin.extractEvents");
               if (!hasListener) {
                 return null;
               }
@@ -18687,13 +18690,7 @@
       96: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
+
            * @providesModule SimpleEventPlugin
            */
 
@@ -19171,6 +19168,7 @@
           var ON_CLICK_KEY = keyOf({ onClick: null });
           var onClickListeners = {};
 
+          console.init("SimpleEventPlugin");
           var SimpleEventPlugin = {
             eventTypes: eventTypes,
 
@@ -19180,6 +19178,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
+              console.func("SimpleEventPlugin.extractEvents");
               var dispatchConfig = topLevelEventsToDispatchConfig[topLevelType];
               if (!dispatchConfig) {
                 return null;
@@ -19306,6 +19305,7 @@
             },
 
             didPutListener: function (inst, registrationName, listener) {
+              console.func("didPutListener");
               // Mobile Safari does not fire properly bubble click events on
               // non-interactive elements, which means delegated click listeners do not
               // fire. The workaround for this bug involves attaching an empty click
@@ -19359,13 +19359,6 @@
       97: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticAnimationEvent
            */
 
@@ -19417,13 +19410,6 @@
       98: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticClipboardEvent
            */
 
@@ -19476,13 +19462,6 @@
       99: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticCompositionEvent
            */
 
@@ -19510,6 +19489,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
+            console.func("SyntheticCompositionEvent");
             return SyntheticEvent.call(
               this,
               dispatchConfig,
@@ -19531,13 +19511,6 @@
       100: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticDragEvent
            */
 
@@ -19565,6 +19538,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
+            SyntheticCompositionEvent;
             return SyntheticMouseEvent.call(
               this,
               dispatchConfig,
@@ -19586,13 +19560,6 @@
       101: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticEvent
            */
 
@@ -19622,6 +19589,7 @@
            * @interface Event
            * @see http://www.w3.org/TR/DOM-Level-3-Events/
            */
+          console.init("EventInterface");
           var EventInterface = {
             type: null,
             target: null,
@@ -19661,6 +19629,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
+            console.func("SyntheticEvent");
             if ("development" !== "production") {
               // these have a getter/setter for warnings
               delete this.nativeEvent;
@@ -20430,13 +20399,6 @@
       109: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule SyntheticWheelEvent
            */
 
@@ -20510,13 +20472,6 @@
       110: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule Transaction
            */
 
@@ -20594,6 +20549,7 @@
              * "PooledClass".
              */
             reinitializeTransaction: function () {
+              console.func("reinitializeTransaction");
               this.transactionWrappers = this.getTransactionWrappers();
               if (this.wrapperInitData) {
                 this.wrapperInitData.length = 0;
@@ -20633,6 +20589,7 @@
              * @return {*} Return value from `method`.
              */
             perform: function (method, scope, a, b, c, d, e, f) {
+              console.func("perform");
               !!this.isInTransaction()
                 ? "development" !== "production"
                   ? invariant(
@@ -20675,6 +20632,7 @@
             },
 
             initializeAll: function (startIndex) {
+              console.func("initializeAll");
               var transactionWrappers = this.transactionWrappers;
               for (var i = startIndex; i < transactionWrappers.length; i++) {
                 var wrapper = transactionWrappers[i];
@@ -20707,6 +20665,7 @@
              * invoked).
              */
             closeAll: function (startIndex) {
+              console.func("closeAll");
               !this.isInTransaction()
                 ? "development" !== "production"
                   ? invariant(
@@ -20764,13 +20723,6 @@
       111: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ViewportMetrics
            */
 
@@ -20794,13 +20746,6 @@
       112: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2014-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule accumulateInto
            */
 
@@ -20865,13 +20810,6 @@
       113: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule adler32
            */
 
@@ -20917,13 +20855,6 @@
       114: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule canDefineProperty
            */
 
@@ -20946,13 +20877,7 @@
       115: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
+
            * @providesModule createMicrosoftUnsafeLocalFunction
            */
 
@@ -20983,13 +20908,6 @@
       116: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule dangerousStyleValue
            */
 
@@ -21081,13 +20999,6 @@
       117: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule escapeTextContentForBrowser
            */
 
@@ -21124,13 +21035,6 @@
       118: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule findDOMNode
            */
 
@@ -21151,6 +21055,7 @@
            * @return {?DOMElement} The root node of this element.
            */
           function findDOMNode(componentOrElement) {
+            console.func("findDOMNode");
             if ("development" !== "production") {
               var owner = ReactCurrentOwner.current;
               if (owner !== null) {
@@ -21212,13 +21117,6 @@
       119: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule flattenChildren
            */
 
@@ -21277,13 +21175,6 @@
       120: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule forEachAccumulated
            */
 
@@ -21298,6 +21189,8 @@
            */
 
           var forEachAccumulated = function (arr, cb, scope) {
+            console.func("forEachAccumulated");
+            console.log("arr:", arr);
             if (Array.isArray(arr)) {
               arr.forEach(cb, scope);
             } else if (arr) {
@@ -21312,13 +21205,6 @@
       121: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getEventCharCode
            */
 
@@ -21367,13 +21253,6 @@
       122: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getEventKey
            */
 
@@ -21487,13 +21366,6 @@
       123: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getEventModifierState
            */
 
@@ -21535,13 +21407,6 @@
       124: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getEventTarget
            */
 
@@ -21556,6 +21421,8 @@
            */
 
           function getEventTarget(nativeEvent) {
+            console.func("getEventTarget");
+            console.log("nativeEvent:", nativeEvent);
             var target = nativeEvent.target || nativeEvent.srcElement || window;
 
             // Normalize SVG <use> element events #4963
@@ -21575,13 +21442,6 @@
       125: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getIteratorFn
            */
 
@@ -21623,13 +21483,6 @@
       126: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getNativeComponentFromComposite
            */
 
@@ -21660,13 +21513,6 @@
       127: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getNodeForCharacterOffset
            */
 
@@ -21739,13 +21585,6 @@
       128: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getTextContentAccessor
            */
 
@@ -21780,13 +21619,6 @@
       129: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule getVendorPrefixedEventName
            */
 
@@ -21889,13 +21721,6 @@
       130: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule instantiateReactComponent
            */
 
@@ -21912,6 +21737,8 @@
 
           // To avoid a cyclic dependency, we create the final class in this module
           var ReactCompositeComponentWrapper = function (element) {
+            console.func("ReactCompositeComponentWrapper");
+            console.log("element:", element);
             this.construct(element);
           };
           _assign(
@@ -21956,6 +21783,8 @@
            * @protected
            */
           function instantiateReactComponent(node) {
+            console.func("instantiateReactComponent");
+            console.log("node:", node);
             var instance;
 
             if (node === null || node === false) {
@@ -22046,13 +21875,6 @@
       131: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule isEventSupported
            */
 
@@ -22085,6 +21907,7 @@
            * @license Modernizr 3.0.0pre (Custom Build) | MIT
            */
           function isEventSupported(eventNameSuffix, capture) {
+            console.func("isEventSupported");
             if (
               !ExecutionEnvironment.canUseDOM ||
               (capture && !("addEventListener" in document))
@@ -22119,13 +21942,6 @@
       132: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule isTextInputElement
            */
 
@@ -22169,13 +21985,6 @@
       133: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule onlyChild
            */
           "use strict";
@@ -22214,13 +22023,6 @@
       134: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule quoteAttributeValueForBrowser
            */
 
@@ -22245,13 +22047,6 @@
       135: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule renderSubtreeIntoContainer
            */
 
@@ -22266,13 +22061,6 @@
       136: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule setInnerHTML
            */
 
@@ -22359,13 +22147,6 @@
       137: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule setTextContent
            */
 
@@ -22386,6 +22167,7 @@
            * @internal
            */
           var setTextContent = function (node, text) {
+            console.func("setTextContent");
             node.textContent = text;
           };
 
@@ -22404,13 +22186,6 @@
       138: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule shouldUpdateReactComponent
            */
 
@@ -22429,6 +22204,7 @@
            */
 
           function shouldUpdateReactComponent(prevElement, nextElement) {
+            console.func("shouldUpdateReactComponent");
             var prevEmpty = prevElement === null || prevElement === false;
             var nextEmpty = nextElement === null || nextElement === false;
             if (prevEmpty || nextEmpty) {
@@ -22455,13 +22231,7 @@
       139: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
+
            * @providesModule traverseAllChildren
            */
 

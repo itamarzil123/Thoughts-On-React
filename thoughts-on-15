@@ -61,6 +61,9 @@ my observations:
 
 7. ReactClass is a the module to create composite components in v15
 
+8. shouldUpdateReactComponent: in v15 React offers its own implementations while in previous versions
+   it only relied on the user's shouldUpdateReactComponent
+
 NOTES:
     key code snippets:
     ReactDOMComponentTree.getNodeFromInstance,
@@ -119,3 +122,60 @@ How exactly React works internally ?
 
 NOTES:
     The DOM CompositionEvent represents events that occur due to the user indirectly entering text.
+
+
+
+
+
+
+
+
+
+TESTS:
+a simple <button onClick={() => console.log('click')}></button>
+yields the following sequence of method invocations:
+ ---> Calling perform 
+  ---> Calling initializeAll 
+  ---> Calling getEventTarget 
+ nativeEvent: MouseEvent {isTrusted: true, screenX: 1986, screenY: 83, clientX: 66, clientY: 11, …}
+  ---> Calling getEventTarget 
+ nativeEvent: MouseEvent {isTrusted: true, screenX: 1986, screenY: 83, clientX: 66, clientY: 11, …}
+  ---> Calling ReactEventEmitterMixin.handleTopLevel 
+  ---> Calling EventPluginHub.extractEvents 
+  ---> Calling SimpleEventPlugin.extractEvents 
+  ---> Calling SyntheticEvent 
+  ---> Calling listenerAtPhase 
+  ---> Calling EventPluginHub.getListener 
+  ---> Calling listenerAtPhase 
+  ---> Calling EventPluginHub.getListener 
+  ---> Calling EnterLeaveEventPlugin.extractEvents 
+  ---> Calling ChangeEventPlugin.extractEvents 
+  ---> Calling SelectEventPlugin.extractEvents 
+  ---> Calling BeforeInputEventPlugin.extractEvents 
+  ---> Calling extractCompositionEvent 
+  ---> Calling EventPluginHub.enqueueEvents 
+  ---> Calling EventPluginHub.processEventQueue 
+  ---> Calling executeDispatchesInOrder 
+  ---> Calling executeDispatch 
+ event: Proxy {dispatchConfig: {…}, _targetInst: ReactDOMComponent, isDefaultPrevented: ƒ, isPropagationStopped: ƒ, _dispatchListeners: ƒ, …}
+clicked
+
+summary:
+   1.getEventTarget = indentifying which native event was fired
+   1.1 handleTopLevel = identifying the native event as 'topClick'
+   2.extractEvents = the appropriate EventPluginHub which is SimpleEventPlugin is 
+     'extracting' the native 'click' event, which is basically converting the native event into a React Event
+     which is a javascript object that has the native event as one of its fields as well as extra fields and
+     logic\data. React Event is called SyntheticEvent,
+     in this case: SynthecticMouseEvent
+   3. EventPluginHub.getListener = identifying which React Component is the target of the event fire
+   4. calling 'extractEvents' of all other DefaultEventPlugin list
+      ---> Calling EnterLeaveEventPlugin.extractEvents 
+      ---> Calling ChangeEventPlugin.extractEvents 
+      ---> Calling SelectEventPlugin.extractEvents 
+      ---> Calling BeforeInputEventPlugin.extractEvents
+   5. EventPluginHub.enqueueEvents
+   6. EventPluginHub.processEventQueue
+   7. ExecuteDispatchesInOrder = executes all the components onClick handlers (they are the event listeners)
+      dispatchListeners is the onClick handlers, and dispatchInstances are the component themselves.
+   8. executeDispatch
