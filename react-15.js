@@ -18,6 +18,40 @@
       g = this;
     }
     g.React = f();
+    // var styles = [
+    //   "background: linear-gradient(#D33106, #571402)",
+    //   "border: 1px solid #3E0E02",
+    //   "color: white",
+    //   "display: block",
+    //   "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+    //   "box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset",
+    //   "line-height: 40px",
+    //   "text-align: center",
+    //   "font-weight: bold",
+    // ].join(";");
+
+    // console.title("%c a spicy log message ?", styles);
+    console.func = function (text) {
+      console.log(
+        "%c                                          ",
+        "background: grey; color: #bada55"
+      );
+      console.log(
+        "%c ---> Calling: ",
+        "background: grey; color: #bada55",
+        text
+      );
+      console.log(
+        "%c                                          ",
+        "background: grey; color: #bada55"
+      );
+    };
+    console.param = function (text) {
+      console.log("%c ---> Parameter: ", "color: purple", text);
+    };
+    console.desc = function (text) {
+      console.log("%c [ Description:", "color: purple", text);
+    };
   }
 })(function () {
   var define, module, exports;
@@ -7814,13 +7848,6 @@
       34: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ReactDOM
            */
 
@@ -14483,6 +14510,7 @@
               container,
               callback
             ) {
+              console.func("ReactMount._updateRootComponent");
               ReactMount.scrollMonitor(container, function () {
                 ReactUpdateQueue.enqueueElementInternal(
                   prevComponent,
@@ -14513,6 +14541,13 @@
               shouldReuseMarkup,
               context
             ) {
+              console.func("ReactMount._renderNewRootComponent");
+              console.desc(
+                "This method calls instantiateReactComponent(), ReactUpdates.batchedUpdates()"
+              );
+              console.desc(
+                "and then:  instancesByReactRootID[wrapperID] = componentInstance;"
+              );
               // Various parts of our code (such as ReactCompositeComponent's
               // _renderValidatedComponent) assume that calls to render aren't nested;
               // verify that that's the case.
@@ -14549,7 +14584,6 @@
               // The initial render is synchronous but any updates that happen during
               // rendering, in componentWillMount or componentDidMount, will be batched
               // according to the current batching strategy.
-
               ReactUpdates.batchedUpdates(
                 batchedMountComponentIntoNode,
                 componentInstance,
@@ -14589,6 +14623,7 @@
               container,
               callback
             ) {
+              console.func("ReactMount.renderSubtreeIntoContainer()");
               !(
                 parentComponent != null &&
                 parentComponent._reactInternalInstance != null
@@ -14614,6 +14649,7 @@
               container,
               callback
             ) {
+              console.func("ReactMount._renderSubtreeIntoContainer()");
               ReactUpdateQueue.validateCallback(callback, "ReactDOM.render");
               !ReactElement.isValidElement(nextElement)
                 ? "development" !== "production"
@@ -14657,9 +14693,10 @@
                 null,
                 nextElement
               );
+              console.log("nextWrappedElement:", nextWrappedElement);
 
               var prevComponent = getTopLevelWrapperInContainer(container);
-
+              console.log("prevComponent:", prevComponent);
               if (prevComponent) {
                 var prevWrappedElement = prevComponent._currentElement;
                 var prevElement = prevWrappedElement.props;
@@ -14683,10 +14720,16 @@
               }
 
               var reactRootElement = getReactRootElementInContainer(container);
+              console.log("reactRootElement:", reactRootElement);
               var containerHasReactMarkup =
                 reactRootElement && !!internalGetID(reactRootElement);
+              console.log("containerHasReactMarkup:", containerHasReactMarkup);
               var containerHasNonRootReactChild = hasNonRootReactChild(
                 container
+              );
+              console.log(
+                "containerHasNonRootReactChild:",
+                containerHasNonRootReactChild
               );
 
               if ("development" !== "production") {
@@ -14733,6 +14776,7 @@
                     )
                   : emptyObject
               )._renderedComponent.getPublicInstance();
+              console.log("component:", component);
               if (callback) {
                 callback.call(component);
               }
@@ -14752,6 +14796,11 @@
              * @return {ReactComponent} Component instance rendered in `container`.
              */
             render: function (nextElement, container, callback) {
+              console.func("ReactMount.render()");
+              console.log("nextElement:", nextElement);
+              console.log("container:", container);
+              console.log("callback:", callback);
+
               return ReactMount._renderSubtreeIntoContainer(
                 null,
                 nextElement,
@@ -17357,13 +17406,6 @@
       90: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @providesModule ReactUMDEntry
            */
 

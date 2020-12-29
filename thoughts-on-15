@@ -15,6 +15,10 @@ from the official changeLog:
          and are removed now
 my observations:
 
+1. $$typeof: Symbol(react.element) is now holding the id of a React component
+
+2. data-reactroot is used (as opposed to ReactRootId[] in v0.3, v0.14)
+
 0. this.updater inside ReactClass is the same as in v0.14. this.updater is the object inside ReactClass
    which stores methods like enqueueSetState and replaceState
 
