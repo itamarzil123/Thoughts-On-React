@@ -1,6 +1,7 @@
 /**
  * React v15.0.0
  */
+
 (function (f) {
   if (typeof exports === "object" && typeof module !== "undefined") {
     module.exports = f();
@@ -18,43 +19,43 @@
       g = this;
     }
     g.React = f();
-    // var styles = [
-    //   "background: linear-gradient(#D33106, #571402)",
-    //   "border: 1px solid #3E0E02",
-    //   "color: white",
-    //   "display: block",
-    //   "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
-    //   "box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset",
-    //   "line-height: 40px",
-    //   "text-align: center",
-    //   "font-weight: bold",
-    // ].join(";");
-
-    // console.title("%c a spicy log message ?", styles);
-    console.func = function (text) {
-      console.log(
-        "%c                                          ",
-        "background: grey; color: #bada55"
-      );
-      console.log(
-        "%c ---> Calling: ",
-        "background: grey; color: #bada55",
-        text
-      );
-      console.log(
-        "%c                                          ",
-        "background: grey; color: #bada55"
-      );
-    };
-    console.param = function (text) {
-      console.log("%c ---> Parameter: ", "color: purple", text);
-    };
-    console.desc = function (text) {
-      console.log("%c [ Description:", "color: purple", text);
-    };
   }
 })(function () {
   var define, module, exports;
+
+  console.func = function (text) {
+    console.log(
+      "%c                                          ",
+      "background: grey; color: #bada55"
+    );
+    console.log("%c ---> Calling: ", "background: grey; color: #bada55", text);
+    console.log(
+      "%c                                          ",
+      "background: grey; color: #bada55"
+    );
+  };
+  console.param = function (text) {
+    console.log("%c ---> Parameter: ", "color: purple", text);
+  };
+  console.desc = function (text) {
+    console.log("%c [ Description:", "color: purple", text);
+  };
+  console.init = function (text) {
+    var styles = [
+      "background: linear-gradient(#D33106, #571402)",
+      "color: white",
+      "display: block",
+      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+      "box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset",
+      "line-height: 40px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 15px",
+    ].join(";");
+
+    console.log("%c Initializing %s ", styles, text);
+  };
+
   return (function e(t, n, r) {
     function s(o, u) {
       if (!n[o]) {
@@ -4589,7 +4590,7 @@
             createFactory = ReactElementValidator.createFactory;
             cloneElement = ReactElementValidator.cloneElement;
           }
-
+          console.init("React");
           var React = {
             // Modern
 
@@ -14511,6 +14512,7 @@
               callback
             ) {
               console.func("ReactMount._updateRootComponent");
+
               ReactMount.scrollMonitor(container, function () {
                 ReactUpdateQueue.enqueueElementInternal(
                   prevComponent,
