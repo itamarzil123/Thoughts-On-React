@@ -1,5 +1,36 @@
 React-15: (vs previous versions v0.14, v0.3)
 --------------------------------
+
+
+ABOUT REACT IN GENERAL:
+What is React ? it's a javascript abstraction of the DOM. it adds layers to the native event system
+native markup, native DOM API, therefore creating a unified interface and a change detection mechanism
+between the native DOM and your javascript world. 
+
+React wrapps the native Event system with its own Event system called React Event System with actors
+like 'EventPlugins', 'SynthenticEvent' etc . . doing event normalization across browsers and environments
+and also making the native event system easy to deal with inside React internal API.
+
+it's smallest building block is a component. A React application is nothing but a tree of functions
+that communicate through state and props. each of these functions has its own representation of the DOM,
+it's own UI, and so it's called a React Component because it is not only a function that receives props,state
+and communicate with props state, but it is also a UI unit. 
+
+Reacy component lifecycle includes being born as a function (constructor), being mounted, being updated, and
+eventually being unmounted from the DOM. React public API reveals some lifecycle methods for the React user.
+
+The most popular usage of React is using JSX which is a transformer from <Componet props/> syntax to 
+component(props) syntax.
+
+React 'change detection mechanism' and constant reconciliation (dom update) process is based on checking if 
+the markup of a component is different than the real DOM markup after any change in props, state
+which is related to the component.
+
+React patterns, or 'opinion' is to be immutable and change state only in immutable manners.
+
+--------------------------
+React v15 vs v0.3, 0.14:
+--------------------------
 from the official changeLog:
          document.createElement is in and data-reactid is out
          No more extra <span>s
@@ -132,11 +163,25 @@ NOTES:
 
 
 TESTS:
+----------
+    1
+----------
 a simple <button onClick={() => console.log('click')}></button>
 yields the following sequence of method invocations:
- ---> Calling perform 
+ 1. before any event click is triggered, when React launches, trapBubbledEvent() is called
+    and it is putting 'click' event listener on document
+    and dispatchEvent is the handler for this click event
+    When React sees 'onClick' on a virtual DOM element, its EventPluginHub is putting a listener on the 
+    element. 
+
+2. the user clicks on the Hello World button and trigger the following sequence:
+
+  ---> Calling dispatchEvent (because the click event, before all, belongs to the document tartet,
+                              and dispatchEvent is the listener for this target)
+  ---> Calling batchedUpdates
+  ---> Calling perform 
   ---> Calling initializeAll 
-  ---> Calling getEventTarget 
+  ---> Calling getEventTarget -> SEE EXPLANATIONS BENEATH
  nativeEvent: MouseEvent {isTrusted: true, screenX: 1986, screenY: 83, clientX: 66, clientY: 11, …}
   ---> Calling getEventTarget 
  nativeEvent: MouseEvent {isTrusted: true, screenX: 1986, screenY: 83, clientX: 66, clientY: 11, …}
@@ -164,12 +209,12 @@ summary:
    1.getEventTarget = indentifying which native event was fired
    1.1 handleTopLevel = identifying the native event as 'topClick'
    2.extractEvents = the appropriate EventPluginHub which is SimpleEventPlugin is 
-     'extracting' the native 'click' event, which is basically converting the native event into a React Event
-     which is a javascript object that has the native event as one of its fields as well as extra fields and
-     logic\data. React Event is called SyntheticEvent,
+     'extracting' the native 'click' event, which is basically building a new object from native event
+     this new object is the React Event that has the native event as one of its fields as well as
+     some extra fields, logic\data. React Event is called SyntheticEvent,
      in this case: SynthecticMouseEvent
    3. EventPluginHub.getListener = identifying which React Component is the target of the event fire
-   4. calling 'extractEvents' of all other DefaultEventPlugin list
+   4. calling 'extractEvents' of all other plugins in the DefaultEventPlugin list (in order)
       ---> Calling EnterLeaveEventPlugin.extractEvents 
       ---> Calling ChangeEventPlugin.extractEvents 
       ---> Calling SelectEventPlugin.extractEvents 
@@ -178,4 +223,80 @@ summary:
    6. EventPluginHub.processEventQueue
    7. ExecuteDispatchesInOrder = executes all the components onClick handlers (they are the event listeners)
       dispatchListeners is the onClick handlers, and dispatchInstances are the component themselves.
-   8. executeDispatch
+   8. executeDispatch -> in this case () => console.log('click')
+
+
+SO: 
+onclick -> onClick -> EventPlugin -> SimpleEventPlugi -> wrapping onclick with ReactSyntheticEvent -> fire events and triggering listeners 
+
+   NOTE: as we can see transaction.perform which triggers initializeAll and closeAll, happens not only
+         whenever the component state is updated and there is a reconciliation of the React DOM to the real DOM
+         (and then the callbacks such as componentDidMount, DidUpdate are called once the component is DOM injected)
+         but a transaction.perform is called after every event fired.
+
+
+----------
+    2
+----------
+React.createClass({ render: function() { return <button onClick={() => console.log('click');> </button> }})
+
+what this code is causing React to do ?
+1. user calls: React.createClass(spec)
+2. ReactClass.createClass(spec) which does:
+         bindAutoBindMethods(),
+         getInitialState(),
+         new ReactClassComponent(),
+         mixSpecIntoComponent(Constructor, spec);
+         and retuning an object that looks like that:
+            Constructor {props: undefined, context: undefined, refs: {…}, updater: {…}, state: null}
+               context: undefined
+               props: undefined
+               refs:
+               __proto__: Object
+               state: null
+               updater:
+               enqueueCallback: ƒ (publicInstance, callback)
+               enqueueForceUpdate: ƒ (publicInstance)
+               enqueueReplaceState: ƒ (publicInstance, completeState)
+               enqueueSetState: ƒ (publicInstance, partialState)
+               isMounted: ƒ (publicInstance)
+               __proto__: Object
+               __proto__: ReactClassComponent
+               childContextTypes: null
+               componentDidMount: null
+               componentDidUpdate: null
+               componentWillMount: null
+               componentWillReceiveProps: null
+               componentWillUnmount: null
+               componentWillUpdate: null
+               constructor: ƒ (props, context, updater)
+               contextTypes: null
+               getChildContext: null
+               getDefaultProps: null
+               getInitialState: null
+               mixins: null
+               propTypes: null
+               render: ƒ ()
+               shouldComponentUpdate: null
+               statics: null
+               updateComponent: null
+               __reactAutoBindPairs: []
+               __proto__: Object
+3. NOTE: new Button() is different than new Component().
+   apparently React.CreateElement patches it with: 
+   $$typeof: Symbol(react.element) as well as hiding this.updater from it
+   Apparently <Button /> is going through some phases like React.createElement which further manipulates it:
+      ---> Calling ReactElementValidator.getDeclarationErrorAddendum 
+      ---> Calling ReactElement.createElement 
+      ---> Calling ReactElementValidator.validatePropTypes 
+4.
+---> Calling ReactClass.mixSpecIntoComponent 
+---> Calling ReactElement.isValidElement 
+---> Calling ReactClass.validateMethodOverride 
+---> Calling ReactClass.RESERVED_SPEC_KEYS.displayName 
+---> Calling ReactClass.validateMethodOverride
+
+
+NOTES:
+   React.createClass() is a terrible API, not only for the outsider( aka the React user), but internally 
+   from within the React project, it is a terrible API.
