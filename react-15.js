@@ -588,6 +588,10 @@
               nativeEventTarget
             ) {
               console.func("BeforeInputEventPlugin.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               return [
                 extractCompositionEvent(
                   topLevelType,
@@ -1514,6 +1518,10 @@
               nativeEventTarget
             ) {
               console.func("ChangeEventPlugin.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               var targetNode = targetInst
                 ? ReactDOMComponentTree.getNodeFromInstance(targetInst)
                 : window;
@@ -2796,6 +2804,10 @@
               nativeEventTarget
             ) {
               console.func("EnterLeaveEventPlugin.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               if (
                 topLevelType === topLevelTypes.topMouseOver &&
                 (nativeEvent.relatedTarget || nativeEvent.fromElement)
@@ -3124,8 +3136,13 @@
              */
             getListener: function (inst, registrationName) {
               console.func("EventPluginHub.getListener");
-
+              console.log("inst:", inst);
+              console.log("registrationName:", registrationName);
               var bankForRegistrationName = listenerBank[registrationName];
+              console.log(
+                "returning bankForRegistrationName:",
+                bankForRegistrationName
+              );
               return (
                 bankForRegistrationName &&
                 bankForRegistrationName[inst._rootNodeID]
@@ -3378,6 +3395,9 @@
             PluginModule,
             eventName
           ) {
+            console.log("dispatchConfig:", dispatchConfig);
+            console.log("PluginModule:", PluginModule);
+            console.log("eventName:", eventName);
             console.func("EventPluginRegistry.publishEventForPlugin");
             !!EventPluginRegistry.eventNameDispatchConfigs.hasOwnProperty(
               eventName
@@ -3397,6 +3417,7 @@
 
             var phasedRegistrationNames =
               dispatchConfig.phasedRegistrationNames;
+            console.log("phasedRegistrationNames:", phasedRegistrationNames);
             if (phasedRegistrationNames) {
               for (var phaseName in phasedRegistrationNames) {
                 if (phasedRegistrationNames.hasOwnProperty(phaseName)) {
@@ -3948,18 +3969,27 @@
             hasDispatches: hasDispatches,
 
             getInstanceFromNode: function (node) {
+              console.func("EventPluginUtils.getInstanceFromNode");
+
               return ComponentTree.getInstanceFromNode(node);
             },
             getNodeFromInstance: function (node) {
+              console.func("EventPluginUtils.getNodeFromInstance");
               return ComponentTree.getNodeFromInstance(node);
             },
             isAncestor: function (a, b) {
+              console.func("EventPluginUtils.isAncestor");
+
               return TreeTraversal.isAncestor(a, b);
             },
             getLowestCommonAncestor: function (a, b) {
+              console.func("EventPluginUtils.getLowestCommonAncestor");
+
               return TreeTraversal.getLowestCommonAncestor(a, b);
             },
             getParentInstance: function (inst) {
+              console.func("EventPluginUtils.getParentInstance");
+
               return TreeTraversal.getParentInstance(inst);
             },
             traverseTwoPhase: function (target, fn, arg) {
@@ -3967,6 +3997,8 @@
               return TreeTraversal.traverseTwoPhase(target, fn, arg);
             },
             traverseEnterLeave: function (from, to, fn, argFrom, argTo) {
+              console.func("EventPluginUtils.traverseEnterLeave");
+
               return TreeTraversal.traverseEnterLeave(
                 from,
                 to,
@@ -4023,6 +4055,9 @@
            */
           function accumulateDirectionalDispatches(inst, upwards, event) {
             console.func("EventPropagators.accumulateDirectionalDispatches");
+            console.log("inst:", inst);
+            console.log("upwards:", upwards);
+            console.log("event:", event);
             if ("development" !== "production") {
               "development" !== "production"
                 ? warning(inst, "Dispatching inst must not be null")
@@ -7191,6 +7226,7 @@
              */
             construct: function (element) {
               console.func("ReactCompositeComponentMixin.construct");
+              console.log("element:", element);
               this._currentElement = element;
               this._rootNodeID = null;
               this._instance = null;
@@ -7668,8 +7704,9 @@
              */
             _processContext: function (context) {
               console.func("ReactCompositeComponentMixin._processContext");
-
+              console.log("context:", context);
               var maskedContext = this._maskContext(context);
+              console.log("maskedContext:", maskedContext);
               if ("development" !== "production") {
                 var Component = this._currentElement.type;
                 if (Component.contextTypes) {
@@ -7746,7 +7783,7 @@
              */
             _processProps: function (newProps) {
               console.func("ReactCompositeComponentMixin._processProps");
-
+              console.log("newProps:", newProps);
               if ("development" !== "production") {
                 var Component = this._currentElement.type;
                 if (Component.propTypes) {
@@ -7860,8 +7897,11 @@
               console.func(
                 "ReactCompositeComponentMixin.performUpdateIfNecessary"
               );
-
+              console.log("transaction:", transaction);
               if (this._pendingElement != null) {
+                console.log(
+                  "ReactCompositeComponentMixin.performUpdateIfNecessary() calling ReactReconciler.receiveComponent()"
+                );
                 ReactReconciler.receiveComponent(
                   this,
                   this._pendingElement,
@@ -7874,6 +7914,9 @@
                 this._pendingStateQueue !== null ||
                 this._pendingForceUpdate
               ) {
+                console.log(
+                  "ReactCompositeComponentMixin.performUpdateIfNecessary() calling this.updateComponent()"
+                );
                 this.updateComponent(
                   transaction,
                   this._currentElement,
@@ -7908,8 +7951,13 @@
               nextUnmaskedContext
             ) {
               console.func("ReactCompositeComponentMixin.updateComponent");
+              console.log("transaction:", transaction);
+              console.log("prevParentElement", prevParentElement);
+              console.log("nextParentElement", nextParentElement);
+              console.log("nextUnmaskedContext", nextUnmaskedContext);
 
               var inst = this._instance;
+              console.log("inst:", inst);
               var willReceive = false;
               var nextContext;
               var nextProps;
@@ -7917,8 +7965,10 @@
               // Determine if the context has changed or not
               if (this._context === nextUnmaskedContext) {
                 nextContext = inst.context;
+                console.log("nextContext:", nextContext);
               } else {
                 nextContext = this._processContext(nextUnmaskedContext);
+                console.log("nextContext:", nextContext);
                 willReceive = true;
               }
 
@@ -7929,6 +7979,7 @@
                 nextProps = nextParentElement.props;
               } else {
                 nextProps = this._processProps(nextParentElement.props);
+                console.log("nextProps:", nextProps);
                 willReceive = true;
               }
 
@@ -7940,7 +7991,7 @@
               }
 
               var nextState = this._processPendingState(nextProps, nextContext);
-
+              console.log("nextState:", nextState);
               var shouldUpdate =
                 this._pendingForceUpdate ||
                 !inst.shouldComponentUpdate ||
@@ -8033,6 +8084,11 @@
               console.func(
                 "ReactCompositeComponentMixin._performComponentUpdate"
               );
+              console.log("transaction:", transaction);
+              console.log("nextElement:", nextElement);
+              console.log("nextState:", nextState);
+              console.log("nextContext:", nextContext);
+              console.log("nextProps:", nextProps);
 
               var inst = this._instance;
 
@@ -8083,10 +8139,15 @@
               console.func(
                 "ReactCompositeComponentMixin._updateRenderedComponent"
               );
-
+              console.log("transaction:", transaction);
+              console.log("context:", context);
               var prevComponentInstance = this._renderedComponent;
+              console.log("prevComponentInstance:", prevComponentInstance);
               var prevRenderedElement = prevComponentInstance._currentElement;
+              console.log("prevRenderedElement:", prevRenderedElement);
               var nextRenderedElement = this._renderValidatedComponent();
+              console.log("nextRenderedElement:", nextRenderedElement);
+
               if (
                 shouldUpdateReactComponent(
                   prevRenderedElement,
@@ -8108,8 +8169,13 @@
                 this._renderedNodeType = ReactNodeTypes.getType(
                   nextRenderedElement
                 );
+                console.log("this._renderedNodeType:", this._renderedNodeType);
                 this._renderedComponent = this._instantiateReactComponent(
                   nextRenderedElement
+                );
+                console.log(
+                  "this._renderedComponent:",
+                  this._renderedComponent
                 );
                 var nextMarkup = ReactReconciler.mountComponent(
                   this._renderedComponent,
@@ -8118,6 +8184,7 @@
                   this._nativeContainerInfo,
                   this._processChildContext(context)
                 );
+                console.log("nextMarkup:", nextMarkup);
                 this._replaceNodeWithMarkup(oldNativeNode, nextMarkup);
               }
             },
@@ -8148,6 +8215,7 @@
 
               var inst = this._instance;
               var renderedComponent = inst.render();
+              console.log("renderedComponent:", renderedComponent);
               if ("development" !== "production") {
                 // We allow auto-mocks to proceed as if they're returning null.
                 if (
@@ -8265,6 +8333,9 @@
               console.func("ReactCompositeComponentMixin.getName");
 
               var type = this._currentElement.type;
+              console.log("type:", type);
+              console.log("constructor");
+
               var constructor = this._instance && this._instance.constructor;
               return (
                 type.displayName ||
@@ -8827,7 +8898,10 @@
             transaction
           ) {
             console.func("ReactDOMComponent.enqueuePutListener");
-
+            console.log("inst:", inst);
+            console.log("registrationName:", registrationName);
+            console.log("listener:", listener);
+            console.log("transaction:", transaction);
             if ("development" !== "production") {
               // IE8 has no API for event capturing and the `onScroll` event doesn't
               // bubble.
@@ -9113,7 +9187,10 @@
               context
             ) {
               console.func("ReactDOMComponent.mountComponent");
-
+              console.log("transaction:", transaction);
+              console.log("nativeParent:", nativeParent);
+              console.log("nativeContainerInfo:", nativeContainerInfo);
+              console.log("context:", context);
               this._rootNodeID = globalIdCounter++;
               this._domID = nativeContainerInfo._idCounter++;
               this._nativeParent = nativeParent;
@@ -9243,6 +9320,15 @@
                 if (!this._nativeParent) {
                   DOMPropertyOperations.setAttributeForRoot(el);
                 }
+                console.log(
+                  "ReactDOMComponent.mountComponent calling this._updateDOMProperties(null, props, transaction);"
+                );
+                console.log(
+                  "with these arguments: null, props:",
+                  props,
+                  ", transaction:",
+                  transaction
+                );
                 this._updateDOMProperties(null, props, transaction);
                 var lazyTree = DOMLazyTree(el);
                 this._createInitialChildren(
@@ -9287,7 +9373,7 @@
                   }
                   break;
               }
-
+              console.log("returning mountImage:", mountImage);
               return mountImage;
             },
 
@@ -9581,6 +9667,10 @@
               var styleName;
               var styleUpdates;
               for (propKey in lastProps) {
+                console.log(
+                  "ReactDOMComponent._updateDOMProperties current propKey:",
+                  propKey
+                );
                 if (
                   nextProps.hasOwnProperty(propKey) ||
                   !lastProps.hasOwnProperty(propKey) ||
@@ -9668,8 +9758,28 @@
                     // Relies on `updateStylesByID` not mutating `styleUpdates`.
                     styleUpdates = nextProp;
                   }
+                  // prop is a native browser event wrapper (onClick, onMouseMove, etc . . .)
                 } else if (registrationNameModules.hasOwnProperty(propKey)) {
+                  console.log(
+                    "propKey: ",
+                    propKey,
+                    ", is inside registrationNameModules: ",
+                    registrationNameModules
+                  );
                   if (nextProp) {
+                    console.log(
+                      "ReactDOMComponent._updateDOMProperties calling enqueuePutListener"
+                    );
+                    console.log(
+                      "with these parameters: this:",
+                      this,
+                      ", propKey: ",
+                      propKey,
+                      "nextProp:",
+                      nextProp,
+                      ", transaction:",
+                      transaction
+                    );
                     enqueuePutListener(this, propKey, nextProp, transaction);
                   } else if (lastProp) {
                     deleteListener(this, propKey);
@@ -10098,7 +10208,7 @@
            */
           function getNodeFromInstance(inst) {
             console.func("ReactDOMComponentTree.getNodeFromInstance");
-
+            console.log("inst:", inst);
             // Without this first invariant, passing a non-DOM-component triggers the next
             // invariant for a missing parent, which is super confusing.
             !(inst._nativeNode !== undefined)
@@ -10108,6 +10218,7 @@
               : void 0;
 
             if (inst._nativeNode) {
+              console.log("returning inst._nativeNode:", inst._nativeNode);
               return inst._nativeNode;
             }
 
@@ -10131,7 +10242,7 @@
             for (; parents.length; inst = parents.pop()) {
               precacheChildNodes(inst, inst._nativeNode);
             }
-
+            console.log("returning inst._nativeNode:", inst._nativeNode);
             return inst._nativeNode;
           }
           console.init("ReactDOMComponentTree");
@@ -14690,6 +14801,8 @@
 
             set: function (key, value) {
               console.func("ReactInstanceMap.set");
+              console.log("key:", key);
+              console.log("value:", value);
 
               key._reactInternalInstance = value;
             },
@@ -16325,7 +16438,7 @@
            */
           function createInternalComponent(element) {
             console.func("ReactNativeComponent.createInternalComponent");
-
+            console.log("element:", element);
             !genericComponentClass
               ? "development" !== "production"
                 ? invariant(
@@ -16335,6 +16448,10 @@
                   )
                 : invariant(false)
               : void 0;
+            console.log(
+              "returning genericComponentClass(element):",
+              new genericComponentClass(element)
+            );
             return new genericComponentClass(element);
           }
 
@@ -16344,7 +16461,11 @@
            */
           function createInstanceForText(text) {
             console.func("ReactNativeComponent.createInstanceForText");
-
+            console.log("text:", text);
+            console.log(
+              "new textComponentClass(text);:",
+              new textComponentClass(text)
+            );
             return new textComponentClass(text);
           }
 
@@ -16358,6 +16479,11 @@
             return component instanceof textComponentClass;
           }
           console.init("ReactNativeComponent");
+          console.desc(`getComponentClassForElement: getComponentClassForElement,
+          createInternalComponent: createInternalComponent,
+          createInstanceForText: createInstanceForText,
+          isTextComponent: isTextComponent,
+          injection: ReactNativeComponentInjection,`);
           var ReactNativeComponent = {
             getComponentClassForElement: getComponentClassForElement,
             createInternalComponent: createInternalComponent,
@@ -18149,9 +18275,13 @@
             callerName
           ) {
             console.func("ReactUpdateQueue.getInternalInstanceReadyForUpdate");
+            console.desc(
+              "retrieving internalInstance by ReactInstanceMap.get(publicInstance);"
+            );
             console.log("publicInstance:", publicInstance);
             console.log("callerName:", callerName);
             var internalInstance = ReactInstanceMap.get(publicInstance);
+            console.log("internalInstance:", internalInstance);
             if (!internalInstance) {
               if ("development" !== "production") {
                 // Only warn when we have a callerName. Otherwise we should be silent.
@@ -18545,7 +18675,7 @@
 
           function runBatchedUpdates(transaction) {
             console.func("ReactUpdatesFlushTransaction.runBatchedUpdates");
-
+            console.log("transaction:", transaction);
             var len = transaction.dirtyComponentsLength;
             !(len === dirtyComponents.length)
               ? "development" !== "production"
@@ -18558,10 +18688,14 @@
                   )
                 : invariant(false)
               : void 0;
-
+            console.desc(`Since reconciling a component higher in the owner hierarchy usually (not
+            always -- see shouldComponentUpdate()) will reconcile children, reconcile
+            them before their children by sorting the array.`);
             // Since reconciling a component higher in the owner hierarchy usually (not
             // always -- see shouldComponentUpdate()) will reconcile children, reconcile
             // them before their children by sorting the array.
+            console.log("dirtyComponents:", dirtyComponents);
+            console.log("calling dirtyComponents.sort(mountOrderComparator);");
             dirtyComponents.sort(mountOrderComparator);
 
             for (var i = 0; i < len; i++) {
@@ -18569,11 +18703,12 @@
               // be here, but we assume that it has cleared its _pendingCallbacks and
               // that performUpdateIfNecessary is a noop.
               var component = dirtyComponents[i];
-
+              console.log("dirtyComponent[i]:", component);
               // If performUpdateIfNecessary happens to enqueue any new updates, we
               // shouldn't execute the callbacks until the next render happens, so
               // stash the callbacks first
               var callbacks = component._pendingCallbacks;
+              console.log("dirtyComponent[i]._pendingCallbacks:", callbacks);
               component._pendingCallbacks = null;
 
               var markerName;
@@ -18645,7 +18780,7 @@
            */
           function enqueueUpdate(component) {
             console.func("ReactUpdatesFlushTransaction.enqueueUpdate");
-
+            console.log("component:", component);
             ensureInjected();
 
             // Various parts of our code (such as ReactCompositeComponent's
@@ -18658,7 +18793,8 @@
               batchingStrategy.batchedUpdates(enqueueUpdate, component);
               return;
             }
-
+            console.desc("dirtyComponents.push(component);");
+            console.log("component:", component);
             dirtyComponents.push(component);
           }
 
@@ -18684,6 +18820,10 @@
 
           var ReactUpdatesInjection = {
             injectReconcileTransaction: function (ReconcileTransaction) {
+              console.func(
+                "ReactUpdatesFlushTransaction.ReactUpdatesInjection.injectReconcileTransaction"
+              );
+              console.log("ReconcileTransaction:", ReconcileTransaction);
               !ReconcileTransaction
                 ? "development" !== "production"
                   ? invariant(
@@ -18697,7 +18837,7 @@
 
             injectBatchingStrategy: function (_batchingStrategy) {
               console.func(
-                "ReactUpdatesFlushTransaction.injectBatchingStrategy"
+                "ReactUpdatesFlushTransaction.ReactUpdatesInjection.injectBatchingStrategy"
               );
               console.log("_batchingStrategy:", _batchingStrategy);
               !_batchingStrategy
@@ -19160,7 +19300,8 @@
            */
           function constructSelectEvent(nativeEvent, nativeEventTarget) {
             console.func("SelectEventPlugin.constructSelectEvent");
-
+            console.log("nativeEvent:", nativeEvent);
+            console.log("nativeEventTarget:", nativeEventTarget);
             // Ensure we have the right element, and that the user is not dragging a
             // selection (this matches native `select` event behavior). In HTML5, select
             // fires only on input and textarea thus if there's no focused element we
@@ -19192,7 +19333,10 @@
               syntheticEvent.target = activeElement;
 
               EventPropagators.accumulateTwoPhaseDispatches(syntheticEvent);
-
+              console.log(
+                "constructSelectEvent -> returning syntheticEvent:",
+                syntheticEvent
+              );
               return syntheticEvent;
             }
 
@@ -19224,6 +19368,10 @@
               nativeEventTarget
             ) {
               console.func("SelectEventPlugin.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               if (!hasListener) {
                 return null;
               }
@@ -19796,6 +19944,10 @@
               nativeEventTarget
             ) {
               console.func("SimpleEventPlugin.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               var dispatchConfig = topLevelEventsToDispatchConfig[topLevelType];
               if (!dispatchConfig) {
                 return null;
@@ -20472,7 +20624,8 @@
            */
           function getPooledWarningPropertyDefinition(propName, getVal) {
             console.func("SyntheticEvent.getPooledWarningPropertyDefinition");
-
+            console.log("propName:", propName);
+            console.log("getVal:", getVal);
             var isFunction = typeof getVal === "function";
             return {
               configurable: true,
@@ -21146,6 +21299,11 @@
             reinitializeTransaction: function () {
               console.func("Transaction.reinitializeTransaction");
               this.transactionWrappers = this.getTransactionWrappers();
+              console.log(
+                "this.transactionWrappers:",
+                this.transactionWrappers
+              );
+              console.log("this.wrapperInitData:", this.wrapperInitData);
               if (this.wrapperInitData) {
                 this.wrapperInitData.length = 0;
               } else {
@@ -21271,6 +21429,7 @@
              */
             closeAll: function (startIndex) {
               console.func("Transaction.closeAll");
+              console.log("startIndex:", startIndex);
               !this.isInTransaction()
                 ? "development" !== "production"
                   ? invariant(
