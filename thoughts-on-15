@@ -171,14 +171,14 @@ yields the following sequence of method invocations:
  1. before any event click is triggered, when React launches, trapBubbledEvent() is called
     and it is putting 'click' event listener on document
     and dispatchEvent is the handler for this click event
-    When React sees 'onClick' on a virtual DOM element, its EventPluginHub is putting a listener on the 
-    element. 
+    When React sees 'onClick' on a virtual DOM element, its EventPluginHub is delegating the handling to:
+    SimpleEventPlugin, putting a listener on the element. 
 
 2. the user clicks on the Hello World button and trigger the following sequence:
 
   ---> Calling dispatchEvent (because the click event, before all, belongs to the document tartet,
                               and dispatchEvent is the listener for this target)
-  ---> Calling batchedUpdates
+  ---> Calling batchedUpdates() which triggers Transaction.perform(ReactEventListener.handleTopLevelImpl)
   ---> Calling perform 
   ---> Calling initializeAll 
   ---> Calling getEventTarget -> SEE EXPLANATIONS BENEATH

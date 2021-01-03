@@ -3963,6 +3963,7 @@
               return TreeTraversal.getParentInstance(inst);
             },
             traverseTwoPhase: function (target, fn, arg) {
+              console.func("EventPluginUtils.traverseTwoPhase");
               return TreeTraversal.traverseTwoPhase(target, fn, arg);
             },
             traverseEnterLeave: function (from, to, fn, argFrom, argTo) {
@@ -4122,7 +4123,7 @@
 
           function accumulateTwoPhaseDispatches(events) {
             console.func("EventPropagators.accumulateTwoPhaseDispatches");
-
+            console.log("events:", events);
             forEachAccumulated(events, accumulateTwoPhaseDispatchesSingle);
           }
 
@@ -4130,7 +4131,7 @@
             console.func(
               "EventPropagators.accumulateTwoPhaseDispatchesSkipTarget"
             );
-
+            console.log("events:", events);
             forEachAccumulated(
               events,
               accumulateTwoPhaseDispatchesSingleSkipTarget
@@ -4139,6 +4140,10 @@
 
           function accumulateEnterLeaveDispatches(leave, enter, from, to) {
             console.func("EventPropagators.accumulateEnterLeaveDispatches");
+            console.log("leave:", leave);
+            console.log("enter:", enter);
+            console.log("from:", from);
+            console.log("to:", to);
 
             EventPluginUtils.traverseEnterLeave(
               from,
@@ -4718,12 +4723,15 @@
            */
           var oneArgumentPooler = function (copyFieldsFrom) {
             console.func("PooledClass.oneArgumentPooler");
+            console.log("copyFieldsFrom:", copyFieldsFrom);
             var Klass = this;
             if (Klass.instancePool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, copyFieldsFrom);
+              console.log("returning existing instance:", instance);
               return instance;
             } else {
+              console.log("creating new instance:", new Klass(copyFieldsFrom));
               return new Klass(copyFieldsFrom);
             }
           };
@@ -4736,8 +4744,10 @@
             if (Klass.instancePool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, a1, a2);
+              console.log("returning existing instance:", instance);
               return instance;
             } else {
+              console.log("creating new instance:", new Klass(a1, a2));
               return new Klass(a1, a2);
             }
           };
@@ -4749,8 +4759,10 @@
             if (Klass.instancePool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, a1, a2, a3);
+              console.log("returning existing instance:", instance);
               return instance;
             } else {
+              console.log("creating new instance:", new Klass(a1, a2, a3));
               return new Klass(a1, a2, a3);
             }
           };
@@ -4766,8 +4778,10 @@
             if (Klass.instancefourArgumentPoolerool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, a1, a2, a3, a4);
+              console.log("returning existing instance:", instance);
               return instance;
             } else {
+              console.log("creating new instance:", new Klass(a1, a2, a3, a4));
               return new Klass(a1, a2, a3, a4);
             }
           };
@@ -4779,15 +4793,22 @@
             if (Klass.instancePool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, a1, a2, a3, a4, a5);
+              console.log("returning existing instance:", instance);
+
               return instance;
             } else {
+              console.log(
+                "creating new instance:",
+                new Klass(a1, a2, a3, a4, a5)
+              );
               return new Klass(a1, a2, a3, a4, a5);
             }
           };
 
           var standardReleaser = function (instance) {
             console.func("PooledClass.standardReleaser");
-
+            console.desc("instance.destructor(); ");
+            console.log("instance:", instance);
             var Klass = this;
             !(instance instanceof Klass)
               ? "development" !== "production"
@@ -4817,7 +4838,8 @@
            */
           var addPoolingTo = function (CopyConstructor, pooler) {
             console.func("PooledClass.addPoolingTo");
-
+            console.log("CopyConstructor:", CopyConstructor);
+            console.log("pooler:", pooler);
             var NewKlass = CopyConstructor;
             NewKlass.instancePool = [];
             NewKlass.getPooled = pooler || DEFAULT_POOLER;
@@ -4825,6 +4847,7 @@
               NewKlass.poolSize = DEFAULT_POOL_SIZE;
             }
             NewKlass.release = standardReleaser;
+            console.log("returning NewKlass:", NewKlass);
             return NewKlass;
           };
           console.init("PooledClass");
@@ -7208,7 +7231,13 @@
               context
             ) {
               console.func("ReactCompositeComponentMixin.mountComponent");
-
+              console.desc(
+                "_processProps(), _processContext(), this.performInitialMount("
+              );
+              console.log("transaction:", transaction);
+              console.log("nativeParent:", nativeParent);
+              console.log("nativeContainerInfo:", nativeContainerInfo);
+              console.log("context:", context);
               this._context = context;
               this._mountOrder = nextMountID++;
               this._nativeParent = nativeParent;
@@ -7436,7 +7465,7 @@
                   .getReactMountReady()
                   .enqueue(inst.componentDidMount, inst);
               }
-
+              console.log("returning markup:", markup);
               return markup;
             },
 
@@ -7497,8 +7526,13 @@
               context
             ) {
               console.func("ReactCompositeComponentMixin.performInitialMount");
-
+              console.log("renderedElement:", renderedElement);
+              console.log("nativeParent:", nativeParent);
+              console.log("nativeContainerInfo:", nativeContainerInfo);
+              console.log("transaction:", transaction);
+              console.log("context:", context);
               var inst = this._instance;
+              console.log("inst:", inst);
               if (inst.componentWillMount) {
                 inst.componentWillMount();
                 // When mounting, calls to `setState` by `componentWillMount` will set
@@ -12047,13 +12081,22 @@
            */
           function traverseTwoPhase(inst, fn, arg) {
             console.func("ReactDOMTreeTraversal.traverseTwoPhase");
-
+            console.desc(
+              "Simulates the traversal of a two-phase, capture/bubble event dispatch."
+            );
+            console.log("inst:", inst);
+            console.log("fn:", fn);
+            console.log("arg:", arg);
             var path = [];
             while (inst) {
               path.push(inst);
+              console.log("inside white loop: inst:", inst._nativeParent);
               inst = inst._nativeParent;
             }
             var i;
+            console.desc(
+              "now iterating on all _nativeParents and calling fn() on each one of them"
+            );
             for (i = path.length; i-- > 0; ) {
               fn(path[i], false, arg);
             }
@@ -13260,6 +13303,9 @@
             owner,
             props
           ) {
+            console.log("type:", type);
+            console.log("self:", self);
+            console.log("source:", source);
             var element = {
               // This tag allow us to uniquely identify this as a React Element
               $$typeof: REACT_ELEMENT_TYPE,
@@ -14170,6 +14216,10 @@
             // traversal, but caching is difficult to do correctly without using a
             // mutation observer to listen for all DOM changes.
             while (inst._nativeParent) {
+              console.log(
+                "Inside while (inst._nativeParent): inst._nativeParent:",
+                inst._nativeParent
+              );
               inst = inst._nativeParent;
             }
             var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst);
@@ -14209,6 +14259,13 @@
             var targetInst = ReactDOMComponentTree.getClosestInstanceFromNode(
               nativeEventTarget
             );
+            console.log("targetInst:", targetInst);
+            console.desc(`
+            Now handleTopLevelImpl() Loop through the hierarchy, in case there's any nested components.
+            It's important that we build the array of ancestors before calling any
+            event handlers, because event handlers can modify the DOM, leading to
+            inconsistencies with ReactMount's node cache. 
+            `);
 
             // Loop through the hierarchy, in case there's any nested components.
             // It's important that we build the array of ancestors before calling any
@@ -14217,8 +14274,11 @@
             var ancestor = targetInst;
             do {
               bookKeeping.ancestors.push(ancestor);
+              console.log("pushing ancestor:", ancestor);
               ancestor = ancestor && findParent(ancestor);
             } while (ancestor);
+
+            console.log("Now bookKeeping:", bookKeeping);
 
             for (var i = 0; i < bookKeeping.ancestors.length; i++) {
               targetInst = bookKeeping.ancestors[i];
@@ -14251,12 +14311,16 @@
 
             setEnabled: function (enabled) {
               console.func("ReactEventListener.setEnabled");
-
+              console.log("ReactEventListener._enabled:", !!enabled);
               ReactEventListener._enabled = !!enabled;
             },
 
             isEnabled: function () {
               console.func("ReactEventListener.isEnabled");
+              console.log(
+                "ReactEventListener._enabled:",
+                ReactEventListener._enabled
+              );
               return ReactEventListener._enabled;
             },
 
@@ -14852,7 +14916,11 @@
             context
           ) {
             console.func("ReactMount.mountComponentIntoNode");
-
+            console.log("wrapperInstance:", wrapperInstance);
+            console.log("container:", container);
+            console.log("transaction:", transaction);
+            console.log("shouldReuseMarkup:", shouldReuseMarkup);
+            console.log("context:", context);
             var markerName;
             if (ReactFeatureFlags.logTopLevelRenders) {
               var wrappedElement = wrapperInstance._currentElement.props;
@@ -14901,6 +14969,14 @@
             context
           ) {
             console.func("ReactMount.batchedMountComponentIntoNode");
+            console.desc(
+              "(ReactUpdates.ReactReconcileTransaction).perform(mountComponentIntoNode"
+            );
+            console.desc("and then releasing the transaction");
+            console.log("componentInstance:", componentInstance);
+            console.log("container:", container);
+            console.log("shoudReuseMarkup:", shouldReuseMarkup);
+            console.log("context:", context);
             var transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
               /* useCreateElement */
               !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement
@@ -14962,7 +15038,7 @@
 
           function getNativeRootInstanceInContainer(container) {
             console.func("ReactMount.getNativeRootInstanceInContainer");
-
+            console.log("container:", container);
             var rootEl = getReactRootElementInContainer(container);
             var prevNativeInstance =
               rootEl && ReactDOMComponentTree.getInstanceFromNode(rootEl);
@@ -14973,6 +15049,7 @@
 
           function getTopLevelWrapperInContainer(container) {
             console.func("ReactMount.getTopLevelWrapperInContainer");
+            console.log("container:", container);
 
             var root = getNativeRootInstanceInContainer(container);
             return root ? root._nativeContainerInfo._topLevelWrapper : null;
@@ -15084,7 +15161,7 @@
             ) {
               console.func("ReactMount._renderNewRootComponent");
               console.desc(
-                "This method calls instantiateReactComponent(), ReactUpdates.batchedUpdates()"
+                "calls instantiateReactComponent(), ReactUpdates.batchedUpdates()"
               );
               console.desc(
                 "and then:  instancesByReactRootID[wrapperID] = componentInstance;"
@@ -17561,6 +17638,15 @@
               context
             ) {
               console.func("ReactReconciler.mountComponent");
+              console.desc(
+                "internalInstance.mountComponent(), transaction.getReactMountReady().enqueue(attachRefs, internalInstance);"
+              );
+              console.log("internalInstance:", internalInstance);
+              console.log("transaction:", transaction);
+              console.log("nativeParent:", nativeParent);
+              console.log("nativeContainerInfo:", nativeContainerInfo);
+              console.log("context:", context);
+
               var markup = internalInstance.mountComponent(
                 transaction,
                 nativeParent,
@@ -18293,7 +18379,8 @@
 
             validateCallback: function (callback, callerName) {
               console.func("ReactUpdateQueue.validateCallback");
-
+              console.log("callback:", callback);
+              console.log("callerName:", callerName);
               !(!callback || typeof callback === "function")
                 ? "development" !== "production"
                   ? invariant(
@@ -21146,6 +21233,11 @@
 
             initializeAll: function (startIndex) {
               console.func("Transaction.initializeAll");
+              console.log("startIndex:", startIndex);
+              console.log(
+                "this.transactionWrappers:",
+                this.transactionWrappers
+              );
               var transactionWrappers = this.transactionWrappers;
               for (var i = startIndex; i < transactionWrappers.length; i++) {
                 var wrapper = transactionWrappers[i];

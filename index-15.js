@@ -7,7 +7,7 @@ var Button = React.createClass({
         onClick={() => {
           console.log("clicked");
           console.log("this inside onClick:", this);
-          this.setState({ name: "itamar" });
+          this.setState({ name: "itamar" }); // this.updater.enqueueSetState
         }}
       >
         Hello World
@@ -21,4 +21,4 @@ console.log("<Button />:", <Button />);
 console.log(
   '{{{ ReactDOM.render(<Button />, document.getElementById("react-app")) }}} '
 );
-ReactDOM.render(<Button />, document.getElementById("react-app"));
+ReactDOM.render(<Button />, document.getElementById("react-app")); // ReactMount.render
