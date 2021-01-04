@@ -300,3 +300,12 @@ what this code is causing React to do ?
 NOTES:
    React.createClass() is a terrible API, not only for the outsider( aka the React user), but internally 
    from within the React project, it is a terrible API.
+
+
+
+
+
+
+
+IDEAS FOR IMPROVEMENT:
+   - remove all terrible accumulateDispatch methods and create one setupEventListeners method that does everything

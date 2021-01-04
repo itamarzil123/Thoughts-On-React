@@ -22,7 +22,9 @@
   }
 })(function () {
   var define, module, exports;
-
+  console.options = {
+    checkMask: false,
+  };
   console.func = function (text) {
     var styles = [
       "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
@@ -259,6 +261,8 @@
            * (cut, copy, select-all, etc.) even though no character is inserted.
            */
           function isKeypressCommand(nativeEvent) {
+            console.func("BeforeInputEventPlugin.isKeypressCommand");
+
             return (
               (nativeEvent.ctrlKey ||
                 nativeEvent.altKey ||
@@ -275,6 +279,7 @@
            * @return {object}
            */
           function getCompositionEventType(topLevelType) {
+            console.func("BeforeInputEventPlugin.getCompositionEventType");
             switch (topLevelType) {
               case topLevelTypes.topCompositionStart:
                 return eventTypes.compositionStart;
@@ -294,6 +299,8 @@
            * @return {boolean}
            */
           function isFallbackCompositionStart(topLevelType, nativeEvent) {
+            console.func("BeforeInputEventPlugin.isFallbackCompositionStart");
+
             return (
               topLevelType === topLevelTypes.topKeyDown &&
               nativeEvent.keyCode === START_KEYCODE
@@ -308,6 +315,8 @@
            * @return {boolean}
            */
           function isFallbackCompositionEnd(topLevelType, nativeEvent) {
+            console.func("BeforeInputEventPlugin.isFallbackCompositionEnd");
+
             switch (topLevelType) {
               case topLevelTypes.topKeyUp:
                 // Command keys insert or clear IME input.
@@ -336,6 +345,8 @@
            * @return {?string}
            */
           function getDataFromCustomEvent(nativeEvent) {
+            console.func("BeforeInputEventPlugin.getDataFromCustomEvent");
+
             var detail = nativeEvent.detail;
             if (typeof detail === "object" && "data" in detail) {
               return detail.data;
@@ -355,7 +366,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
-            console.func("extractCompositionEvent");
+            console.func("BeforeInputEventPlugin.extractCompositionEvent");
             var eventType;
             var fallbackData;
 
@@ -1938,9 +1949,11 @@
           var invariant = _dereq_(156);
 
           function checkMask(value, bitmask) {
-            console.func("DOMProperty.checkMask");
-            console.log("value:", value);
-            console.log("bitmask:", bitmask);
+            if (console.options.checkMask) {
+              console.func("DOMProperty.checkMask");
+              console.log("value:", value);
+              console.log("bitmask:", bitmask);
+            }
             return (value & bitmask) === bitmask;
           }
 
@@ -2911,12 +2924,19 @@
           var keyMirror = _dereq_(159);
 
           console.init("EventConstants.PropagationPhases");
+          console.desc("bubbled, captured flags");
           var PropagationPhases = keyMirror({ bubbled: null, captured: null });
 
           /**
            * Types of raw signals from the browser caught at the top level.
            */
           console.init("EventConstants.topLevelTypes");
+          console.desc(`For example: topAbort: null,
+          topAnimationEnd: null,
+          topAnimationIteration: null,
+          topAnimationStart: null,
+          topBlur: null,
+          topCanPlay: null,`);
           var topLevelTypes = keyMirror({
             topAbort: null,
             topAnimationEnd: null,
@@ -3315,13 +3335,14 @@
            * Injectable ordering of event plugins.
            */
           console.init("EventPluginRegistry.EventPluginOrder");
+          console.desc("starting from var EventPluginOrder = null;");
           var EventPluginOrder = null;
 
           /**
            * Injectable mapping from names to event plugin modules.
            */
           console.init("EventPluginRegistry.namesToPlugins");
-
+          console.desc("starting from var namesToPlugins = {}");
           var namesToPlugins = {};
 
           /**
@@ -3710,6 +3731,7 @@
           var injection = {
             injectComponentTree: function (Injected) {
               console.func("injectComponentTree:", Injected);
+              console.log("Injected:", Injected);
               ComponentTree = Injected;
               if ("development" !== "production") {
                 "development" !== "production"
@@ -4088,6 +4110,9 @@
            */
           function accumulateTwoPhaseDispatchesSingle(event) {
             console.func("EventPropagators.accumulateTwoPhaseDispatchesSingle");
+            console.desc(
+              "validating the event and then calling EventPluginUtils.traverseTwoPhase"
+            );
             console.log("event:", event);
             if (event && event.dispatchConfig.phasedRegistrationNames) {
               EventPluginUtils.traverseTwoPhase(
@@ -4126,10 +4151,21 @@
            */
           function accumulateDispatches(inst, ignoredDirection, event) {
             console.func("EventPropagators.accumulateDispatches");
-
+            console.desc(`accumulateDispatches is extracting a listener from an instance, event
+            and then accumulates, aka pushing this listener into a accumulation which is a data structure
+            that maintains either a single value or multiply values as an array.
+            In this particular case, accumulateDispathes accumulates but without
+            regard to direction, does not look for phased
+            registration names. Same as accumulateDirectDispatchesSingle but without
+            requiring that the dispatchMarker be the same as the dispatched ID.
+            `);
+            console.log("inst:", inst);
+            console.log("event:", event);
             if (event && event.dispatchConfig.registrationName) {
               var registrationName = event.dispatchConfig.registrationName;
+              console.log("extracting registrationName:", registrationName);
               var listener = getListener(inst, registrationName);
+              console.log("extracting listner:", listener);
               if (listener) {
                 event._dispatchListeners = accumulateInto(
                   event._dispatchListeners,
@@ -4138,6 +4174,14 @@
                 event._dispatchInstances = accumulateInto(
                   event._dispatchInstances,
                   inst
+                );
+                console.log(
+                  "after accumulation, event._dispatchListeners:",
+                  event._dispatchListeners
+                );
+                console.log(
+                  "after accumulation, event._dispatchInstances:",
+                  event._dispatchInstances
                 );
               }
             }
@@ -4206,6 +4250,8 @@
            * @constructor EventPropagators
            */
           console.init("EventPropagators");
+          console.desc(`accumulateDispatch methods which are methods that are responsible for maintaining
+          a collection of event listeners of a specific event`);
           console.desc(`that includes accumulateTwoPhaseDispatches: accumulateTwoPhaseDispatches,
           accumulateTwoPhaseDispatchesSkipTarget: accumulateTwoPhaseDispatchesSkipTarget,
           accumulateDirectDispatches: accumulateDirectDispatches,
@@ -5477,6 +5523,8 @@
               transaction,
               context
             ) {
+              console.func("ReactChildReconciler.instantiateChildren");
+              console.log("nestedChildNodes:", nestedChildNodes);
               if (nestedChildNodes == null) {
                 return null;
               }
@@ -5506,6 +5554,11 @@
               transaction,
               context
             ) {
+              console.func("ReactChildReconciler.updateChildren");
+              console.log("prevChildren:", prevChildren);
+              console.log("nextChildren:", nextChildren);
+              console.log("transaction:", transaction);
+              console.log("context:", context);
               // We currently don't have a way to track moves here but if we use iterators
               // instead of for..in we can zip the iterators and check if an item has
               // moved.
@@ -5527,6 +5580,7 @@
                   prevChild != null &&
                   shouldUpdateReactComponent(prevElement, nextElement)
                 ) {
+                  console.log("ReactReconciler.receiveComponent()");
                   ReactReconciler.receiveComponent(
                     prevChild,
                     nextElement,
@@ -5872,6 +5926,7 @@
           });
 
           console.init("ReactClass.injectedMixins");
+          console.desc("for now var injectedMixins = []");
           var injectedMixins = [];
 
           /**
@@ -5897,6 +5952,11 @@
            * @internal
            */
           console.init("ReactClass.ReactClassInterface");
+          console.desc(`
+          mixins: SpecPolicy.DEFINE_MANY,
+          statics: SpecPolicy.DEFINE_MANY,
+          getDefaultProps: SpecPolicy.DEFINE_MANY_MERGED,
+          , etc..`);
           var ReactClassInterface = {
             /**
              * An array of Mixin objects to include when defining your component.
@@ -6128,7 +6188,8 @@
            * which all other static methods are defined.
            */
           console.init("ReactClass.RESERVED_SPEC_KEYS");
-
+          console.desc(`
+          displayName(), mixins(), childContextTypes(), contextTypes(), getDefaultProps(), etc..`);
           var RESERVED_SPEC_KEYS = {
             displayName: function (Constructor, displayName) {
               console.func("ReactClass.RESERVED_SPEC_KEYS.displayName");
@@ -8941,6 +9002,15 @@
           // There are so many media events, it makes sense to just
           // maintain a list rather than create a `trapBubbledEvent` for each
           console.func("ReactDOMComponent.mediaEvents");
+          console.desc(`for example:
+          topAbort: "abort",
+          topCanPlay: "canplay",
+          topCanPlayThrough: "canplaythrough",
+          topDurationChange: "durationchange",
+          topEmptied: "emptied",
+          topEncrypted: "encrypted",
+          topEnded: "ended",
+          topError: "error",`);
           var mediaEvents = {
             topAbort: "abort",
             topCanPlay: "canplay",
@@ -12393,6 +12463,8 @@
             }
           }
           console.init("ReactDebugTool");
+          console.desc(`
+          addDevtool(), removeDevtool(), onBeginProcessingChildContext(), onSetState(), etc ...`);
           var ReactDebugTool = {
             addDevtool: function (devtool) {
               eventHandlers.push(devtool);
@@ -12450,6 +12522,8 @@
           var emptyFunction = _dereq_(148);
 
           console.init("ReactDefaultBatchingStrategy.RESET_BATCHED_UPDATES");
+          console.desc(`
+          initialize: emptyFunction, close: function that does ReactDefaultBatchingStrategy.isBatchingUpdates = false;`);
           var RESET_BATCHED_UPDATES = {
             initialize: emptyFunction,
             close: function () {
@@ -12458,14 +12532,15 @@
           };
 
           console.init("ReactDefaultBatchingStrategy.FLUSH_BATCHED_UPDATES");
-
+          console.desc(`
+          initialize: emptyFunction, close: ReactUpdates.flushBatchedUpdates.bind(ReactUpdates);`);
           var FLUSH_BATCHED_UPDATES = {
             initialize: emptyFunction,
             close: ReactUpdates.flushBatchedUpdates.bind(ReactUpdates),
           };
 
           console.init("ReactDefaultBatchingStrategy.TRANSACTION_WRAPPERS");
-
+          console.desc(`FLUSH_BATCHED_UPDATES, RESET_BATCHED_UPDATES`);
           var TRANSACTION_WRAPPERS = [
             FLUSH_BATCHED_UPDATES,
             RESET_BATCHED_UPDATES,
@@ -12489,6 +12564,8 @@
           var transaction = new ReactDefaultBatchingStrategyTransaction();
 
           console.init("ReactDefaultBatchingStrategy");
+          console.desc(`
+          isBatchingUpdates: false, batchedUpdates()`);
           var ReactDefaultBatchingStrategy = {
             isBatchingUpdates: false,
 
@@ -12499,7 +12576,9 @@
             batchedUpdates: function (callback, a, b, c, d, e) {
               console.func("ReactDefaultBatchingStrategy.batchedUpdates");
               console.desc(
-                "that calls transaction.perform() on the given callback"
+                `setting ReactDefaultBatchingStrategy.isBatchingUpdates = true; and then 
+                calling transaction.perform() on the given callback or simply calling the callback
+                if there is already a batching going on.`
               );
               console.log("callback:", callback);
 
@@ -14268,6 +14347,7 @@
             EventPluginHub.processEventQueue(false);
           }
           console.init("ReactEventEmitterMixin");
+          console.desc("handleTopLevel()");
           var ReactEventEmitterMixin = {
             /**
              * Streams a fired top-level event to `EventPluginHub` where plugins have the
@@ -14280,8 +14360,10 @@
               nativeEventTarget
             ) {
               console.func("ReactEventEmitterMixin.handleTopLevel");
+              console.log("targetInst:", targetInst);
               console.log("topLevelType:", topLevelType);
               console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
               var events = EventPluginHub.extractEvents(
                 topLevelType,
                 targetInst,
@@ -16569,6 +16651,8 @@
            * This is the abstract API for an update queue.
            */
           console.init("ReactNoopUpdateQueue");
+          console.desc(`
+          isMounted(), enqueueCallback(), enqueueForceUpdate(), enqueueSetState(), etc ...`);
           var ReactNoopUpdateQueue = {
             /**
              * Checks whether or not this composite component is mounted.
@@ -16690,6 +16774,11 @@
            * @class ReactOwner
            */
           console.init("ReactOwner");
+          console.desc(`
+          ReactOwners are capable of storing references to owned components.
+          All components are capable of //being// referenced by owner components, but
+          only ReactOwner components are capable of //referencing// owned components.
+          The named reference is known as a "ref".`);
           var ReactOwner = {
             /**
              * @param {?object} object
@@ -17744,6 +17833,8 @@
             ReactRef.attachRefs(this, this._currentElement);
           }
           console.init("ReactReconciler");
+          console.desc(`
+          mountComponent(), getNativeNode(), unmountComponent(),`);
           var ReactReconciler = {
             /**
              * Initializes the component, renders markup, and registers event listeners.
@@ -17765,7 +17856,10 @@
             ) {
               console.func("ReactReconciler.mountComponent");
               console.desc(
-                "internalInstance.mountComponent(), transaction.getReactMountReady().enqueue(attachRefs, internalInstance);"
+                `
+                internalInstance.mountComponent(), transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
+                receiveComponent(), performUpdateIfNecessary()
+                `
               );
               console.log("internalInstance:", internalInstance);
               console.log("transaction:", transaction);
@@ -17801,7 +17895,7 @@
              */
             getNativeNode: function (internalInstance) {
               console.func("ReactReconciler.getNativeNode");
-
+              console.log("internalInstance:", internalInstance);
               return internalInstance.getNativeNode();
             },
 
@@ -17813,7 +17907,7 @@
              */
             unmountComponent: function (internalInstance, safely) {
               console.func("ReactReconciler.unmountComponent");
-
+              console.log("internalInstance:", internalInstance);
               ReactRef.detachRefs(
                 internalInstance,
                 internalInstance._currentElement
@@ -17842,7 +17936,8 @@
               context
             ) {
               console.func("ReactReconciler.receiveComponent");
-
+              console.log("internalInstance:", internalInstance);
+              console.log("transaction:", transaction);
               var prevElement = internalInstance._currentElement;
 
               if (
@@ -17903,7 +17998,7 @@
              */
             performUpdateIfNecessary: function (internalInstance, transaction) {
               console.func("ReactReconciler.performUpdateIfNecessary");
-
+              console.log("internalInstance:", internalInstance);
               internalInstance.performUpdateIfNecessary(transaction);
               if ("development" !== "production") {
                 ReactInstrumentation.debugTool.onUpdateComponent(
@@ -18567,7 +18662,8 @@
               : void 0;
           }
           console.init("ReactUpdates.NESTED_UPDATES");
-
+          console.desc(`
+          initialize() - getting this.dirtyComponents length, close() -  `);
           var NESTED_UPDATES = {
             initialize: function () {
               this.dirtyComponentsLength = dirtyComponents.length;
@@ -19861,6 +19957,16 @@
             },
           };
           console.init("SimpleEventPlugin.topLevelEventsToDispatchConfig");
+          console.desc(`
+          for example:
+          topAbort: eventTypes.abort,
+          topAnimationEnd: eventTypes.animationEnd,
+          topAnimationIteration: eventTypes.animationIteration,
+          topAnimationStart: eventTypes.animationStart,
+          topBlur: eventTypes.blur,
+          topCanPlay: eventTypes.canPlay,
+          topCanPlayThrough: eventTypes.canPlayThrough,
+          topClick: eventTypes.click,`);
           var topLevelEventsToDispatchConfig = {
             topAbort: eventTypes.abort,
             topAnimationEnd: eventTypes.animationEnd,
@@ -23874,6 +23980,10 @@
            * nature of platform.
            */
           console.init("EventListener");
+          console.desc(`
+          listen(): Listen to DOM events during the bubble phase.
+          capture(): Listen to DOM events during the capture phase
+          , registerDefault()`);
           var EventListener = {
             /**
              * Listen to DOM events during the bubble phase.
