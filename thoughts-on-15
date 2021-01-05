@@ -308,4 +308,12 @@ NOTES:
 
 
 IDEAS FOR IMPROVEMENT:
+   - functions like transaction, or accumulate*, or PooledClass arguments, all built in a way that they can
+     accept limited number of arguments. those functions are not written in a flexible, maintainable wanner. 
+   - the entire architecture (interfaces, inheritence, etc) is terrible and much too verbose
    - remove all terrible accumulateDispatch methods and create one setupEventListeners method that does everything
+   - I like ReactDefaultInjection purpose as the main 'dependency injection' system but I dislike its verbosity.
+   - renaming: listen -> listenDuringBubble, capure -> listenDuringCapture
+   - DOMProperty.DOMPropertyInjection.propertyInfo.checkMask must be much more explicit and self explanatory
+     it is not clear whatoever.
+     

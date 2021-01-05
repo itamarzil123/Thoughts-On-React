@@ -1082,6 +1082,8 @@
              */
             enqueue: function (callback, context) {
               console.func("CallbackQueue.enqueue");
+              console.log("callback:", callback);
+              console.log("context:", context);
               this._callbacks = this._callbacks || [];
               this._contexts = this._contexts || [];
               this._callbacks.push(callback);
@@ -1901,7 +1903,7 @@
 
           function DOMLazyTree(node) {
             console.func("DOMLazyTree");
-
+            console.log("node:", node);
             return {
               node: node,
               children: [],
@@ -3477,7 +3479,12 @@
             eventName
           ) {
             console.func("EventPluginRegistry.publishRegistrationName");
-
+            console.desc(`mostly EventPluginRegistry.registrationNameModules[
+              registrationName
+            ] = PluginModule;`);
+            console.log("registrationName:", registrationName);
+            console.log("PluginModule:", PluginModule);
+            console.log("eventName:", eventName);
             !!EventPluginRegistry.registrationNameModules[registrationName]
               ? "development" !== "production"
                 ? invariant(
@@ -5216,6 +5223,7 @@
 
           function getListeningForDocument(mountAt) {
             console.func("ReactBrowserEventEmitter.getListeningForDocument");
+            console.log("mountAt:", mountAt);
             // In IE8, `mountAt` is a host object and doesn't have `hasOwnProperty`
             // directly.
             if (
@@ -5224,6 +5232,10 @@
               mountAt[topListenersIDKey] = reactTopListenersCounter++;
               alreadyListeningTo[mountAt[topListenersIDKey]] = {};
             }
+            console.log(
+              "returning alreadyListeningTo[mountAt[topListenersIDKey]]:",
+              alreadyListeningTo[mountAt[topListenersIDKey]]
+            );
             return alreadyListeningTo[mountAt[topListenersIDKey]];
           }
 
@@ -5410,6 +5422,9 @@
 
             trapBubbledEvent: function (topLevelType, handlerBaseName, handle) {
               console.func("ReactBrowserEventEmitter.trapBubbledEvent");
+              console.log("topLevelType:", topLevelType);
+              console.log("handlerBaseName:", handlerBaseName);
+              console.log("handle", handle);
               return ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
                 topLevelType,
                 handlerBaseName,
@@ -5699,7 +5714,9 @@
            */
           function forEachChildren(children, forEachFunc, forEachContext) {
             console.func("ReactChildren.forEachChildren");
-
+            console.log("children:", children);
+            console.log("forEachFunc:", forEachFunc);
+            console.log("forEachContext:", forEachContext);
             if (children == null) {
               return children;
             }
@@ -8304,6 +8321,7 @@
               ReactCurrentOwner.current = this;
               try {
                 renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
+                console.log("renderedComponent:", renderedComponent);
               } finally {
                 ReactCurrentOwner.current = null;
               }
@@ -8980,7 +8998,14 @@
               // Server rendering.
               return;
             }
+            console.desc(
+              "enqueuePutListener now does: listenTo(registrationName, doc);"
+            );
+            console.desc(
+              "and after: transaction.getReactMountReady().enqueue(putListener, {...})"
+            );
             listenTo(registrationName, doc);
+
             transaction.getReactMountReady().enqueue(putListener, {
               inst: inst,
               registrationName: registrationName,
@@ -9267,7 +9292,7 @@
               this._nativeContainerInfo = nativeContainerInfo;
 
               var props = this._currentElement.props;
-
+              console.log("props:", props);
               switch (this._tag) {
                 case "iframe":
                 case "object":
@@ -9633,7 +9658,9 @@
              */
             receiveComponent: function (nextElement, transaction, context) {
               console.func("ReactDOMComponent.receiveComponent");
-
+              console.log("nextElement:", nextElement);
+              console.log("transaction:", transaction);
+              console.log("context:", context);
               var prevElement = this._currentElement;
               this._currentElement = nextElement;
               this.updateComponent(
@@ -10120,6 +10147,7 @@
             console.func(
               "ReactDOMComponentTree.getRenderedNativeOrTextFromComponent"
             );
+            console.log("component:", component);
             var rendered;
             while ((rendered = component._renderedComponent)) {
               component = rendered;
@@ -14360,6 +14388,9 @@
               nativeEventTarget
             ) {
               console.func("ReactEventEmitterMixin.handleTopLevel");
+              console.desc(
+                "doing EventPluginHub.extractEvents() and then runEventQueueInBatch()"
+              );
               console.log("targetInst:", targetInst);
               console.log("topLevelType:", topLevelType);
               console.log("nativeEvent:", nativeEvent);
@@ -14529,6 +14560,9 @@
              */
             trapBubbledEvent: function (topLevelType, handlerBaseName, handle) {
               console.func("ReactEventListener.trapBubbledEvent");
+              console.log("topLevelType:", topLevelType);
+              console.log("handlerBaseName:", handlerBaseName);
+              console.log("handle:", handle);
               var element = handle;
               if (!element) {
                 return null;
@@ -14577,7 +14611,7 @@
 
             dispatchEvent: function (topLevelType, nativeEvent) {
               console.func("ReactEventListener.dispatchEvent");
-              console.desc(`that is create a pooled version of the native event using TopLevelCallbackBookKeeping
+              console.desc(`creating a pooled version of the native event using TopLevelCallbackBookKeeping
               and then calls ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
               `);
               console.log("topLevelType:", topLevelType);
@@ -17769,7 +17803,10 @@
              */
             getReactMountReady: function () {
               console.func("ReactReconcileTransaction.getReactMountReady");
-
+              console.log(
+                "returning this.reactMountReady:",
+                this.reactMountReady
+              );
               return this.reactMountReady;
             },
 
@@ -23168,6 +23205,7 @@
            * @return {string}
            */
           function getComponentKey(component, index) {
+            console.func("traverseAllChildren.getComponentKey");
             // Do some typechecking here since we call this blindly. We want to ensure
             // that we don't block potential future ES APIs.
             if (
@@ -23189,6 +23227,8 @@
            * @return {string} An escaped string.
            */
           function escapeUserProvidedKey(text) {
+            console.func("traverseAllChildren.escapeUserProvidedKey");
+
             return ("" + text).replace(
               userProvidedKeyEscapeRegex,
               userProvidedKeyEscaper
@@ -23203,6 +23243,8 @@
            * @return {string}
            */
           function wrapUserProvidedKey(key) {
+            console.func("traverseAllChildren.wrapUserProvidedKey");
+
             return "$" + escapeUserProvidedKey(key);
           }
 
@@ -23221,6 +23263,10 @@
             traverseContext
           ) {
             console.func("traverseAllChildrenImpl");
+            console.log("children:", children);
+            console.log("nameSoFar:", nameSoFar);
+            console.log("callback:", callback);
+            console.log("traverseContext:", traverseContext);
             var type = typeof children;
 
             if (type === "undefined" || type === "boolean") {
@@ -23255,13 +23301,16 @@
             if (Array.isArray(children)) {
               for (var i = 0; i < children.length; i++) {
                 child = children[i];
+                console.log("current child:", child);
                 nextName = nextNamePrefix + getComponentKey(child, i);
+                console.log("nextName:", nextName);
                 subtreeCount += traverseAllChildrenImpl(
                   child,
                   nextName,
                   callback,
                   traverseContext
                 );
+                console.log("subtreeCount:", subtreeCount);
               }
             } else {
               var iteratorFn = getIteratorFn(children);
@@ -23347,7 +23396,7 @@
                   : void 0;
               }
             }
-
+            console.log("returning subtreeCount:", subtreeCount);
             return subtreeCount;
           }
 
@@ -23369,6 +23418,9 @@
            */
           function traverseAllChildren(children, callback, traverseContext) {
             console.func("traverseAllChildren");
+            console.log("children:", children);
+            console.log("callback:", callback);
+            console.log("traverseContext:", traverseContext);
             if (children == null) {
               return 0;
             }
