@@ -12,19 +12,9 @@ var Button = React.createClass({
       <div>
         <button
           onClick={() => {
-            console.log("clicked 1");
-            console.log("this inside onClick:", this);
-            this.setState({ name: "itamar" }); // this.updater.enqueueSetState
-          }}
-        >
-          Hello World
-        </button>
-        <button
-          onClick={() => {
             console.log("clicked 2");
             console.log("this inside onClick 2:", this);
-            let oldName = this.state.oldName;
-            this.setState({ age: 10, name: oldName }); // this.updater.enqueueSetState
+            this.setState({ age: 10 }); // this.updater.enqueueSetState
           }}
         >
           age:

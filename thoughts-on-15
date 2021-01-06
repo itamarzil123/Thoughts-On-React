@@ -316,4 +316,7 @@ IDEAS FOR IMPROVEMENT:
    - renaming: listen -> listenDuringBubble, capure -> listenDuringCapture
    - DOMProperty.DOMPropertyInjection.propertyInfo.checkMask must be much more explicit and self explanatory
      it is not clear whatoever.
+   - names in this library are terrible. ReactCompositeComponentWrapper is a terrible name choice
+   - too many different Components. ReactDOMComponent / ReactComponent / ReactCompositeComponent, 
+     React functional Component, React Stateless Component / ---> have only one Component -> call it Component
      

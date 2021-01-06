@@ -122,6 +122,7 @@
           console.desc("that includes focusDOMComponent()");
           var AutoFocusUtils = {
             focusDOMComponent: function () {
+              console.func("AutoFocusUtils.focusDOMComponent");
               focusNode(ReactDOMComponentTree.getNodeFromInstance(this));
             },
           };
@@ -158,7 +159,8 @@
             documentMode = document.documentMode;
           }
 
-          // Webkit offers a very useful `textInput` event that can be used to
+          // Webkit (the web browser engine of safari/chrome) offers a very useful `textInput` event
+          // that can be used to
           // directly represent `beforeInput`. The IE `textinput` event is not as
           // useful, so we don't use it.
           var canUseTextInputEvent =
@@ -262,7 +264,7 @@
            */
           function isKeypressCommand(nativeEvent) {
             console.func("BeforeInputEventPlugin.isKeypressCommand");
-
+            console.log("nativeEvent:", nativeEvent);
             return (
               (nativeEvent.ctrlKey ||
                 nativeEvent.altKey ||
@@ -280,6 +282,7 @@
            */
           function getCompositionEventType(topLevelType) {
             console.func("BeforeInputEventPlugin.getCompositionEventType");
+            console.log("topLevelType:", topLevelType);
             switch (topLevelType) {
               case topLevelTypes.topCompositionStart:
                 return eventTypes.compositionStart;
@@ -544,13 +547,17 @@
             nativeEventTarget
           ) {
             var chars;
+            console.log("topLevelType:", topLevelType);
+            console.log("targetInst:", targetInst);
+            console.log("nativeEvent:", nativeEvent);
+            console.log("nativeEventTarget:", nativeEventTarget);
 
             if (canUseTextInputEvent) {
               chars = getNativeBeforeInputChars(topLevelType, nativeEvent);
             } else {
               chars = getFallbackBeforeInputChars(topLevelType, nativeEvent);
             }
-
+            console.log("chars:", chars);
             // If no characters are being inserted, no BeforeInput event should
             // be fired.
             if (!chars) {
@@ -564,6 +571,7 @@
               nativeEventTarget
             );
 
+            console.log("event:", event);
             event.data = chars;
             EventPropagators.accumulateTwoPhaseDispatches(event);
             return event;
@@ -795,6 +803,7 @@
           var warning = _dereq_(166);
 
           var processStyleName = memoizeStringOnly(function (styleName) {
+            console.func("CSSPropertyOperations.processStyleName");
             return hyphenateStyleName(styleName);
           });
 
@@ -903,6 +912,8 @@
             };
 
             var checkRenderMessage = function (owner) {
+              console.func("checkRenderMessage");
+              console.log("owner:", owner);
               if (owner) {
                 var name = owner.getName();
                 if (name) {
@@ -973,6 +984,10 @@
                     dangerousStyleValue(styleName, styleValue, component) + ";";
                 }
               }
+              console.log(
+                "returning serialized markup for styles:",
+                serialized
+              );
               return serialized || null;
             },
 
@@ -985,6 +1000,11 @@
              * @param {ReactDOMComponent} component
              */
             setValueForStyles: function (node, styles, component) {
+              console.func("CSSPropertyOperations.setValueForStyles");
+              console.log("node:", node);
+              console.log("styles:", styles);
+              console.log("component:", component);
+
               var style = node.style;
               for (var styleName in styles) {
                 if (!styles.hasOwnProperty(styleName)) {
@@ -998,6 +1018,8 @@
                   styles[styleName],
                   component
                 );
+                console.log("styleValue:", styleValue);
+
                 if (styleName === "float" || styleName === "cssFloat") {
                   styleName = styleFloatAccessor;
                 }
@@ -1068,6 +1090,7 @@
            * @internal
            */
           function CallbackQueue() {
+            console.func("CallbackQueue() constructor");
             this._callbacks = null;
             this._contexts = null;
           }
@@ -1082,6 +1105,9 @@
              */
             enqueue: function (callback, context) {
               console.func("CallbackQueue.enqueue");
+              console.desc(
+                "adding a new callback with its context into this._callbacks, this._contexts"
+              );
               console.log("callback:", callback);
               console.log("context:", context);
               this._callbacks = this._callbacks || [];
@@ -1098,6 +1124,9 @@
              */
             notifyAll: function () {
               console.func("CallbackQueue.notifyAll");
+              console.desc(
+                "calling each callback with its context (aka callbacks[i].call(contexts[i])"
+              );
               var callbacks = this._callbacks;
               var contexts = this._contexts;
               console.log("callbacks:", callbacks);
@@ -1125,12 +1154,12 @@
             },
 
             checkpoint: function () {
-              console.func("checkpoint");
+              console.func("CallbackQueue.checkpoint");
               return this._callbacks ? this._callbacks.length : 0;
             },
 
             rollback: function (len) {
-              console.func("rollback");
+              console.func("CallbackQueue.rollback");
               if (this._callbacks) {
                 this._callbacks.length = len;
                 this._contexts.length = len;
@@ -1171,7 +1200,7 @@
            */
 
           "use strict";
-
+          // here
           var EventConstants = _dereq_(15);
           var EventPluginHub = _dereq_(16);
           var EventPropagators = _dereq_(19);
@@ -1222,7 +1251,13 @@
            */
           function shouldUseChangeEvent(elem) {
             console.func("shouldUseChangeEvent");
+            console.log("elem:", elem);
             var nodeName = elem.nodeName && elem.nodeName.toLowerCase();
+            console.log(
+              "returning:",
+              nodeName === "select" ||
+                (nodeName === "input" && elem.type === "file")
+            );
             return (
               nodeName === "select" ||
               (nodeName === "input" && elem.type === "file")
@@ -1239,12 +1274,26 @@
 
           function manualDispatchChangeEvent(nativeEvent) {
             console.func("ChangeEventPlugin.manualDispatchChangeEvent");
+            console.desc(`
+            If change and propertychange bubbled, we'd just bind to it like all the
+             other events and have it go through ReactBrowserEventEmitter. Since it
+             doesn't, we manually listen for the events and so we have to enqueue and
+             process the abstract event manually.
+            
+             Batching is necessary here in order to ensure that all event handlers run
+             before the next rerender (including event handlers attached to ancestor
+             elements instead of directly on the input). Without this, controlled
+             components don't work properly in conjunction with event bubbling because
+             the component is rerendered and the value reverted before all the event
+             handlers can run. See https://github.com/facebook/react/issues/708.`);
+            console.log("nativeEvent:", nativeEvent);
             var event = SyntheticEvent.getPooled(
               eventTypes.change,
               activeElementInst,
               nativeEvent,
               getEventTarget(nativeEvent)
             );
+            console.log("event:", event);
             EventPropagators.accumulateTwoPhaseDispatches(event);
 
             // If change and propertychange bubbled, we'd just bind to it like all the
@@ -1263,6 +1312,11 @@
 
           function runEventInBatch(event) {
             console.func("ChangeEventPlugin.runEventInBatch");
+            console.desc(`
+            EventPluginHub.enqueueEvents(event);
+            EventPluginHub.processEventQueue(false);
+            `);
+            console.log("event:", event);
             EventPluginHub.enqueueEvents(event);
             EventPluginHub.processEventQueue(false);
           }
@@ -1345,6 +1399,8 @@
            */
           function startWatchingForValueChange(target, targetInst) {
             console.func("startWatchingForValueChange");
+            console.log("target:", target);
+            console.log("targetInst:", targetInst);
             activeElement = target;
             activeElementInst = targetInst;
             activeElementValue = target.value;
@@ -1408,6 +1464,7 @@
            */
           function handlePropertyChange(nativeEvent) {
             console.func("handlePropertyChange");
+            console.log("nativeEvent:", nativeEvent);
             if (nativeEvent.propertyName !== "value") {
               return;
             }
@@ -1538,7 +1595,7 @@
               var targetNode = targetInst
                 ? ReactDOMComponentTree.getNodeFromInstance(targetInst)
                 : window;
-
+              console.log("targetNode:", targetNode);
               var getTargetInstFunc, handleEventFunc;
               if (shouldUseChangeEvent(targetNode)) {
                 if (doesChangeEventBubble) {
@@ -1612,6 +1669,9 @@
           var setTextContent = _dereq_(137);
 
           function getNodeAfter(parentNode, node) {
+            console.func("DOMChildrenOperations.getNodeAfter");
+            console.log("parentNode:", parentNode);
+            console.log("node:", node);
             // Special case for text components, which return [open, close] comments
             // from getNativeNode.
             if (Array.isArray(node)) {
@@ -1663,6 +1723,8 @@
 
           function removeChild(parentNode, childNode) {
             console.func("removeChild");
+            console.log("parentNode:", parentNode);
+            console.log("childNode:", childNode);
             if (Array.isArray(childNode)) {
               var closingComment = childNode[1];
               childNode = childNode[0];
@@ -1680,6 +1742,8 @@
           ) {
             console.func("moveDelimitedText");
             console.log("parentNode:", parentNode);
+            console.log("referenceNode:", referenceNode);
+
             var node = openingComment;
             while (true) {
               var nextNode = node.nextSibling;
@@ -1759,9 +1823,12 @@
              * @internal
              */
             processUpdates: function (parentNode, updates) {
-              console.func("processUpdates");
+              console.func("DOMChildrenOperations.processUpdates");
+              console.log("parentNode:", parentNode);
+              console.log("updates:", updates);
               for (var k = 0; k < updates.length; k++) {
                 var update = updates[k];
+                console.log("updates[", k, "]:", update);
                 switch (update.type) {
                   case ReactMultiChildUpdateTypes.INSERT_MARKUP:
                     insertLazyTreeChildAt(
@@ -1833,6 +1900,7 @@
               /\bEdge\/\d/.test(navigator.userAgent));
 
           function insertTreeChildren(tree) {
+            console.func("DOMLazyTree.insertTreeChildren");
             if (!enableLazy) {
               return;
             }
@@ -1843,6 +1911,7 @@
                 insertTreeBefore(node, children[i], null);
               }
             } else if (tree.html != null) {
+              console.log("node.innerHTML = tree.html:", tree.html);
               node.innerHTML = tree.html;
             } else if (tree.text != null) {
               setTextContent(node, tree.text);
@@ -1869,12 +1938,16 @@
 
           function replaceChildWithTree(oldNode, newTree) {
             console.func("replaceChildWithTree");
+            console.log("oldNode:", oldNode);
+            console.log("newTree:", newTree);
             oldNode.parentNode.replaceChild(newTree.node, oldNode);
             insertTreeChildren(newTree);
           }
 
           function queueChild(parentTree, childTree) {
             console.func("queueChild");
+            console.log("parentTree:", parentTree);
+            console.log("childTree:", childTree);
             if (enableLazy) {
               parentTree.children.push(childTree);
             } else {
@@ -1884,6 +1957,8 @@
 
           function queueHTML(tree, html) {
             console.func("queueHTML");
+            console.log("tree:", tree);
+            console.log("html:", html);
             if (enableLazy) {
               tree.html = html;
             } else {
@@ -2215,6 +2290,8 @@
              * @method
              */
             isCustomAttribute: function (attributeName) {
+              console.func("DOMProperty.isCustomAttribute");
+              console.log("attributeName:", attributeName);
               for (
                 var i = 0;
                 i < DOMProperty._isCustomAttributeFunctions.length;
@@ -2262,7 +2339,8 @@
           var validatedAttributeNameCache = {};
 
           function isAttributeNameSafe(attributeName) {
-            console.func("isAttributeNameSafe");
+            console.func("DOMPropertyOperations.isAttributeNameSafe");
+            console.log("attributeName:", attributeName);
             if (validatedAttributeNameCache.hasOwnProperty(attributeName)) {
               return true;
             }
@@ -2282,6 +2360,8 @@
 
           function shouldIgnoreValue(propertyInfo, value) {
             console.func("shouldIgnoreValue");
+            console.log("propertyInfo", propertyInfo);
+            console.log("value:", value);
             return (
               value == null ||
               (propertyInfo.hasBooleanValue && !value) ||
@@ -2305,6 +2385,14 @@
              * @return {string} Markup string.
              */
             createMarkupForID: function (id) {
+              console.func("DOMPropertyOperations.createMarkupForID");
+              console.log("id:", id);
+              console.log(
+                "returning:",
+                DOMProperty.ID_ATTRIBUTE_NAME +
+                  "=" +
+                  quoteAttributeValueForBrowser(id)
+              );
               return (
                 DOMProperty.ID_ATTRIBUTE_NAME +
                 "=" +
@@ -2313,6 +2401,9 @@
             },
 
             setAttributeForID: function (node, id) {
+              console.func("DOMPropertyOperations.setAttributeForID");
+              console.log("node:", node);
+              console.log("id:", id);
               node.setAttribute(DOMProperty.ID_ATTRIBUTE_NAME, id);
             },
 
@@ -2332,6 +2423,8 @@
              * @return {?string} Markup string, or null if the property was invalid.
              */
             createMarkupForProperty: function (name, value) {
+              console.func("DOMPropertyOperations.createMarkupForProperty");
+
               if ("development" !== "production") {
                 ReactDOMInstrumentation.debugTool.onCreateMarkupForProperty(
                   name,
@@ -2372,6 +2465,10 @@
              * @return {string} Markup string, or empty string if the property was invalid.
              */
             createMarkupForCustomAttribute: function (name, value) {
+              console.func(
+                "DOMPropertyOperations.createMarkupForCustomAttribute"
+              );
+
               if (!isAttributeNameSafe(name) || value == null) {
                 return "";
               }
@@ -2386,6 +2483,8 @@
              * @param {*} value
              */
             setValueForProperty: function (node, name, value) {
+              console.func("DOMPropertyOperations.setValueForProperty");
+
               if ("development" !== "production") {
                 ReactDOMInstrumentation.debugTool.onSetValueForProperty(
                   node,
@@ -2438,6 +2537,8 @@
             },
 
             setValueForAttribute: function (node, name, value) {
+              console.func("DOMPropertyOperations.setValueForAttribute");
+
               if (!isAttributeNameSafe(name)) {
                 return;
               }
@@ -2455,6 +2556,8 @@
              * @param {string} name
              */
             deleteValueForProperty: function (node, name) {
+              console.func("DOMPropertyOperations.deleteValueForProperty");
+
               if ("development" !== "production") {
                 ReactDOMInstrumentation.debugTool.onDeleteValueForProperty(
                   node,
@@ -2553,6 +2656,7 @@
              * @internal
              */
             dangerouslyRenderMarkup: function (markupList) {
+              console.func("Danger.dangerouslyRenderMarkup");
               !ExecutionEnvironment.canUseDOM
                 ? "development" !== "production"
                   ? invariant(
@@ -3058,6 +3162,8 @@
            */
           var executeDispatchesAndRelease = function (event, simulated) {
             console.func("executeDispatchesAndRelease");
+            console.log("event:", event);
+            console.log("simulated:", simulated);
             if (event) {
               EventPluginUtils.executeDispatchesInOrder(event, simulated);
 
@@ -3068,10 +3174,12 @@
           };
           var executeDispatchesAndReleaseSimulated = function (e) {
             console.func("executeDispatchesAndReleaseSimulated");
+            console.log("e:", e);
             return executeDispatchesAndRelease(e, true);
           };
           var executeDispatchesAndReleaseTopLevel = function (e) {
             console.func("executeDispatchesAndReleaseTopLevel");
+            console.log("e:", e);
             return executeDispatchesAndRelease(e, false);
           };
 
@@ -3098,6 +3206,12 @@
            * @public
            */
           console.init("EventPluginHub");
+          console.desc(
+            "This is a unified interface for event plugins to be installed and configured."
+          );
+          console.desc(
+            "Each plugin that is injected into `EventsPluginHub` is immediately operable."
+          );
           console.desc(`that includes injection: injectEventPluginOrder, injectEventPluginsByName,
           putListener, getListener, deleteListener, deleteAllListeners, extractEvents, enqueueEvents, processEventQueue`);
           var EventPluginHub = {
@@ -3128,6 +3242,9 @@
              */
             putListener: function (inst, registrationName, listener) {
               console.func("EventPluginHub.putListener");
+              console.log("inst:", inst);
+              console.log("registrationName:", registrationName);
+              console.log("listener:", listener);
               !(typeof listener === "function")
                 ? "development" !== "production"
                   ? invariant(
@@ -3143,12 +3260,13 @@
                 listenerBank[registrationName] ||
                 (listenerBank[registrationName] = {});
               bankForRegistrationName[inst._rootNodeID] = listener;
-
+              console.log("bankForRegistrationName:", bankForRegistrationName);
               var PluginModule =
                 EventPluginRegistry.registrationNameModules[registrationName];
               if (PluginModule && PluginModule.didPutListener) {
                 PluginModule.didPutListener(inst, registrationName, listener);
               }
+              console.log("PluginModule:", PluginModule);
             },
 
             /**
@@ -3179,6 +3297,8 @@
              */
             deleteListener: function (inst, registrationName) {
               console.func("EventPluginHub.deleteListener");
+              console.log("inst:", inst);
+              console.log("registrationName:", registrationName);
 
               var PluginModule =
                 EventPluginRegistry.registrationNameModules[registrationName];
@@ -3230,6 +3350,10 @@
               nativeEventTarget
             ) {
               console.func("EventPluginHub.extractEvents");
+              console.log("topLevelType:", topLevelType);
+              console.log("targetInst:", targetInst);
+              console.log("nativeEvent:", nativeEvent);
+              console.log("nativeEventTarget:", nativeEventTarget);
 
               var events;
               var plugins = EventPluginRegistry.plugins;
@@ -3248,6 +3372,7 @@
                   }
                 }
               }
+              console.log("returning accumulated events:", events);
               return events;
             },
 
@@ -3275,7 +3400,7 @@
              */
             processEventQueue: function (simulated) {
               console.func("EventPluginHub.processEventQueue");
-
+              console.log("simulated:", simulated);
               // Set `eventQueue` to null before processing it so that we can tell if more
               // events get enqueued while processing.
               var processingEventQueue = eventQueue;
@@ -3353,11 +3478,13 @@
            * @private
            */
           function recomputePluginOrdering() {
+            // tolearn
             console.func("recomputePluginOrdering");
             if (!EventPluginOrder) {
               // Wait until an `EventPluginOrder` is injected.
               return;
             }
+            console.log("namesToPlugins:", namesToPlugins);
             for (var pluginName in namesToPlugins) {
               var PluginModule = namesToPlugins[pluginName];
               var pluginIndex = EventPluginOrder.indexOf(pluginName);
@@ -3455,6 +3582,7 @@
               }
               return true;
             } else if (dispatchConfig.registrationName) {
+              //tolearn
               publishRegistrationName(
                 dispatchConfig.registrationName,
                 PluginModule,
@@ -3632,7 +3760,7 @@
              */
             getPluginModuleForEvent: function (event) {
               console.func("EventPluginRegistry.getPluginModuleForEvent");
-
+              console.log("event:", event);
               var dispatchConfig = event.dispatchConfig;
               if (dispatchConfig.registrationName) {
                 return (
@@ -3652,6 +3780,7 @@
                     dispatchConfig.phasedRegistrationNames[phase]
                   ];
                 if (PluginModule) {
+                  console.log("returning PluginModule:", PluginModule);
                   return PluginModule;
                 }
               }
@@ -3842,6 +3971,10 @@
             console.log("inst:", inst);
             var type = event.type || "unknown-event";
             event.currentTarget = EventPluginUtils.getNodeFromInstance(inst);
+            console.log(
+              "updated event.currentTarget:",
+              EventPluginUtils.getNodeFromInstance(inst)
+            );
             if (simulated) {
               ReactErrorUtils.invokeGuardedCallbackWithCatch(
                 type,
@@ -3917,6 +4050,9 @@
                 }
                 // Listeners and Instances are two parallel arrays that are always in sync.
                 if (dispatchListeners[i](event, dispatchInstances[i])) {
+                  console.desc(
+                    "EventPluginUtils.executeDispatchesInOrderStopAtTrueImpl stopped at the first dispatch execution that returned true"
+                  );
                   return dispatchInstances[i];
                 }
               }
@@ -3933,6 +4069,7 @@
            */
           function executeDispatchesInOrderStopAtTrue(event) {
             console.func("EventPluginUtils.executeDispatchesInOrderStopAtTrue");
+            console.log("event:", event);
             var ret = executeDispatchesInOrderStopAtTrueImpl(event);
             event._dispatchInstances = null;
             event._dispatchListeners = null;
@@ -3950,6 +4087,7 @@
            */
           function executeDirectDispatch(event) {
             console.func("EventPluginUtils.executeDirectDispatch");
+            console.log("event:", event);
             if ("development" !== "production") {
               validateEventDispatches(event);
             }
@@ -3979,7 +4117,8 @@
            */
           function hasDispatches(event) {
             console.func("EventPluginUtils.hasDispatches");
-
+            console.log("event:", event);
+            console.log("hasDispaches ? ", !!event._dispatchListeners);
             return !!event._dispatchListeners;
           }
 
@@ -3999,11 +4138,12 @@
 
             getInstanceFromNode: function (node) {
               console.func("EventPluginUtils.getInstanceFromNode");
-
+              console.log("node:", node);
               return ComponentTree.getInstanceFromNode(node);
             },
             getNodeFromInstance: function (node) {
               console.func("EventPluginUtils.getNodeFromInstance");
+              console.log("node:", node);
               return ComponentTree.getNodeFromInstance(node);
             },
             isAncestor: function (a, b) {
@@ -4018,7 +4158,7 @@
             },
             getParentInstance: function (inst) {
               console.func("EventPluginUtils.getParentInstance");
-
+              console.log("inst:", inst);
               return TreeTraversal.getParentInstance(inst);
             },
             traverseTwoPhase: function (target, fn, arg) {
@@ -4047,6 +4187,7 @@
       19: [
         function (_dereq_, module, exports) {
           /**
+           * until here -> pretty much understood
            * @providesModule EventPropagators
            */
 
@@ -4071,8 +4212,13 @@
            */
           function listenerAtPhase(inst, event, propagationPhase) {
             console.func("EventPropagators.listenerAtPhase");
+            console.log("inst:", inst);
+            console.log("event:", event);
+            console.log("propagationPhase:", propagationPhase);
+
             var registrationName =
               event.dispatchConfig.phasedRegistrationNames[propagationPhase];
+            console.log("registrationName:", registrationName);
             return getListener(inst, registrationName);
           }
 
@@ -4095,7 +4241,9 @@
             var phase = upwards
               ? PropagationPhases.bubbled
               : PropagationPhases.captured;
+            console.log("phase:", phase);
             var listener = listenerAtPhase(inst, event, phase);
+            console.log("listener:", listener);
             if (listener) {
               event._dispatchListeners = accumulateInto(
                 event._dispatchListeners,
@@ -4108,7 +4256,7 @@
             }
           }
 
-          /**
+          /** tolearn
            * Collect dispatches (must be entirely collected before dispatching - see unit
            * tests). Lazily allocate the array to conserve memory.  We must loop through
            * each event and perform the traversal for each one. We cannot perform a
@@ -4162,8 +4310,8 @@
             and then accumulates, aka pushing this listener into a accumulation which is a data structure
             that maintains either a single value or multiply values as an array.
             In this particular case, accumulateDispathes accumulates but without
-            regard to direction, does not look for phased
-            registration names. Same as accumulateDirectDispatchesSingle but without
+            regard to direction (does not look for phased
+            registration names). Same as accumulateDirectDispatchesSingle but without
             requiring that the dispatchMarker be the same as the dispatched ID.
             `);
             console.log("inst:", inst);
@@ -4201,7 +4349,7 @@
            */
           function accumulateDirectDispatchesSingle(event) {
             console.func("EventPropagators.accumulateDirectDispatchesSingle");
-
+            console.log("event:", event);
             if (event && event.dispatchConfig.registrationName) {
               accumulateDispatches(event._targetInst, null, event);
             }
@@ -4242,6 +4390,7 @@
 
           function accumulateDirectDispatches(events) {
             console.func("EventPropagators.accumulateDirectDispatches");
+            console.log("events:", events);
             forEachAccumulated(events, accumulateDirectDispatchesSingle);
           }
 
@@ -4802,7 +4951,7 @@
 
           var invariant = _dereq_(156);
 
-          /**
+          /** fromhere
            * Static poolers. Several custom versions for each potential number of
            * arguments. A completely generic pooler is easy to implement, but would
            * require accessing the `arguments` object. In each of these, `this` refers to
@@ -4813,6 +4962,7 @@
             console.func("PooledClass.oneArgumentPooler");
             console.log("copyFieldsFrom:", copyFieldsFrom);
             var Klass = this;
+            console.log("Klass = this = :", this);
             if (Klass.instancePool.length) {
               var instance = Klass.instancePool.pop();
               Klass.call(instance, copyFieldsFrom);
@@ -5262,7 +5412,9 @@
                * @param {object} ReactEventListener
                */
               injectReactEventListener: function (ReactEventListener) {
-                console.func("injectReactEventListener");
+                console.func(
+                  "ReactBrowserEventEmiiter.injectReactEventListener"
+                );
                 console.desc(
                   "that includes ReactEventListener.setHandleTopLevel(ReactBrowserEventEmitter.handleTopLevel)"
                 );
@@ -5281,6 +5433,8 @@
              * @param {boolean} enabled True if callbacks should be enabled.
              */
             setEnabled: function (enabled) {
+              console.func("ReactBrowserEventEmiiter.setEnabled");
+              console.log("enabled:", enabled);
               if (ReactBrowserEventEmitter.ReactEventListener) {
                 ReactBrowserEventEmitter.ReactEventListener.setEnabled(enabled);
               }
@@ -5290,6 +5444,8 @@
              * @return {boolean} True if callbacks are enabled.
              */
             isEnabled: function () {
+              console.func("ReactBrowserEventEmiiter.isEnabled");
+
               return !!(
                 ReactBrowserEventEmitter.ReactEventListener &&
                 ReactBrowserEventEmitter.ReactEventListener.isEnabled()
@@ -5438,7 +5594,9 @@
               handle
             ) {
               console.func("ReactBrowserEventEmitter.trapCapturedEvent");
-
+              console.log("topLevelType:", topLevelType);
+              console.log("handlerBaseName:", handlerBaseName);
+              console.log("handle", handle);
               return ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(
                 topLevelType,
                 handlerBaseName,
@@ -5497,6 +5655,7 @@
 
           function instantiateChild(childInstances, child, name) {
             console.func("ReactChildReconciler.instantiateChild");
+            console.log("child:", child);
             // We found a component instance.
             var keyUnique = childInstances[name] === undefined;
             if ("development" !== "production") {
@@ -5512,6 +5671,10 @@
             }
             if (child != null && keyUnique) {
               childInstances[name] = instantiateReactComponent(child);
+              console.log(
+                "instantiated react component:",
+                childInstances[name]
+              );
             }
           }
 
@@ -5638,9 +5801,13 @@
              * @internal
              */
             unmountChildren: function (renderedChildren, safely) {
+              console.func("ReactChildReconciler.unmountChildren");
+              console.log("renderedChildren:", renderedChildren);
+              console.log("safely:", safely);
               for (var name in renderedChildren) {
                 if (renderedChildren.hasOwnProperty(name)) {
                   var renderedChild = renderedChildren[name];
+                  console.log("current renderedChild:", renderedChild);
                   ReactReconciler.unmountComponent(renderedChild, safely);
                 }
               }
@@ -5682,12 +5849,16 @@
            * @param {?*} forEachContext Context to perform context with.
            */
           function ForEachBookKeeping(forEachFunction, forEachContext) {
-            console.func("ReactChildren.ForEachBookKeeping");
+            console.func("ReactChildren.ForEachBookKeeping constructor");
+            console.log("forEachFunction:", forEachFunction);
+            console.log("forEachContext:", forEachContext);
+
             this.func = forEachFunction;
             this.context = forEachContext;
             this.count = 0;
           }
           ForEachBookKeeping.prototype.destructor = function () {
+            console.func("ReactChildren.ForEachBookKeeping destructor");
             this.func = null;
             this.context = null;
             this.count = 0;
@@ -5743,6 +5914,7 @@
             mapFunction,
             mapContext
           ) {
+            console.func("ReactChildren.MapBookKeeping constructor");
             this.result = mapResult;
             this.keyPrefix = keyPrefix;
             this.func = mapFunction;
@@ -5761,6 +5933,9 @@
 
           function mapSingleChildIntoContext(bookKeeping, child, childKey) {
             console.func("mapSingleChildIntoContext");
+            console.log("bookKeeping:", bookKeeping);
+            console.log("child:", child);
+            console.log("childKey:", childKey);
             var result = bookKeeping.result;
             var keyPrefix = bookKeeping.keyPrefix;
             var func = bookKeeping.func;
@@ -5791,7 +5966,7 @@
               result.push(mappedChild);
             }
           }
-
+          //fromhere
           function mapIntoWithKeyPrefixInternal(
             children,
             array,
@@ -5832,6 +6007,8 @@
           function mapChildren(children, func, context) {
             console.func("mapChildren");
             console.log("children:", children);
+            console.log("func:", func);
+            console.log("context:", context);
             if (children == null) {
               return children;
             }
@@ -6536,7 +6713,8 @@
            */
           function mergeIntoWithNoDuplicateKeys(one, two) {
             console.func("ReactClass.mergeIntoWithNoDuplicateKeys");
-
+            console.log("one:", one);
+            console.log("two:", two);
             !(one && two && typeof one === "object" && typeof two === "object")
               ? "development" !== "production"
                 ? invariant(
@@ -6567,7 +6745,7 @@
             return one;
           }
 
-          /**
+          /** fromhere
            * Creates a function that invokes two functions and merges their return values.
            *
            * @param {function} one Function to invoke first.
@@ -6627,6 +6805,7 @@
               boundMethod.__reactBoundArguments = null;
               var componentName = component.constructor.displayName;
               var _bind = boundMethod.bind;
+              // tolearn
               boundMethod.bind = function (newThis) {
                 for (
                   var _len = arguments.length,
@@ -6679,7 +6858,7 @@
            */
           function bindAutoBindMethods(component) {
             console.func("ReactClass.bindAutoBindMethods");
-
+            console.log("component:", component);
             var pairs = component.__reactAutoBindPairs;
             for (var i = 0; i < pairs.length; i += 2) {
               var autoBindKey = pairs[i];
@@ -6701,6 +6880,8 @@
              */
             replaceState: function (newState, callback) {
               console.func("ReactClassMixin.replaceState");
+              console.log("newState:", newState);
+              console.log("callback:", callback);
               this.updater.enqueueReplaceState(this, newState);
               if (callback) {
                 this.updater.enqueueCallback(this, callback, "replaceState");
@@ -6715,11 +6896,14 @@
              */
             isMounted: function () {
               console.func("ReactClassMixin.isMounted");
+              console.log("returning: ", this.updater.isMounted(this));
               return this.updater.isMounted(this);
             },
           };
 
-          var ReactClassComponent = function () {};
+          var ReactClassComponent = function () {
+            console.func("ReactClassComponent constructor");
+          };
           _assign(
             ReactClassComponent.prototype,
             ReactComponent.prototype,
@@ -6935,6 +7119,9 @@
            */
           function ReactComponent(props, context, updater) {
             console.func("ReactComponent() constructor");
+            console.log("props:", props);
+            console.log("context:", context);
+            console.log("updater:", updater);
             this.props = props;
             this.context = context;
             this.refs = emptyObject;
@@ -7077,7 +7264,7 @@
       ],
       30: [
         function (_dereq_, module, exports) {
-          /**
+          /** fromhere
            * @providesModule ReactComponentBrowserEnvironment
            */
 
@@ -7225,11 +7412,17 @@
             return "";
           }
 
-          function StatelessComponent(Component) {}
+          function StatelessComponent(Component) {
+            console.func(
+              "ReactCompositeComponent.StatelessComponent constructor"
+            );
+          }
           StatelessComponent.prototype.render = function () {
             console.func("StatelessComponent.render");
             var Component = ReactInstanceMap.get(this)._currentElement.type;
+            console.log("Component:", Component);
             var element = Component(this.props, this.context, this.updater);
+            console.log("element:", element);
             warnIfInvalidElement(Component, element);
             return element;
           };
@@ -7593,7 +7786,10 @@
               console.func(
                 "ReactCompositeComponentMixin.performInitialMountWithErrorHandling"
               );
-
+              console.log("renderedElement:", renderedElement);
+              console.log("nativeParent:", nativeParent);
+              console.log("transaction:", transaction);
+              console.log("context:", context);
               var markup;
               var checkpoint = transaction.checkpoint();
               try {
@@ -7615,7 +7811,7 @@
                   );
                 }
                 checkpoint = transaction.checkpoint();
-
+                console.log("checkpoint:", checkpoint);
                 this._renderedComponent.unmountComponent(true);
                 transaction.rollback(checkpoint);
 
@@ -7629,6 +7825,10 @@
                   context
                 );
               }
+              console.log(
+                "performInitialMountWithErrorHandling returning markup:",
+                markup
+              );
               return markup;
             },
 
@@ -7668,7 +7868,7 @@
               this._renderedComponent = this._instantiateReactComponent(
                 renderedElement
               );
-
+              console.log("this._renderedComponent:", this._renderedComponent);
               var markup = ReactReconciler.mountComponent(
                 this._renderedComponent,
                 transaction,
@@ -7676,7 +7876,7 @@
                 nativeContainerInfo,
                 this._processChildContext(context)
               );
-
+              console.log("performInitialMount returning markup:", markup);
               return markup;
             },
 
@@ -7759,7 +7959,7 @@
              */
             _maskContext: function (context) {
               console.func("ReactCompositeComponentMixin._maskContext");
-
+              console.log("context:", context);
               var Component = this._currentElement.type;
               var contextTypes = Component.contextTypes;
               if (!contextTypes) {
@@ -7805,7 +8005,7 @@
              */
             _processChildContext: function (currentContext) {
               console.func("ReactCompositeComponentMixin._processChildContext");
-
+              console.log("currentContext:", currentContext);
               var Component = this._currentElement.type;
               var inst = this._instance;
               if ("development" !== "production") {
@@ -7949,6 +8149,9 @@
 
             receiveComponent: function (nextElement, transaction, nextContext) {
               console.func("ReactCompositeComponentMixin.receiveComponent");
+              console.log("nextElement:", nextElement);
+              console.log("transaction:", transaction);
+              console.log("nextContext:", nextContext);
 
               var prevElement = this._currentElement;
               var prevContext = this._context;
@@ -8110,7 +8313,8 @@
 
             _processPendingState: function (props, context) {
               console.func("ReactCompositeComponentMixin._processPendingState");
-
+              console.log("props:", props);
+              console.log("context:", context);
               var inst = this._instance;
               var queue = this._pendingStateQueue;
               var replace = this._pendingReplaceState;
@@ -8276,7 +8480,8 @@
               console.func(
                 "ReactCompositeComponentMixin._replaceNodeWithMarkup"
               );
-
+              console.log("oldNativeNode:", oldNativeNode);
+              console.log("nextMarkup:", nextMarkup);
               ReactComponentEnvironment.replaceNodeWithMarkup(
                 oldNativeNode,
                 nextMarkup
@@ -8305,7 +8510,7 @@
                   renderedComponent = null;
                 }
               }
-
+              console.log("renderedComponent:", renderedComponent);
               return renderedComponent;
             },
 
@@ -8355,8 +8560,10 @@
              */
             attachRef: function (ref, component) {
               console.func("ReactCompositeComponentMixin.attachRef");
-
+              console.log("ref:", ref);
+              console.log("component:", component);
               var inst = this.getPublicInstance();
+              console.log("inst:", inst);
               !(inst != null)
                 ? "development" !== "production"
                   ? invariant(
@@ -8366,6 +8573,7 @@
                   : invariant(false)
                 : void 0;
               var publicComponentInstance = component.getPublicInstance();
+              console.log("publicComponentInstance:", publicComponentInstance);
               if ("development" !== "production") {
                 var componentName =
                   component && component.getName
@@ -8397,7 +8605,7 @@
              */
             detachRef: function (ref) {
               console.func("ReactCompositeComponentMixin.detachRef");
-
+              console.log("ref:", ref);
               var refs = this.getPublicInstance().refs;
               delete refs[ref];
             },
@@ -8714,6 +8922,7 @@
 
           var ReactDOMButton = {
             getNativeProps: function (inst, props) {
+              console.func("ReactDOMButton.getNativeProps");
               if (!props.disabled) {
                 return props;
               }
@@ -8736,7 +8945,7 @@
       ],
       36: [
         function (_dereq_, module, exports) {
-          /**
+          /** fromhere
            * @providesModule ReactDOMComponent
            */
 
@@ -9240,6 +9449,7 @@
            */
           function ReactDOMComponent(element) {
             console.func("ReactDOMComponent constructor");
+            console.log("element:", element);
             var tag = element.type;
             validateDangerousTag(tag);
             this._currentElement = element;
@@ -9259,6 +9469,7 @@
             if ("development" !== "production") {
               this._ancestorInfo = null;
             }
+            console.log("_tag:", tag);
           }
 
           ReactDOMComponent.displayName = "ReactDOMComponent";
@@ -9288,6 +9499,8 @@
               console.log("context:", context);
               this._rootNodeID = globalIdCounter++;
               this._domID = nativeContainerInfo._idCounter++;
+              console.log("_rootNodeID:", this._rootNodeID);
+              console.log("_domID:", this._domID);
               this._nativeParent = nativeParent;
               this._nativeContainerInfo = nativeContainerInfo;
 
@@ -9489,7 +9702,8 @@
               console.func(
                 "ReactDOMComponent._createOpenTagMarkupAndPutListeners"
               );
-
+              console.log("transaction:", transaction);
+              console.log("props:", props);
               var ret = "<" + this._currentElement.type;
 
               for (var propKey in props) {
@@ -9568,6 +9782,9 @@
              */
             _createContentMarkup: function (transaction, props, context) {
               console.func("ReactDOMComponent._createContentMarkup");
+              console.log("transaction:", transaction);
+              console.log("props:", props);
+              console.log("context:", context);
 
               var ret = "";
 
@@ -9619,7 +9836,10 @@
               lazyTree
             ) {
               console.func("ReactDOMComponent._createInitialChildren");
-
+              console.log("transaction:", transaction);
+              console.log("props:", props);
+              console.log("context:", context);
+              console.log("lazyTree:", lazyTree);
               // Intentional use of != to avoid catching zero/false.
               var innerHTML = props.dangerouslySetInnerHTML;
               if (innerHTML != null) {
@@ -9933,14 +10153,19 @@
               context
             ) {
               console.func("ReactDOMComponent._updateDOMChildren");
+              console.log("lastProps:", lastProps);
+              console.log("nextProps:", nextProps);
+              console.log("transaction:", transaction);
+              console.log("context:", context);
 
               var lastContent = CONTENT_TYPES[typeof lastProps.children]
                 ? lastProps.children
                 : null;
+              console.log("lastContext:", lastContent);
               var nextContent = CONTENT_TYPES[typeof nextProps.children]
                 ? nextProps.children
                 : null;
-
+              console.log("nextContent:", nextContent);
               var lastHtml =
                 lastProps.dangerouslySetInnerHTML &&
                 lastProps.dangerouslySetInnerHTML.__html;
@@ -9981,7 +10206,7 @@
 
             getNativeNode: function () {
               console.func("ReactDOMComponent.getNativeNode");
-
+              console.log("returning getNode(this):", getNode(this));
               return getNode(this);
             },
 
@@ -10161,15 +10386,18 @@
            */
           function precacheNode(inst, node) {
             console.func("ReactDOMComponentTree.precacheNode");
-
+            console.desc("node[internalInstanceKey] = nativeInst;");
+            console.log("node:", node);
             var nativeInst = getRenderedNativeOrTextFromComponent(inst);
             nativeInst._nativeNode = node;
+
             node[internalInstanceKey] = nativeInst;
+            console.log("node after precache:", node);
           }
 
           function uncacheNode(inst) {
             console.func("ReactDOMComponentTree.uncacheNode");
-
+            console.log("inst:", inst);
             var node = inst._nativeNode;
             if (node) {
               delete node[internalInstanceKey];
@@ -10193,7 +10421,8 @@
            */
           function precacheChildNodes(inst, node) {
             console.func("ReactDOMComponentTree.precacheChildNodes");
-
+            console.log("inst:", inst);
+            console.log("node:", node);
             if (inst._flags & Flags.hasCachedChildNodes) {
               return;
             }
@@ -10248,6 +10477,7 @@
               "that is getting a node and traversing up node.parentNode until a node[internalInstanceKey] is found"
             );
             console.log("node:", node);
+            console.log("internalInstanceKey:", internalInstanceKey);
             if (node[internalInstanceKey]) {
               console.log(
                 "returning node[internalInstanceKey]:",
@@ -10291,7 +10521,7 @@
            */
           function getInstanceFromNode(node) {
             console.func("ReactDOMComponentTree.getInstanceFromNode");
-
+            console.log("node:", node);
             var inst = getClosestInstanceFromNode(node);
             if (inst != null && inst._nativeNode === node) {
               return inst;
@@ -10379,6 +10609,8 @@
 
           function ReactDOMContainerInfo(topLevelWrapper, node) {
             console.func("ReactDOMContainerInfo constructor");
+            console.log("topLevelWrapper:", topLevelWrapper);
+            console.log("node:", node);
             var info = {
               _topLevelWrapper: topLevelWrapper,
               _idCounter: 1,
@@ -10395,6 +10627,7 @@
                 ? validateDOMNesting.updatedAncestorInfo(null, info._tag, null)
                 : null;
             }
+            console.log("ReactDOMContainerInfo returning info:", info);
             return info;
           }
 
@@ -10425,6 +10658,7 @@
             arg4,
             arg5
           ) {
+            console.func("ReactDOMDebugTool.emitEvent");
             if ("development" !== "production") {
               eventHandlers.forEach(function (handler) {
                 try {
@@ -10843,6 +11077,7 @@
           console.init("ReactDOMInput");
           var ReactDOMInput = {
             getNativeProps: function (inst, props) {
+              console.func("ReactDOMInput.getNativeProps");
               var value = LinkedValueUtils.getValue(props);
               var checked = LinkedValueUtils.getChecked(props);
 
@@ -10871,6 +11106,9 @@
 
             mountWrapper: function (inst, props) {
               console.func("ReactDOMInput.mountWrapper");
+              console.log("inst:", inst);
+              console.log("props:", props);
+
               if ("development" !== "production") {
                 LinkedValueUtils.checkPropTypes(
                   "input",
@@ -10949,7 +11187,7 @@
 
             updateWrapper: function (inst) {
               console.func("ReactDOMInput.updateWrapper");
-
+              console.log("inst:", inst);
               var props = inst._currentElement.props;
 
               if ("development" !== "production") {
@@ -11026,7 +11264,7 @@
 
           function _handleChange(event) {
             console.func("ReactDOMInput._handleChange");
-
+            console.log("event:", event);
             var props = this._currentElement.props;
 
             var returnValue = LinkedValueUtils.executeOnChange(props, event);
@@ -11130,6 +11368,7 @@
           console.init("ReactDOMOption");
           var ReactDOMOption = {
             mountWrapper: function (inst, props, nativeParent) {
+              console.func("ReactDOMOption.mountWrapper");
               // TODO (yungsters): Remove support for `selected` in <option>.
               if ("development" !== "production") {
                 "development" !== "production"
@@ -11172,6 +11411,8 @@
 
             getNativeProps: function (inst, props) {
               console.func("ReactDOMOption");
+              console.log("inst:", inst);
+              console.log("props:", props);
               var nativeProps = _assign(
                 { selected: undefined, children: undefined },
                 props
@@ -11339,7 +11580,7 @@
            */
           function updateOptions(inst, multiple, propValue) {
             console.func("ReactDOMSelect.updateOptions");
-
+            console.log("inst:", inst);
             var selectedValue, i;
             var options = ReactDOMComponentTree.getNodeFromInstance(inst)
               .options;
@@ -12186,7 +12427,7 @@
       ],
       53: [
         function (_dereq_, module, exports) {
-          /**
+          /** fromhere
            * @providesModule ReactDOMTreeTraversal
            */
 
@@ -14371,6 +14612,10 @@
 
           function runEventQueueInBatch(events) {
             console.func("runEventQueueInBatch");
+            console.desc(
+              `calling EventPluginHub.enqueueEvents(events);, EventPluginHub.processEventQueue(false);`
+            );
+            console.log("events:", events);
             EventPluginHub.enqueueEvents(events);
             EventPluginHub.processEventQueue(false);
           }
@@ -16758,6 +17003,8 @@
              */
             enqueueSetState: function (publicInstance, partialState) {
               console.func("ReactNoopUpdateQueue.enqueueSetState");
+              console.log("publicInstance:", publicInstance);
+              console.log("partialstate:", partialState);
 
               warnTDZ(publicInstance, "setState");
             },
@@ -18688,6 +18935,9 @@
 
           function ensureInjected() {
             console.func("ReactUpdates.ensureInjected");
+            console.desc(
+              `making sure batchingStrategy as well as exist ReactReconcileTransaction`
+            );
             !(ReactUpdates.ReactReconcileTransaction && batchingStrategy)
               ? "development" !== "production"
                 ? invariant(
