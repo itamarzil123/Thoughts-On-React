@@ -37,8 +37,14 @@
       "font-weight: bold",
       "font-size: 15px",
     ].join(";");
-
-    console.log("%c ---> Calling %s ", styles, text);
+    if (console.delimeter === 0) {
+      delimeterStr = "";
+    } else {
+      for (let i = 0; i < console.delimeter; i++) {
+        delimeterStr += " ";
+      }
+    }
+    console.log(delimeterStr + "%c ---> Calling %s ", styles, text);
   };
   console.param = function (text) {
     console.log("%c ---> Parameter: ", "color: purple", text);
@@ -70,22 +76,28 @@
       "font-weight: bold",
       "font-size: 15px",
     ].join(";");
-
+    console.delimeter = 0;
     console.log("%c Initializing %s ", styles, text);
   };
 
   return (function e(t, n, r) {
+    console.log("t: ", t, ", n:", n, "r: ", r);
     function s(o, u) {
+      console.log("o: ", o, ", u:", u);
       if (!n[o]) {
         if (!t[o]) {
+          // if no module found
           var a = typeof require == "function" && require;
           if (!u && a) return a(o, !0);
-          if (i) return i(o, !0);
+          if (i) return i(o, !0); // for commonJS / require.js
           var f = new Error("Cannot find module '" + o + "'");
           throw ((f.code = "MODULE_NOT_FOUND"), f);
         }
         var l = (n[o] = { exports: {} });
         t[o][0].call(
+          // activation of the '90' module at first,
+          // n which is now exports: {}, will be initialized to be
+          // all 90 exported modules.
           l.exports,
           function (e) {
             var n = t[o][1][e];
@@ -102,7 +114,10 @@
       return n[o].exports;
     }
     var i = typeof require == "function" && require;
-    for (var o = 0; o < r.length; o++) s(r[o]);
+    for (var o = 0; o < r.length; o++) {
+      console.log("r[o]:", r[o]);
+      s(r[o]);
+    }
     return s;
   })(
     {
@@ -3350,6 +3365,8 @@
               nativeEventTarget
             ) {
               console.func("EventPluginHub.extractEvents");
+              console.desc(`iterating on each event plugin stored in EventPluginRegistry.plugins, calling
+              plugin.extractEvent() on each one of them, and then 'accumulate' them.`);
               console.log("topLevelType:", topLevelType);
               console.log("targetInst:", targetInst);
               console.log("nativeEvent:", nativeEvent);
@@ -6796,6 +6813,7 @@
            * @return {function} The bound method.
            */
           function bindAutoBindMethod(component, method) {
+            console.delimeter += 4;
             console.func("ReactClass.bindAutoBindMethod");
 
             var boundMethod = method.bind(component);
@@ -6848,6 +6866,8 @@
                 return reboundMethod;
               };
             }
+            console.delimeter -= 4;
+
             return boundMethod;
           }
 
@@ -6857,6 +6877,7 @@
            * @param {object} component Component whose method is going to be bound.
            */
           function bindAutoBindMethods(component) {
+            console.delimeter += 4;
             console.func("ReactClass.bindAutoBindMethods");
             console.log("component:", component);
             var pairs = component.__reactAutoBindPairs;
@@ -6865,6 +6886,7 @@
               var method = pairs[i + 1];
               component[autoBindKey] = bindAutoBindMethod(component, method);
             }
+            console.delimeter -= 4;
           }
 
           /**
@@ -6927,6 +6949,7 @@
              */
             createClass: function (spec) {
               console.func("ReactClass.createClass()");
+
               console.log("spec:", spec);
               console.desc(
                 `that is doing: bindAutoBindMethods(), getInitialState(), new ReactClassComponent(), mixSpecIntoComponent(Constructor, spec);`
@@ -6961,6 +6984,7 @@
 
                 // Wire up auto-binding
                 if (this.__reactAutoBindPairs.length) {
+                  console.delimeter = "     ";
                   bindAutoBindMethods(this);
                 }
 
@@ -9186,6 +9210,9 @@
             transaction
           ) {
             console.func("ReactDOMComponent.enqueuePutListener");
+            console.desc(`triggering a sequence of steps that eventually storing the event listener
+            inside listenerBank, putting the listener in the DOM after React DOM is ready,
+            and wrapping its invokation inside a dispatchEvent as well`);
             console.log("inst:", inst);
             console.log("registrationName:", registrationName);
             console.log("listener:", listener);
@@ -12516,7 +12543,7 @@
            */
           function getParentInstance(inst) {
             console.func("ReactDOMTreeTraversal.getParentInstance");
-
+            console.log("inst:", inst);
             !("_nativeNode" in inst)
               ? "development" !== "production"
                 ? invariant(false, "getParentInstance: Invalid argument.")
@@ -12540,13 +12567,14 @@
             var path = [];
             while (inst) {
               path.push(inst);
-              console.log("inside white loop: inst:", inst._nativeParent);
+              console.log("inside while loop: inst:", inst._nativeParent);
               inst = inst._nativeParent;
             }
             var i;
             console.desc(
               "now iterating on all _nativeParents and calling fn() on each one of them"
             );
+            console.log("path:", path);
             for (i = path.length; i-- > 0; ) {
               fn(path[i], false, arg);
             }
@@ -12564,17 +12592,24 @@
            */
           function traverseEnterLeave(from, to, fn, argFrom, argTo) {
             console.func("ReactDOMTreeTraversal.traverseEnterLeave");
+            console.log("from:", from);
+            console.log("to:", to);
+            console.log("fn:", fn);
+            console.log("argFrom:", argFrom);
+            console.log("argTo:", argTo);
 
             var common = from && to ? getLowestCommonAncestor(from, to) : null;
             var pathFrom = [];
             while (from && from !== common) {
               pathFrom.push(from);
               from = from._nativeParent;
+              console.log("current from:", from);
             }
             var pathTo = [];
             while (to && to !== common) {
               pathTo.push(to);
               to = to._nativeParent;
+              console.log("current to:", to);
             }
             var i;
             for (i = 0; i < pathFrom.length; i++) {
@@ -12777,7 +12812,7 @@
       ],
       56: [
         function (_dereq_, module, exports) {
-          /**
+          /** fromhere
            * @providesModule ReactDefaultBatchingStrategy
            */
 
@@ -12825,6 +12860,9 @@
             Transaction.Mixin,
             {
               getTransactionWrappers: function () {
+                console.func(
+                  "ReactDefaultBatchingStrategy.getTransactionWrappers"
+                );
                 return TRANSACTION_WRAPPERS;
               },
             }
@@ -13828,6 +13866,9 @@
 
           ReactElement.createElement = function (type, config, children) {
             console.func("ReactElement.createElement");
+            console.log("type:", type);
+            console.log("config:", config);
+            console.log("children:", children);
             var propName;
 
             // Reserved names are extracted
@@ -13946,6 +13987,18 @@
                 }
               }
             }
+            console.log(
+              "returning the newly created ReactElement:",
+              ReactElement(
+                type,
+                key,
+                ref,
+                self,
+                source,
+                ReactCurrentOwner.current,
+                props
+              )
+            );
             return ReactElement(
               type,
               key,
@@ -14426,11 +14479,12 @@
 
             createFactory: function (type) {
               console.init("ReactElementValidator.createFactory");
-
+              console.log("type:", type);
               var validatedFactory = ReactElementValidator.createElement.bind(
                 null,
                 type
               );
+              console.log("validatedFactory:", validatedFactory);
               // Legacy hook TODO: Warn if this is accessed
               validatedFactory.type = type;
 
@@ -14613,7 +14667,7 @@
           function runEventQueueInBatch(events) {
             console.func("runEventQueueInBatch");
             console.desc(
-              `calling EventPluginHub.enqueueEvents(events);, EventPluginHub.processEventQueue(false);`
+              `EventPluginHub.enqueueEvents(events), EventPluginHub.processEventQueue(false);`
             );
             console.log("events:", events);
             EventPluginHub.enqueueEvents(events);
@@ -14775,6 +14829,7 @@
 
             setHandleTopLevel: function (handleTopLevel) {
               console.func("ReactEventListener.setHandleTopLevel");
+              console.log("handleTopLevel:", handleTopLevel);
               ReactEventListener._handleTopLevel = handleTopLevel;
             },
 
@@ -14835,7 +14890,9 @@
               handle
             ) {
               console.func("ReactEventListener.trapCapturedEvent");
-
+              console.log("topLevelType:", topLevelType);
+              console.log("handlerBaseName:", handlerBaseName);
+              console.log("handle:", handle);
               var element = handle;
               if (!element) {
                 return null;
@@ -14865,11 +14922,16 @@
               if (!ReactEventListener._enabled) {
                 return;
               }
-
+              //tolearn
               var bookKeeping = TopLevelCallbackBookKeeping.getPooled(
                 topLevelType,
                 nativeEvent
               );
+              console.log(
+                "retrieved bookKepping of TopLevelCallbackBookKeeping:",
+                bookKeeping
+              );
+
               try {
                 // Event queue being processed in the same cycle allows
                 // `preventDefault`.
@@ -14989,7 +15051,7 @@
           var ReactInputSelection = {
             hasSelectionCapabilities: function (elem) {
               console.func("ReactInputSelection.hasSelectionCapabilities");
-
+              console.log("elem:", elem);
               var nodeName =
                 elem && elem.nodeName && elem.nodeName.toLowerCase();
               return (
@@ -15050,7 +15112,7 @@
              */
             getSelection: function (input) {
               console.func("ReactInputSelection.getSelection");
-
+              console.log("input:", input);
               var selection;
 
               if ("selectionStart" in input) {
@@ -15338,6 +15400,8 @@
            */
           function firstDifferenceIndex(string1, string2) {
             console.func("ReactMount.firstDifferenceIndex");
+            console.log("string1:", string1);
+            console.log("string2:", string2);
             var minLen = Math.min(string1.length, string2.length);
             for (var i = 0; i < minLen; i++) {
               if (string1.charAt(i) !== string2.charAt(i)) {
@@ -15354,20 +15418,30 @@
            */
           function getReactRootElementInContainer(container) {
             console.func("ReactMount.getReactRootElementInContainer");
+            console.log("container:", container);
             if (!container) {
               return null;
             }
 
             if (container.nodeType === DOC_NODE_TYPE) {
+              console.log(
+                "returning container.documentElement:",
+                container.documentElement
+              );
               return container.documentElement;
             } else {
+              console.log(
+                "returning container.firstChild:",
+                container.firstChild
+              );
+
               return container.firstChild;
             }
           }
 
           function internalGetID(node) {
             console.func("ReactMount.internalGetID");
-
+            console.log("node:", node);
             // If node is something like a window, document, or text node, none of
             // which support attributes or a .getAttribute method, gracefully return
             // the empty string, as if the attribute were missing.
@@ -15478,7 +15552,8 @@
            */
           function unmountComponentFromNode(instance, container, safely) {
             console.func("ReactMount.unmountComponentFromNode");
-
+            console.log("instance:", instance);
+            console.log("container:", container);
             ReactReconciler.unmountComponent(instance, safely);
 
             if (container.nodeType === DOC_NODE_TYPE) {
@@ -15503,9 +15578,12 @@
            */
           function hasNonRootReactChild(container) {
             console.func("ReactMount.hasNonRootReactChild");
+            console.log("container:", container);
             var rootEl = getReactRootElementInContainer(container);
+            console.log("rootEl:", rootEl);
             if (rootEl) {
               var inst = ReactDOMComponentTree.getInstanceFromNode(rootEl);
+              console.log("inst:", inst);
               return !!(inst && inst._nativeParent);
             }
           }
@@ -15526,6 +15604,7 @@
             console.log("container:", container);
 
             var root = getNativeRootInstanceInContainer(container);
+            console.log("root:", root);
             return root ? root._nativeContainerInfo._topLevelWrapper : null;
           }
 
@@ -15602,6 +15681,10 @@
               callback
             ) {
               console.func("ReactMount._updateRootComponent");
+              console.log("prevComponent:", prevComponent);
+              console.log("nextElement:", nextElement);
+              console.log("container:", container);
+              console.log("callback:", callback);
 
               ReactMount.scrollMonitor(container, function () {
                 ReactUpdateQueue.enqueueElementInternal(
@@ -15634,6 +15717,11 @@
               context
             ) {
               console.func("ReactMount._renderNewRootComponent");
+              console.log("nextElement:", nextElement);
+              console.log("container:", container);
+              console.log("shouldReuseMarkup:", shouldReuseMarkup);
+              console.log("context:", context);
+
               console.desc(
                 "calls instantiateReactComponent(), ReactUpdates.batchedUpdates()"
               );
@@ -15672,7 +15760,7 @@
 
               ReactBrowserEventEmitter.ensureScrollValueMonitoring();
               var componentInstance = instantiateReactComponent(nextElement);
-
+              console.log("componentInstance:", componentInstance);
               // The initial render is synchronous but any updates that happen during
               // rendering, in componentWillMount or componentDidMount, will be batched
               // according to the current batching strategy.
@@ -15685,6 +15773,7 @@
               );
 
               var wrapperID = componentInstance._instance.rootID;
+              console.log("wrapperID:", wrapperID);
               instancesByReactRootID[wrapperID] = componentInstance;
 
               if ("development" !== "production") {
@@ -15716,6 +15805,11 @@
               callback
             ) {
               console.func("ReactMount.renderSubtreeIntoContainer()");
+              console.log("parentComponent:", parentComponent);
+              console.log("nextElement:", nextElement);
+              console.log("container:", container);
+              console.log("callback:", callback);
+
               !(
                 parentComponent != null &&
                 parentComponent._reactInternalInstance != null
@@ -15882,7 +15976,7 @@
               return component;
             },
 
-            /**
+            /** fromhere
              * Renders a React component into the DOM in the supplied `container`.
              *
              * If the React component was previously rendered into `container`, this will
@@ -15895,7 +15989,8 @@
              * @return {ReactComponent} Component instance rendered in `container`.
              */
             render: function (nextElement, container, callback) {
-              console.func("ReactMount.render()");
+              console.func("ReactMount.render()"); // nicknamed: ReactDOM.render()
+              // console.trace(container);
               console.log("nextElement:", nextElement);
               console.log("container:", container);
               console.log("callback:", callback);
@@ -15917,7 +16012,7 @@
              */
             unmountComponentAtNode: function (container) {
               console.func("ReactMount.unmountComponentAtNode()");
-
+              console.log("container:", container);
               // Various parts of our code (such as ReactCompositeComponent's
               // _renderValidatedComponent) assume that calls to render aren't nested;
               // verify that that's the case. (Strictly speaking, unmounting won't cause a
@@ -15997,7 +16092,10 @@
               transaction
             ) {
               console.func("ReactMount._mountImageIntoNode()");
-
+              console.log("markup:", markup);
+              console.log("instance:", instance);
+              console.log("container:", container);
+              console.log("transaction:", transaction);
               !(
                 container &&
                 (container.nodeType === ELEMENT_NODE_TYPE ||
@@ -16183,6 +16281,9 @@
            */
           function makeInsertMarkup(markup, afterNode, toIndex) {
             console.func("ReactMultiChild.makeInsertMarkup");
+            console.log("markup:", markup);
+            console.log("afterNode:", afterNode);
+            console.log("toIndex:", toIndex);
             // NOTE: Null values reduce hidden classes.
             return {
               type: ReactMultiChildUpdateTypes.INSERT_MARKUP,
@@ -16203,6 +16304,9 @@
            */
           function makeMove(child, afterNode, toIndex) {
             console.func("ReactMultiChild.makeMove");
+            console.log("child:", child);
+            console.log("afterNode:", afterNode);
+            console.log("toIndex:", toIndex);
 
             // NOTE: Null values reduce hidden classes.
             return {
@@ -16280,7 +16384,9 @@
            * passed and always returns the queue. Mutative.
            */
           function enqueue(queue, update) {
-            console.func("ReactMultiChild.makeTextContent");
+            console.func("ReactMultiChild.enqueue");
+            console.log("queue:", queue);
+            console.log("update:", update);
 
             if (update) {
               queue = queue || [];
@@ -16296,7 +16402,8 @@
            */
           function processQueue(inst, updateQueue) {
             console.func("ReactMultiChild.processQueue");
-
+            console.log("inst:", inst);
+            console.log("updateQueue:", updateQueue);
             ReactComponentEnvironment.processChildrenUpdates(inst, updateQueue);
           }
 
@@ -16321,6 +16428,8 @@
                 transaction,
                 context
               ) {
+                console.func("ReactMultiChild._reconcilerInstantiateChildren");
+                console.log("transaction:", transaction);
                 if ("development" !== "production") {
                   if (this._currentElement) {
                     try {
@@ -16350,6 +16459,7 @@
                 context
               ) {
                 console.func("ReactMultiChild._reconcilerUpdateChildren");
+                console.log("transaction:", transaction);
 
                 var nextChildren;
                 if ("development" !== "production") {
@@ -16393,6 +16503,7 @@
                */
               mountChildren: function (nestedChildren, transaction, context) {
                 console.func("ReactMultiChild.mountChildren");
+                console.log("transaction:", transaction);
 
                 var children = this._reconcilerInstantiateChildren(
                   nestedChildren,
@@ -16427,6 +16538,7 @@
                */
               updateTextContent: function (nextContent) {
                 console.func("ReactMultiChild.updateTextContent");
+                console.log("nextContent:", nextContent);
 
                 var prevChildren = this._renderedChildren;
                 // Remove any rendered children.
@@ -16456,6 +16568,7 @@
                */
               updateMarkup: function (nextMarkup) {
                 console.func("ReactMultiChild.updateMarkup");
+                console.log("nextMarkup:", nextMarkup);
 
                 var prevChildren = this._renderedChildren;
                 // Remove any rendered children.
@@ -16489,6 +16602,12 @@
                 context
               ) {
                 console.func("ReactMultiChild.updateChildren");
+                console.log(
+                  "nextNestedChildrenElements:",
+                  nextNestedChildrenElements
+                );
+                console.log("transaction:", transaction);
+                console.log("context:", context);
 
                 // Hook used by React ART
                 this._updateChildren(
@@ -16509,6 +16628,14 @@
                 transaction,
                 context
               ) {
+                console.func("ReactMultiChild._updateChildren");
+                console.log(
+                  "nextNestedChildrenElements:",
+                  nextNestedChildrenElements
+                );
+                console.log("transaction:", transaction);
+                console.log("context:", context);
+
                 var prevChildren = this._renderedChildren;
                 var removedNodes = {};
                 var nextChildren = this._reconcilerUpdateChildren(
@@ -16625,6 +16752,9 @@
                */
               createChild: function (child, afterNode, mountImage) {
                 console.func("ReactMultiChild.createChild");
+                console.log("child:", child);
+                console.log("afterNode:", afterNode);
+                console.log("mountImage:", mountImage);
 
                 return makeInsertMarkup(
                   mountImage,
@@ -16641,6 +16771,7 @@
                */
               removeChild: function (child, node) {
                 console.func("ReactMultiChild.removeChild");
+                console.log("child:", child);
 
                 return makeRemove(child, node);
               },
@@ -16777,7 +16908,7 @@
            */
           function getComponentClassForElement(element) {
             console.func("ReactNativeComponent.getComponentClassForElement");
-
+            console.log("element:", element);
             if (typeof element.type === "function") {
               return element.type;
             }
@@ -16836,7 +16967,7 @@
            */
           function isTextComponent(component) {
             console.func("ReactNativeComponent.isTextComponent");
-
+            console.log("component:", component);
             return component instanceof textComponentClass;
           }
           console.init("ReactNativeComponent");
@@ -18283,6 +18414,7 @@
             performUpdateIfNecessary: function (internalInstance, transaction) {
               console.func("ReactReconciler.performUpdateIfNecessary");
               console.log("internalInstance:", internalInstance);
+              console.log("transaction:", transaction);
               internalInstance.performUpdateIfNecessary(transaction);
               if ("development" !== "production") {
                 ReactInstrumentation.debugTool.onUpdateComponent(
@@ -18713,6 +18845,7 @@
              */
             isMounted: function (publicInstance) {
               console.func("ReactUpdateQueue.isMounted");
+              console.log("publicInstance:", publicInstance);
               if ("development" !== "production") {
                 var owner = ReactCurrentOwner.current;
                 if (owner !== null) {
@@ -18752,6 +18885,9 @@
              */
             enqueueCallback: function (publicInstance, callback, callerName) {
               console.func("ReactUpdateQueue.enqueueCallback");
+              console.log("publicInstance:", publicInstance);
+              console.log("callback:", callback);
+              console.log("callerName:", callerName);
 
               ReactUpdateQueue.validateCallback(callback, callerName);
               var internalInstance = getInternalInstanceReadyForUpdate(
@@ -18781,7 +18917,8 @@
 
             enqueueCallbackInternal: function (internalInstance, callback) {
               console.func("ReactUpdateQueue.enqueueCallbackInternal");
-
+              console.log("internalInstance:", internalInstance);
+              console.log("callback:", callback);
               if (internalInstance._pendingCallbacks) {
                 internalInstance._pendingCallbacks.push(callback);
               } else {
@@ -18805,6 +18942,7 @@
              */
             enqueueForceUpdate: function (publicInstance) {
               console.func("ReactUpdateQueue.enqueueForceUpdate");
+              console.log("publicInstance:", publicInstance);
 
               var internalInstance = getInternalInstanceReadyForUpdate(
                 publicInstance,
@@ -18861,7 +18999,8 @@
              */
             enqueueSetState: function (publicInstance, partialState) {
               console.func("ReactUpdateQueue.enqueueSetState");
-
+              console.log("publicInstance:", publicInstance);
+              console.log("partialState:", partialState);
               var internalInstance = getInternalInstanceReadyForUpdate(
                 publicInstance,
                 "setState"
@@ -18875,7 +19014,7 @@
                 internalInstance._pendingStateQueue ||
                 (internalInstance._pendingStateQueue = []);
               queue.push(partialState);
-
+              console.log("queue after pushing partialState:", queue);
               enqueueUpdate(internalInstance);
             },
 
@@ -19052,6 +19191,8 @@
            */
           function mountOrderComparator(c1, c2) {
             console.func("ReactUpdatesFlushTransaction.mountOrderComparator");
+            console.log("c1:", c1);
+            console.log("c2:", c2);
 
             return c1._mountOrder - c2._mountOrder;
           }
@@ -19187,6 +19328,8 @@
            */
           function asap(callback, context) {
             console.func("ReactUpdatesFlushTransaction.asap");
+            console.log("callback:", callback);
+            console.log("context:", context);
 
             !batchingStrategy.isBatchingUpdates
               ? "development" !== "production"
@@ -19647,7 +19790,7 @@
            */
           function getSelection(node) {
             console.func("SelectEventPlugin.getSelection");
-
+            console.log("node:", node);
             if (
               "selectionStart" in node &&
               ReactInputSelection.hasSelectionCapabilities(node)
@@ -20337,6 +20480,8 @@
               nativeEventTarget
             ) {
               console.func("SimpleEventPlugin.extractEvents");
+              console.desc(`getting the dispatchConfig, checking which topLevelType is this case.
+              calling EventConstructor.getPooled() on the event and then acummulating the results`);
               console.log("topLevelType:", topLevelType);
               console.log("targetInst:", targetInst);
               console.log("nativeEvent:", nativeEvent);
@@ -20463,11 +20608,19 @@
                 nativeEventTarget
               );
               EventPropagators.accumulateTwoPhaseDispatches(event);
+              console.log(
+                "SimpleEventPlugin.extractEvents returning event:",
+                event
+              );
               return event;
             },
 
             didPutListener: function (inst, registrationName, listener) {
               console.func("didPutListener");
+              console.log("inst:", inst);
+              console.log("registrationName:", registrationName);
+              console.log("listener:", listener);
+
               // Mobile Safari does not fire properly bubble click events on
               // non-interactive elements, which means delegated click listeners do not
               // fire. The workaround for this bug involves attaching an empty click
@@ -20481,6 +20634,7 @@
                     "click",
                     emptyFunction
                   );
+                  console.log("onClickListeners[id]:", onClickListeners[id]);
                 }
               }
             },
@@ -20604,6 +20758,7 @@
             nativeEvent,
             nativeEventTarget
           ) {
+            console.func("SyntheticClipboardEvent constructor");
             return SyntheticEvent.call(
               this,
               dispatchConfig,
@@ -20796,6 +20951,11 @@
             nativeEventTarget
           ) {
             console.init("SyntheticEvent constructor");
+            console.log("dispatchConfig:", dispatchConfig);
+            console.log("targetInst:", targetInst);
+            console.log("nativeEvent:", nativeEvent);
+            console.log("nativeEventTarget:", nativeEventTarget);
+
             if ("development" !== "production") {
               // these have a getter/setter for warnings
               delete this.nativeEvent;
@@ -20984,7 +21144,9 @@
            */
           SyntheticEvent.augmentClass = function (Class, Interface) {
             console.func("SyntheticEvent.augmentClass");
-
+            console.log("Class:", Class);
+            console.log("Interface:", Interface);
+            console.log("this:", this);
             var Super = this;
 
             var E = function () {};
@@ -21792,6 +21954,7 @@
               var transactionWrappers = this.transactionWrappers;
               for (var i = startIndex; i < transactionWrappers.length; i++) {
                 var wrapper = transactionWrappers[i];
+                console.log("current wrapper:", wrapper);
                 try {
                   // Catching errors makes debugging more difficult, so we start with the
                   // OBSERVED_ERROR state before overwriting it with the real return value
@@ -21834,6 +21997,7 @@
               var transactionWrappers = this.transactionWrappers;
               for (var i = startIndex; i < transactionWrappers.length; i++) {
                 var wrapper = transactionWrappers[i];
+                console.log("current wrapper:", wrapper);
                 var initData = this.wrapperInitData[i];
                 var errorThrown;
                 try {
@@ -22215,8 +22379,10 @@
            */
           function findDOMNode(componentOrElement) {
             console.func("findDOMNode");
+            console.log("componentOrElement:", componentOrElement);
             if ("development" !== "production") {
               var owner = ReactCurrentOwner.current;
+              console.log("owner:", owner);
               if (owner !== null) {
                 "development" !== "production"
                   ? warning(
@@ -22240,6 +22406,10 @@
             }
 
             var inst = ReactInstanceMap.get(componentOrElement);
+            console.log(
+              "ReactInstanceMap.get(componentOrElement):",
+              ReactInstanceMap.get(componentOrElement)
+            );
             if (inst) {
               inst = getNativeComponentFromComposite(inst);
               return inst
@@ -22291,6 +22461,10 @@
            */
           function flattenSingleChildIntoContext(traverseContext, child, name) {
             console.func("flattenSingleChildIntoContext");
+            console.log("traverseContext:", traverseContext);
+            console.log("child:", child);
+            console.log("name:", name);
+
             // We found a component instance.
             var result = traverseContext;
             var keyUnique = result[name] === undefined;
@@ -22317,7 +22491,7 @@
            */
           function flattenChildren(children) {
             console.func("flattenChildren");
-
+            console.log("children:", children);
             if (children == null) {
               return children;
             }
@@ -22353,6 +22527,8 @@
           var forEachAccumulated = function (arr, cb, scope) {
             console.func("forEachAccumulated");
             console.log("arr:", arr);
+            console.log("cb:", cb);
+            console.log("scope:", scope);
             if (Array.isArray(arr)) {
               arr.forEach(cb, scope);
             } else if (arr) {
@@ -22385,6 +22561,7 @@
 
           function getEventCharCode(nativeEvent) {
             console.func("getEventCharCode");
+            console.log("nativeEvent:", nativeEvent);
             var charCode;
             var keyCode = nativeEvent.keyCode;
 
@@ -23387,6 +23564,9 @@
 
           function shouldUpdateReactComponent(prevElement, nextElement) {
             console.func("shouldUpdateReactComponent");
+            console.log("prevElement:", prevElement);
+            console.log("nextElement:", nextElement);
+
             var prevEmpty = prevElement === null || prevElement === false;
             var nextEmpty = nextElement === null || nextElement === false;
             if (prevEmpty || nextEmpty) {
@@ -23456,6 +23636,8 @@
            */
           function getComponentKey(component, index) {
             console.func("traverseAllChildren.getComponentKey");
+            console.log("component:", component);
+            console.log("index:", index);
             // Do some typechecking here since we call this blindly. We want to ensure
             // that we don't block potential future ES APIs.
             if (
@@ -23851,6 +24033,9 @@
 
             var updatedAncestorInfo = function (oldInfo, tag, instance) {
               console.func("updatedAncestorInfo");
+              console.log("oldInfo:", oldInfo);
+              console.log("tag:", tag);
+              console.log("instance:", instance);
               var ancestorInfo = _assign({}, oldInfo || emptyAncestorInfo);
               var info = { tag: tag, instance: instance };
 
@@ -24109,7 +24294,7 @@
              */
             var findOwnerStack = function (instance) {
               console.func("findOwnerStack");
-
+              console.log("instance:", instance);
               if (!instance) {
                 return [];
               }
@@ -24485,6 +24670,7 @@
            * @return {boolean} True if `outerNode` contains or is `innerNode`.
            */
           function containsNode(outerNode, innerNode) {
+            console.func("containsNode");
             if (!outerNode || !innerNode) {
               return false;
             } else if (outerNode === innerNode) {
@@ -25060,13 +25246,6 @@
       155: [
         function (_dereq_, module, exports) {
           /**
-           * Copyright (c) 2013-present, Facebook, Inc.
-           * All rights reserved.
-           *
-           * This source code is licensed under the BSD-style license found in the
-           * LICENSE file in the root directory of this source tree. An additional grant
-           * of patent rights can be found in the PATENTS file in the same directory.
-           *
            * @typechecks
            */
 
@@ -25167,6 +25346,8 @@
            * @return {boolean} Whether or not the object is a DOM node.
            */
           function isNode(object) {
+            console.func("isNode");
+            console.log("object:", object);
             return !!(
               object &&
               (typeof Node === "function"
@@ -25197,6 +25378,7 @@
            * @return {boolean} Whether or not the object is a DOM text node.
            */
           function isTextNode(object) {
+            console.func("isTextNode");
             return isNode(object) && object.nodeType == 3;
           }
 

@@ -1,29 +1,29 @@
 console.log("{{{ REACT APPLICATION }}}");
 console.log("{{{ BEFORE React.createClass }}}");
-var Button = React.createClass({
-  getInitialState() {
-    return {
-      name: "",
-      age: 0,
-    };
-  },
-  render: function () {
-    return (
-      <div>
-        <button
-          onClick={() => {
-            console.log("clicked 2");
-            console.log("this inside onClick 2:", this);
-            this.setState({ age: 10 }); // this.updater.enqueueSetState
-          }}
-        >
-          age:
-          {this.state.age}
-        </button>
-      </div>
-    );
-  },
-});
+// var Button = React.createClass({
+//   getInitialState() {
+//     return {
+//       name: "",
+//       age: 0,
+//     };
+//   },
+//   render: function () {
+//     return (
+//       <div>
+//         <button
+//           onClick={() => {
+//             console.log("clicked 2");
+//             console.log("this inside onClick 2:", this);
+//             this.setState({ age: 10 }); // this.updater.enqueueSetState
+//           }}
+//         >
+//           age:
+//           {this.state.age}
+//         </button>
+//       </div>
+//     );
+//   },
+// });
 // var Button = React.createClass({
 //   getInitialState() {
 //     return {
@@ -45,6 +45,30 @@ var Button = React.createClass({
 //     );
 //   },
 // });
+var Button = React.createClass({
+  getInitialState() {
+    return {
+      name: "",
+      age: 0,
+    };
+  },
+  render: function () {
+    return (
+      <div>
+        <button
+          onWheel={() => {
+            console.log("log mousemove");
+            console.log("this after mousemove:", this);
+            this.setState({ age: 10 }); // this.updater.enqueueSetState
+          }}
+        >
+          age:
+          {this.state.age}
+        </button>
+      </div>
+    );
+  },
+});
 console.log("{{{ AFTER React.createClass }}}");
 console.log("Button:", new Button());
 console.log("<Button />:", <Button />);

@@ -303,8 +303,66 @@ NOTES:
 
 
 
+-------------
+---- 3 ------
+-------------
+simple component with a button an onMouseMove inside:
+1-ReactEventListener.dispatchEvent() which is the callback registered early on when the component
+  first mounted to the DOM (ReactMount does it), when React scanned the props properties inside the component
+  instance: the onMouseMove prop was found inside registrationNameModules and therefore recognized as a native browser event.
+  aka recognized a onMouseMove as a registeration name of a React Event, storing the listening callback in the listenerBank
+  and also making sure 'dispatchEvent()' is fired as well when the event triggered.
+  into the dispatchEvent list of event dispatches to notify when the event fires.
+  the registering of the listener to this event happens with the help of dispatchEvent that wrapps the listening:
+  so inside trapbubbledEvent() which is a terrible name, there is the setup of this listening mechanism:
+  from trapBubbledEvent: returning EventListener.listen(
+                element,
+                handlerBaseName,
+                ReactEventListener.dispatchEvent.bind(null, topLevelType)
+              );
+ and so the dispatchEvent listener actually has this code inside it:
+ var bookKeeping = TopLevelCallbackBookKeeping.getPooled(topLevelType,nativeEvent)
+ ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
+ but the event listener itself is put with enqueuePutListener which puts the listener
+ inside the listenerBank and so when the event triggers, its listeners actually stored in the listenerBank
+ so whenever the onMouseMove event triggered the listener is doing:
+  getting the top level 'listener' that is stored in the pool
+  and calling batchedUpdates on this listener.
+
+  so inside enqueuePutListener:
+              listenTo(registrationName, doc);
+
+            transaction.getReactMountReady().enqueue(putListener, {
+              inst: inst,
+              registrationName: registrationName,
+              listener: listener,
+            });
+  listenTo does the eventDispatch wrapping, and putListener() does the actuall listening to the event when
+  triggered.
 
 
+  in this case topLevelType: topMouseMove, nativeEvent: MouseEvent
+2-ReactUpdates.ReactUpdatesFlushTransaction.batchedUpdates() which calls: transaction.perform(handleTopLevel)
+  which calls ReactEventListener.handleTopLevelImpl ignoring for a second the transaction wrappers that
+  wrap handleTopLevelImpl().
+  so transaction.perform(handleTopLevel) ->
+      ReactEventListener.handleTopLevelImpl() ->
+            ReactEventListener._handleTopLevel()
+3-ReactDOMComponentTree.getClosestInstanceFromNode() is searching for the React component that 
+  is closest to the DOM element target of the onMouseMove event that was triggered.
+  ReactEventListener._handleTopLevel() last parameter was the native event (onMouseMove) that triggered.
+4-EventPluginHub calling 'extractEvent' of each event plugin.
+  SimpleEventPlugin recognizing the current topLevelType of the event is onMouseMove which is 
+  recognized as: SyntheticMouseEvent (then calling its constructor).
+5-EventPropagators.accumulateTwoPhaseDispatches()
+6-ReactDOMTreeTraversal.traverseTwoPhase
+7-BeforeInputEventPlugin.getCompositionEventType() returning the accumulated events:
+  which is only one SyntheticMouseEvent
+8-runEventQueueInBatch() which does:EventPluginHub.enqueueEvents(events), EventPluginHub.processEventQueue(false);
+9-finally run the listeners: executeDispatchesAndReleaseTopLevel()
+10-EventPluginUtils.executeDispatchesInOrder()
+11-releasing the resources: SyntheticEvent.destructor() etc..
+12-PooledClass.standardReleaser() -> instance.destructor(); -> topLevelCallbackBookKeeping is the instance
 
 
 IDEAS FOR IMPROVEMENT:
@@ -319,4 +377,92 @@ IDEAS FOR IMPROVEMENT:
    - names in this library are terrible. ReactCompositeComponentWrapper is a terrible name choice
    - too many different Components. ReactDOMComponent / ReactComponent / ReactCompositeComponent, 
      React functional Component, React Stateless Component / ---> have only one Component -> call it Component
-     
+   - more terrible names: mapIntoWithKeyPrefixInternal, bindAutoBindMethod
+   - transaction.perform -> too verbose and shapeless
+
+
+-------------------------
+10/3/21: One month later:
+-------------------------
+Now in this session I'm going to look at the ES5 React15 version as well as in the more modern
+typescript variation of React15.
+
+Ok. so half an hour to gain a better understanding of the terrible ES3/5 React15 module resolution
+system. besides the IFEE, the factory function that it accepts, and the entire model that 
+describes an array of tuples: each tuple is a React module, and its dependencies which are 
+the indexes of other React modules that it depends upon. since I believe it is a terrible
+piece of code and would not like to fully dive in it, I will skip it since the important thing is
+the mechanism which I feel I understand well, and not the inner details like 
+what is e[90][e][s][34] and what module it resolves exactly in each step.
+But I will mention that it seems like 90 is the first module that is being resolved, and 90
+is the UMD module system resolver, so apperently this React15 variation is UMD-centric
+
+looking at the code, trying to figure out what's going on, still fails and the majority of the
+code is unclear to me. I will now try to look at the console logs I generated previously
+and see if it helps:
+
+so CreateDOMFactory(tag) is simply binding ReactElement.createElement for this tag.
+and so whenever a react component is created, ReactElement.createElement is used to create
+the associated html tag to this component.
+ReactDOMFactories is a list of ReactElement.createElement functions, for each one of the
+html tags.
+From the comments: Creates a mapping from supported HTML tags to `ReactDOMComponent` classes
+
+A look at the React application generated code: There is a lot alot of code.
+React.createClass is creating a new react component from a blueprint and with the user
+given render, getInitialState, etc .. methods. doing a lot of validation on the react component,
+and doing ReactElement.createElement, but as soon as
+---
+ReactDOM.render() is shooting, the entire React engine is going crazy and from 0 to 300 Kps,
+with no order, and in a chaotic manner.
+it does createElement() for the <Component />
+it does ReactMount.render() which is doing _renderSubtreeIntoContainer()
+which is doing a lookup for the root element in the container,
+then _renderNewRootComponent(), then alot of validations, and wrapper escaping,
+then going into ReactUpdates and resolving the UpdatingStrategy chosen.
+then Transaction.perform which triggers the system of DOM updates and reconciliation cycles.
+which triggers alot of initialization, event initialization as well as other DOM initializations
+which constructs ReactReconsileTransaction.
+then calling ReactReconciler.mountComponent() asking the React Mounting system to start
+working, when doing getReactMountReady(), then calling ReactCompositeComponentMixin.mountComponent()
+then calling ReactCompositeComponentMixin.performInitialMount()
+and then ReactCompositeComponentMixin._renderValidatedComponent()
+then calling ReactDOMComponent.mountComponent()
+then doing ReactDOMComponent._updateDOMProperties() even though no update is needed.
+then ReactMultiChild.mountChildren() and then ReactChildReconciler.instantiateChildren ()
+and traverseAllChildren ()
+then ReactDOMComponentTree.getRenderedNativeOrTextFromComponent()
+then initializing the React Event system for this application components:
+ReactDOMComponent.enqueuePutListener(),
+then ReactUpdatesFlushTransaction.flushBatchedUpdate()
+---
+
+WOW !!! It is very clear the entire mechanism is sick. I read the order of the things that
+happen when ReactDOM.render happens (or ReactMount.render()), but still, it all feels vague to me.
+ReactMount._renderNewRootComponent() seems very important in this 'root render install'
+which leads to the need to understand batchedMountComponentIntoNode(),
+which leads to the need to understand mountComponentIntoNode(),
+which leads to the need to understand:
+   ReactReconciler.mountComponent(),
+   ReactMount._mountImageIntoNode(),
+   which leads to:
+      internalInstance.mountComponent()
+      which leads to:
+         markup = this.performInitialMount(
+                  renderedElement,
+                  nativeParent,
+                  nativeContainerInfo,
+                  transaction,
+                  context
+                );
+                which leads to:
+                ReactReconciler.mountComponent()
+                and that's it, I'm lost.
+
+
+
+---
+PAUSE
+---
+I will end today's half day of react deep dive with:
+adding indentation to call stack
