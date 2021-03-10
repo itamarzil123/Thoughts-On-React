@@ -25,27 +25,66 @@
   console.options = {
     checkMask: false,
   };
-  console.func = function (text) {
-    var styles = [
-      "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
-      "color: white",
-      "display: block",
-      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
-      "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
-      "line-height: 20px",
-      "text-align: center",
-      "font-weight: bold",
-      "font-size: 15px",
-    ].join(";");
-    if (console.delimeter === 0) {
-      delimeterStr = "";
+  console.delimeter = 0;
+  console.func = function (text, level) {
+    let styles;
+    if (level === 1) {
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 20px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 15px",
+      ].join(";");
+    } else if (level === 10) {
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 40px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 35px",
+      ].join(";");
     } else {
-      for (let i = 0; i < console.delimeter; i++) {
-        delimeterStr += " ";
-      }
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 20px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 20px",
+      ].join(";");
+    }
+
+    delimeterStr = "";
+    for (let i = 0; i < console.delimeter; i++) {
+      delimeterStr += " ";
     }
     console.log(delimeterStr + "%c ---> Calling %s ", styles, text);
   };
+  console.sketch = function (text) {
+    let styles = [
+      "background: grey",
+      "color: white",
+      "display: block",
+      "line-height: 50px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 20px",
+    ].join(";");
+    console.log("%c %s ", styles, text);
+  };
+
   console.param = function (text) {
     console.log("%c ---> Parameter: ", "color: purple", text);
   };
@@ -76,8 +115,16 @@
       "font-weight: bold",
       "font-size: 15px",
     ].join(";");
-    console.delimeter = 0;
     console.log("%c Initializing %s ", styles, text);
+  };
+
+  console.print = function (text) {
+    delimeterStr = "";
+    for (let i = 0; i < console.delimeter; i++) {
+      delimeterStr += " ";
+    }
+    logWithdelimeter = console.log.bind(console, delimeterStr);
+    logWithdelimeter(text);
   };
 
   return (function e(t, n, r) {
@@ -1119,7 +1166,7 @@
              * @internal
              */
             enqueue: function (callback, context) {
-              console.func("CallbackQueue.enqueue");
+              console.func("CallbackQueue.enqueue", 10);
               console.desc(
                 "adding a new callback with its context into this._callbacks, this._contexts"
               );
@@ -1138,7 +1185,7 @@
              * @internal
              */
             notifyAll: function () {
-              console.func("CallbackQueue.notifyAll");
+              console.func("CallbackQueue.notifyAll", 10);
               console.desc(
                 "calling each callback with its context (aka callbacks[i].call(contexts[i])"
               );
@@ -1187,7 +1234,7 @@
              * @internal
              */
             reset: function () {
-              console.func("CallbackQueue.reset");
+              console.func("CallbackQueue.reset", 10);
 
               this._callbacks = null;
               this._contexts = null;
@@ -3364,7 +3411,7 @@
               nativeEvent,
               nativeEventTarget
             ) {
-              console.func("EventPluginHub.extractEvents");
+              console.func("EventPluginHub.extractEvents", 10);
               console.desc(`iterating on each event plugin stored in EventPluginRegistry.plugins, calling
               plugin.extractEvent() on each one of them, and then 'accumulate' them.`);
               console.log("topLevelType:", topLevelType);
@@ -4992,7 +5039,7 @@
           };
 
           var twoArgumentPooler = function (a1, a2) {
-            console.func("PooledClass.twoArgumentPooler");
+            console.func("PooledClass.twoArgumentPooler", 1);
             console.log("a1:", a1);
             console.log("a2:", a2);
             var Klass = this;
@@ -7185,7 +7232,7 @@
             partialState,
             callback
           ) {
-            console.func("ReactComponent.setState");
+            console.func("ReactComponent.setState", 10);
             console.log("partialState:", partialState);
             console.log("callback:", callback);
             !(
@@ -8200,7 +8247,8 @@
              */
             performUpdateIfNecessary: function (transaction) {
               console.func(
-                "ReactCompositeComponentMixin.performUpdateIfNecessary"
+                "ReactCompositeComponentMixin.performUpdateIfNecessary",
+                10
               );
               console.log("transaction:", transaction);
               if (this._pendingElement != null) {
@@ -8255,7 +8303,7 @@
               prevUnmaskedContext,
               nextUnmaskedContext
             ) {
-              console.func("ReactCompositeComponentMixin.updateComponent");
+              console.func("ReactCompositeComponentMixin.updateComponent", 10);
               console.log("transaction:", transaction);
               console.log("prevParentElement", prevParentElement);
               console.log("nextParentElement", nextParentElement);
@@ -8443,7 +8491,8 @@
              */
             _updateRenderedComponent: function (transaction, context) {
               console.func(
-                "ReactCompositeComponentMixin._updateRenderedComponent"
+                "ReactCompositeComponentMixin._updateRenderedComponent",
+                10
               );
               console.log("transaction:", transaction);
               console.log("context:", context);
@@ -9934,7 +9983,7 @@
               nextElement,
               context
             ) {
-              console.func("ReactDOMComponent.updateComponent");
+              console.func("ReactDOMComponent.updateComponent", 10);
               console.log("transaction:", transaction);
               console.log("prevElement:", prevElement);
               console.log("context:", context);
@@ -10821,7 +10870,7 @@
            */
           function createDOMFactory(tag) {
             console.func("ReactDOMFactories.createDOMFactory");
-            console.log("tag:", tag);
+            console.print("tag:", tag);
             if ("development" !== "production") {
               return ReactElementValidator.createFactory(tag);
             }
@@ -14859,7 +14908,7 @@
              * @internal
              */
             trapBubbledEvent: function (topLevelType, handlerBaseName, handle) {
-              console.func("ReactEventListener.trapBubbledEvent");
+              console.func("ReactEventListener.trapBubbledEvent", 10);
               console.log("topLevelType:", topLevelType);
               console.log("handlerBaseName:", handlerBaseName);
               console.log("handle:", handle);
@@ -14912,7 +14961,10 @@
             },
 
             dispatchEvent: function (topLevelType, nativeEvent) {
-              console.func("ReactEventListener.dispatchEvent");
+              console.func("ReactEventListener.dispatchEvent", 10);
+              console.sketch(
+                "TopLevelCallbackBookKeeping.getPooled ---> ReactUpdates.batchedUpdates ---> TopLevelCallbackBookKeeping.release"
+              );
               console.desc(`creating a pooled version of the native event using TopLevelCallbackBookKeeping
               and then calls ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
               `);
@@ -15417,9 +15469,11 @@
            * @return {?*} DOM element that may have the reactRoot ID, or null.
            */
           function getReactRootElementInContainer(container) {
+            console.delimeter += 2;
             console.func("ReactMount.getReactRootElementInContainer");
-            console.log("container:", container);
+            console.print("container:", container);
             if (!container) {
+              console.delimeter -= 2;
               return null;
             }
 
@@ -15428,13 +15482,14 @@
                 "returning container.documentElement:",
                 container.documentElement
               );
+              console.delimeter -= 2;
               return container.documentElement;
             } else {
               console.log(
                 "returning container.firstChild:",
                 container.firstChild
               );
-
+              console.delimeter -= 2;
               return container.firstChild;
             }
           }
@@ -15989,11 +16044,13 @@
              * @return {ReactComponent} Component instance rendered in `container`.
              */
             render: function (nextElement, container, callback) {
+              console.delimeter += 4;
               console.func("ReactMount.render()"); // nicknamed: ReactDOM.render()
               // console.trace(container);
               console.log("nextElement:", nextElement);
               console.log("container:", container);
               console.log("callback:", callback);
+              console.delimeter -= 4;
 
               return ReactMount._renderSubtreeIntoContainer(
                 null,
@@ -19153,7 +19210,10 @@
             },
 
             perform: function (method, scope, a) {
-              console.func("ReactUpdates.ReactUpdatesFlushTransaction.perform");
+              console.func(
+                "ReactUpdates.ReactUpdatesFlushTransaction.perform",
+                10
+              );
 
               // Essentially calls `this.reconcileTransaction.perform(method, scope, a)`
               // with this transaction's wrappers around it.
@@ -21876,7 +21936,7 @@
             getTransactionWrappers: null,
 
             isInTransaction: function () {
-              console.func("Transaction.isInTransaction");
+              console.func("Transaction.isInTransaction", 10);
               console.log("!!this._isInTransaction:", !!this._isInTransaction);
               return !!this._isInTransaction;
             },
@@ -21898,9 +21958,12 @@
              *
              * @return {*} Return value from `method`.
              */
+            // this._isInTransaction = true ---> this.initializeAll ---> this.closeAll ---> this._isInTransaction = false;
             perform: function (method, scope, a, b, c, d, e, f) {
-              console.func("Transaction.perform");
-
+              console.func("Transaction.perform", 10);
+              console.sketch(
+                "this._isInTransaction = true ---> this.initializeAll ---> this.closeAll ---> this._isInTransaction = false"
+              );
               console.log("method:", method);
               console.log("scope:", scope);
               !!this.isInTransaction()
@@ -23563,7 +23626,7 @@
            */
 
           function shouldUpdateReactComponent(prevElement, nextElement) {
-            console.func("shouldUpdateReactComponent");
+            console.func("shouldUpdateReactComponent", 10);
             console.log("prevElement:", prevElement);
             console.log("nextElement:", nextElement);
 

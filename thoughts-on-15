@@ -464,5 +464,40 @@ which leads to the need to understand:
 ---
 PAUSE
 ---
-I will end today's half day of react deep dive with:
-adding indentation to call stack
+
+It seems like I'm stuck. things are too tough to follow, it is very hard to understand React flow,
+nature of things. For example, a setState after a button click triggers thousands of function
+calls. It is very hard to understand the big picture. Before diving into how specific functions
+do what they do and why they do it, I need to see the bigger picture, there I will
+make console.func one that gives me more details. another parameter, how important it is, 
+the more the function is important, the bigger font it will have. Another parameter should be
+a more global one regarding all console logs, when console.mod === 'HIGH-LEVEL', then only
+the most important (labeled 10), functions should be console logged.
+
+so let's test this functionality first. What are the most important function calls that are 
+happenning when the user clicks a button that setStates ?
+
+ReactEventListener.dispatchEvent
+ReactUpdates.ReactUpdatesFlushTransaction.batchedUpdates 
+Transaction.perform
+ReactEventListener.handleTopLevelImpl
+EventPluginHub.extractEvents 
+EventPluginHub.getListener
+executeDispatchesAndReleaseTopLevel
+EventPluginUtils.executeDispatch
+ReactComponent.setState
+Transaction.perform
+ReactCompositeComponentMixin.performUpdateIfNecessary
+Calling ReactCompositeComponentMixin.updateComponent 
+ReactCompositeComponentMixin._updateRenderedComponent
+ReactDOMComponent._updateDOMChildren
+shouldUpdateReactComponent  
+
+OK added, it's better, but still, it is not clear enough what's the connection between
+function calls. + let's add another level: 1 for the least important function calls.
+what are the least important function calls happen when button click triggers setState.
+- it is also very helpful if in each function calls, besides the general description, 
+  there will also be an ascii sketch of the flow of actions done within this function.
+  for example: 
+  ReactEventListener.dispatchEvent:
+  TopLevelCallbackBookKeeping.getPooled ---> ReactUpdates.batchedUpdates ---> TopLevelCallbackBookKeeping.release
