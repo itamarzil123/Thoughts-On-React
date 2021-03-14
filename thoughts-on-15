@@ -501,3 +501,80 @@ what are the least important function calls happen when button click triggers se
   for example: 
   ReactEventListener.dispatchEvent:
   TopLevelCallbackBookKeeping.getPooled ---> ReactUpdates.batchedUpdates ---> TopLevelCallbackBookKeeping.release
+
+Yeah, so the last additions to the logger are great, but I'm missing details, like a third kind
+of description (besides console.desc, console.sketch):
+
+---
+
+so in general I have no clue of whats going on inside React BatchedUpdates mechanisms,
+will come back to it some other time.
+
+Now, let's think of another layer of logging that will make things clearer:
+- anytime the DOM is changed, use a big font and show the change ? a special kind of 
+log with moving cool border effect !
+
+---
+
+let's take a simple DOM actualy changing, when button click triggers setState that changes
+the state of age from 0 to 10, then eventually the dom node will be updated:
+node.textContent = 10, but the console.trace looks like that:
+
+setTextContent (setting the node.textContent)
+replaceDelimitedText
+   (doing something with comment nodes and calling setTextContent)
+   in this case, openingComment is <!-- react-text: 4 -->
+   closingComment is <!-- /react-text -->
+   and the stringText is 10
+   and so replaceDelimitedText will create an actual dom text node from 10
+   by calling createTextNode, or putting the 10 somewhere else.
+
+DOMChildrenOperations_replaceDelimitedText 
+receiveComponent 
+ReactDOMTextComponent_receiveComponent 
+receiveComponent 
+updateChildren 
+_reconcilerUpdateChildren 
+_updateChildren 
+updateChildren 
+_updateDOMChildren 
+updateComponent 
+receiveComponent 
+ReactDOMComponent_receiveComponent 
+receiveComponent 
+updateChildren 
+_reconcilerUpdateChildren 
+_updateChildren 
+updateChildren 
+_updateDOMChildren 
+updateComponent 
+receiveComponent 
+ReactDOMComponent_receiveComponent 
+receiveComponent 
+_updateRenderedComponent 
+_performComponentUpdate 
+updateComponent 
+ReactCompositeComponent_updateComponent 
+performUpdateIfNecessary 
+performUpdateIfNecessary 
+runBatchedUpdates 
+perform 
+perform 
+perform 
+flushBatchedUpdates 
+ReactUpdates_flushBatchedUpdates 
+closeAll 
+perform 
+batchedUpdates 
+batchedUpdates (calling transaction.perform)
+dispatchEvent (after the click event happens, the React Event System begins working)
+
+which can be sum up shortly:
+dispatchEvent -> transaction.perform -> _updateRenderedComponent -> _reconcilerUpdateChildren -> updateChildren -> receiveComponent -> setTextContent
+
+thoughts: ReactDOMTextComponent with all the 'comment node' logic is a terrible piece of 
+engineering, 
+
+still. no idea how React works.. no idea... let's keep on reading the source code .
+
+---
