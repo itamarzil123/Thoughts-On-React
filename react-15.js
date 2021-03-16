@@ -85,7 +85,7 @@
     }
     console.log(delimeterStr + "%c ---> Calling %s ", styles, text);
   };
-  console.alertDOM = function () {
+  console.alertDOM = function (text, action) {
     let styles = [
       "background: linear-gradient(purple, blue)",
       "color: white",
@@ -97,8 +97,13 @@
       "font-weight: bold",
       "font-size: 35px",
     ].join(";");
-
-    console.log("%c --- Actual DOM Changing ---", styles);
+    text = text ? text : "";
+    action = action ? action : "";
+    console.log("%c --- Actual DOM %s ---", styles, action);
+    if (!text) {
+      return;
+    }
+    console.log("%c --- %s ---", styles, text);
   };
 
   console.sketch = function (text) {
@@ -395,7 +400,6 @@
            */
           function isFallbackCompositionStart(topLevelType, nativeEvent) {
             console.func("BeforeInputEventPlugin.isFallbackCompositionStart");
-
             return (
               topLevelType === topLevelTypes.topKeyDown &&
               nativeEvent.keyCode === START_KEYCODE
@@ -441,7 +445,7 @@
            */
           function getDataFromCustomEvent(nativeEvent) {
             console.func("BeforeInputEventPlugin.getDataFromCustomEvent");
-
+            console.sketch("nativeEvent ---> nativeEvent.detail.data");
             var detail = nativeEvent.detail;
             if (typeof detail === "object" && "data" in detail) {
               return detail.data;
@@ -2087,7 +2091,7 @@
             if (enableLazy) {
               parentTree.children.push(childTree);
             } else {
-              console.alertDOM();
+              console.alertDOM("In queueChild", "Changing");
               console.log("parentTree.node.appendChild(childTree.node);");
               // comment this line to break all component renderning/painting
               parentTree.node.appendChild(childTree.node);
@@ -2098,7 +2102,7 @@
             console.func("queueHTML");
             console.log("tree:", tree);
             console.log("html:", html);
-            console.alertDOM();
+            console.alertDOM("in queueHTML", "tree.node.innerHTML = html");
             if (enableLazy) {
               tree.html = html;
             } else {
@@ -2108,7 +2112,6 @@
 
           function queueText(tree, text) {
             console.func("queueText");
-
             if (enableLazy) {
               tree.text = text;
             } else {
@@ -2177,7 +2180,11 @@
           console.init("DOMProperty.DOMPropertyInjection");
           console.desc(`* Mapping from normalized, camelcased property names to a configuration that
           * specifies how the associated DOM property should be accessed or rendered.
-          for example: MUST_USE_PROPERTY: 0x1, HAS_SIDE_EFFECTS: 0x2,`);
+          for example: MUST_USE_PROPERTY: 0x1, HAS_SIDE_EFFECTS: 0x2,
+          -
+          In addition, DOMProperty.DOMPropertyInjection has methods like:
+          injectDOMPropertyConfig(), isCustomAttribute() 
+          `);
           var DOMPropertyInjection = {
             /**
              * Mapping from normalized, camelcased property names to a configuration that
@@ -2223,6 +2230,8 @@
               console.func(
                 "DOMProperty.DOMPropertyInjection.injectDOMPropertyConfig"
               );
+              console.desc(`Inject some specialized knowledge about the DOM. This takes a config object
+              with the following properties:`);
               console.log("domPropertyConfig:", domPropertyConfig);
               var Injection = DOMPropertyInjection;
               var Properties = domPropertyConfig.Properties || {};
@@ -2431,6 +2440,9 @@
              */
             isCustomAttribute: function (attributeName) {
               console.func("DOMProperty.isCustomAttribute");
+              console.desc(
+                "Checks whether a property name is a custom attribute."
+              );
               console.log("attributeName:", attributeName);
               for (
                 var i = 0;
@@ -2515,7 +2527,7 @@
            * Operations for dealing with DOM properties.
            */
           console.init("DOMPropertyOperations");
-          console.desc(`that includes createMarkupForID(), setAttributeForID(), createMarkupForRoot(),
+          console.desc(`Operations for dealing with DOM properties. includes createMarkupForID(), setAttributeForID(), createMarkupForRoot(),
            setAttributeForRoot(), createMarkupForProperty(), createMarkupForCustomAttribute(), setValueForProperty()`);
           var DOMPropertyOperations = {
             /**
@@ -2544,6 +2556,10 @@
               console.func("DOMPropertyOperations.setAttributeForID");
               console.log("node:", node);
               console.log("id:", id);
+              console.alertDOM("In setAttributeForID;", "Changing");
+              console.log(
+                "node.setAttribute(DOMProperty.ID_ATTRIBUTE_NAME, id)"
+              );
               node.setAttribute(DOMProperty.ID_ATTRIBUTE_NAME, id);
             },
 
@@ -2552,6 +2568,12 @@
             },
 
             setAttributeForRoot: function (node) {
+              console.func("DOMPropertyOperations.setAttributeForRoot");
+              console.log("node:", node);
+              console.alertDOM("In setAttributeForRoot;", "Changing");
+              console.log(
+                'node.setAttribute(DOMProperty.ROOT_ATTRIBUTE_NAME, "");'
+              );
               node.setAttribute(DOMProperty.ROOT_ATTRIBUTE_NAME, "");
             },
 
@@ -2564,6 +2586,8 @@
              */
             createMarkupForProperty: function (name, value) {
               console.func("DOMPropertyOperations.createMarkupForProperty");
+              console.log("name:", name);
+              console.log("value:", value);
 
               if ("development" !== "production") {
                 ReactDOMInstrumentation.debugTool.onCreateMarkupForProperty(
@@ -2608,7 +2632,8 @@
               console.func(
                 "DOMPropertyOperations.createMarkupForCustomAttribute"
               );
-
+              console.log("name:", name);
+              console.log("value:", value);
               if (!isAttributeNameSafe(name) || value == null) {
                 return "";
               }
@@ -2624,6 +2649,10 @@
              */
             setValueForProperty: function (node, name, value) {
               console.func("DOMPropertyOperations.setValueForProperty");
+              console.desc("Sets the value for a property on a node.");
+              console.log("node:", node);
+              console.log("name:", name);
+              console.log("value:", value);
 
               if ("development" !== "production") {
                 ReactDOMInstrumentation.debugTool.onSetValueForProperty(
@@ -2661,13 +2690,23 @@
                   // `setAttribute` with objects becomes only `[object]` in IE8/9,
                   // ('' + value) makes it output the correct toString()-value.
                   if (namespace) {
+                    console.alertDOM("In setValueForProperty", "Changing");
+                    console.log(
+                      'node.setAttributeNS(namespace, attributeName, "" + value);'
+                    );
                     node.setAttributeNS(namespace, attributeName, "" + value);
                   } else if (
                     propertyInfo.hasBooleanValue ||
                     (propertyInfo.hasOverloadedBooleanValue && value === true)
                   ) {
+                    console.alertDOM("In setValueForProperty", "Changing");
+                    console.log('nnode.setAttribute(attributeName, "");');
                     node.setAttribute(attributeName, "");
                   } else {
+                    console.alertDOM("In setValueForProperty", "Changing");
+                    console.log(
+                      'node.setAttribute(attributeName, "" + value);'
+                    );
                     node.setAttribute(attributeName, "" + value);
                   }
                 }
@@ -2678,13 +2717,17 @@
 
             setValueForAttribute: function (node, name, value) {
               console.func("DOMPropertyOperations.setValueForAttribute");
-
+              console.desc("Sets the value for a attribute on a node.");
               if (!isAttributeNameSafe(name)) {
                 return;
               }
               if (value == null) {
+                console.alertDOM("In setValueForAttribute", "Changing");
+                console.log("node.removeAttribute(name);");
                 node.removeAttribute(name);
               } else {
+                console.alertDOM("In setValueForAttribute", "Changing");
+                console.log('node.setAttribute(name, "" + value);');
                 node.setAttribute(name, "" + value);
               }
             },
@@ -3305,6 +3348,9 @@
            */
           var executeDispatchesAndRelease = function (event, simulated) {
             console.func("executeDispatchesAndRelease");
+            console.sketch(
+              "(event, simulated) ---> EventPluginUtils.executeDispatchesInOrder(event, simulated)"
+            );
             console.log("event:", event);
             console.log("simulated:", simulated);
             if (event) {
@@ -3533,6 +3579,7 @@
              */
             enqueueEvents: function (events) {
               console.func("EventPluginHub.enqueueEvents");
+              console.sketch("events ---> accumulateInto(eventQueue, events);");
               console.log("events:", events);
 
               if (events) {
@@ -3547,7 +3594,10 @@
              * @internal
              */
             processEventQueue: function (simulated) {
-              console.func("EventPluginHub.processEventQueue");
+              console.func("EventPluginHub.processEventQueue", 10);
+              console.sketch(
+                "forEachAccumulated(processingEventQueue,executeDispatchesAndReleaseSimulated"
+              );
               console.log("simulated:", simulated);
               // Set `eventQueue` to null before processing it so that we can tell if more
               // events get enqueued while processing.
@@ -7086,7 +7136,7 @@
              */
             createClass: function (spec) {
               console.func("ReactClass.createClass()");
-
+              console.sketch(`spec ---> var Constructor = function (props, context, updater) ---> bindAutoBindMethods() ---> this.getInitialState() ---> getDefaultProps()`);
               console.log("spec:", spec);
               console.desc(
                 `that is doing: bindAutoBindMethods(), getInitialState(), new ReactClassComponent(), mixSpecIntoComponent(Constructor, spec);`
@@ -7129,8 +7179,10 @@
                 this.context = context;
                 this.refs = emptyObject;
                 this.updater = updater || ReactNoopUpdateQueue;
-
                 this.state = null;
+                console.log("props:", props);
+                console.log("context:", context);
+                console.log("updater:", updater);
 
                 // ReactClasses doesn't have constructors. Instead, they use the
                 // getInitialState and componentWillMount methods for initialization.
@@ -14840,13 +14892,21 @@
                 a,
                 b
               ) {
+                console.func("ReactErrorUtils.invokeGuardedCallback", 10);
+                console.log("name:", name);
+                console.log("func:", func);
+
                 var boundFunc = func.bind(null, a, b);
                 var evtType = "react-" + name;
                 fakeNode.addEventListener(evtType, boundFunc, false);
                 var evt = document.createEvent("Event");
                 evt.initEvent(evtType, false, false);
                 // console.log("fakeNode.dispatchEvent(evt);");
+                console.alertDOM(
+                  "node.dispatchEvent inside ReactErrorUtils.invokeGuardedCallback"
+                );
                 fakeNode.dispatchEvent(evt);
+                console.log("after dispatchEvent called");
                 fakeNode.removeEventListener(evtType, boundFunc, false);
               };
             }
@@ -16446,17 +16506,17 @@
               // actual DOM changing!
               if (transaction.useCreateElement) {
                 while (container.lastChild) {
-                  console.alertDOM();
-                  console.log("removing container children");
+                  console.alertDOM("In _mountImageIntoNode", "changing");
+                  console.log("container.removeChild(container.lastChild);");
                   container.removeChild(container.lastChild);
                 }
-                console.alertDOM();
+                console.alertDOM("_mountImageIntoNode");
                 console.log("inserting a new tree before the container");
                 console.log("container:", container);
                 console.log("markup:", markup);
                 DOMLazyTree.insertTreeBefore(container, markup, null);
               } else {
-                console.alertDOM();
+                console.alertDOM("_mountImageIntoNode");
                 console.log(
                   "setting innerHTML of the container to be the markup"
                 );
@@ -23844,7 +23904,7 @@
            */
           var setTextContent = function (node, text) {
             console.func("setTextContent", 15);
-            console.alertDOM();
+            console.alertDOM("setTextContent", "changing");
             console.trace();
             console.log("node:", node);
             console.log("text:", text);

@@ -57,7 +57,7 @@ var Button = React.createClass({
       <div>
         <button
           onClick={() => {
-            console.log("log mousemove");
+            console.log("log mouse click");
             console.log("this after mousemove:", this);
             this.setState({ age: 10 }); // this.updater.enqueueSetState
           }}

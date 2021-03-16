@@ -616,3 +616,35 @@ reading through the SyntheticEvent module,
 so I read from module 167 up to 92. Now I will read from 1 forwards.
 after that ? I will try again to follow the actions triggered by
 a simple button click with setState,
+
+--
+CallbackQueue is the next module I am about to read (yes again).
+yeah, very simple module. simple a list of callbacks, contexts with enqueue option, reset option,
+and notifyall to iterate on the callbacks and calling them with the contexts.
+except that it also has pooling added to. (for avoiding garbage collection exaushting)
+--
+ChangeEventPlugin.runEventInBatch is the next method I'm investigating:
+--
+one last look at sequence of actions triggered by a button click that setStates
+still.. not clear to me... tomorrow we will try yet another way of deep diving React v15.
+
+actually something nice I found now:
+DOMProperty.DOMPropertyInjection.injectDOMPropertyConfig:
+
+react-15.js:138  ---> [ Description: Inject some specialized knowledge about the DOM. 
+This takes a config object with the following properties: 
+react-15.js:2235 domPropertyConfig: 
+      DOMAttributeNames:
+      acceptCharset: "accept-charset"
+      className: "class"
+      htmlFor: "for"
+      httpEquiv: "http-equiv"
+      __proto__: Object
+      DOMPropertyNames: {}
+      Properties: {accept: 0, acceptCharset: 0, accessKey: 0, action: 0, allowFullScreen: 4, …}
+      isCustomAttribute: ƒ ()
+      __proto__: Object
+which tells the story on how React made 'class' a 'className' and 'htmlFor' 'for'
+which is actually defined in module 22: HTMLDOMPropertyConfig.
+
+next to deep dive: the object pooling mechanism in React:
