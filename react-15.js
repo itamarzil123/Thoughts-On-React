@@ -1937,7 +1937,7 @@
             processUpdates: function (parentNode, updates) {
               console.func("DOMChildrenOperations.processUpdates");
               console.desc(`Updates a component's children by processing a series of updates. The
-                update configurations are each expected to have a parentNode property.`)
+                update configurations are each expected to have a parentNode property.`);
               console.log("parentNode:", parentNode);
               console.log("updates:", updates);
               for (var k = 0; k < updates.length; k++) {
@@ -1945,7 +1945,9 @@
                 console.log("updates[", k, "]:", update);
                 switch (update.type) {
                   case ReactMultiChildUpdateTypes.INSERT_MARKUP:
-                    console.log('case ReactMultiChildUpdateTypes.INSERT_MARKUP')
+                    console.log(
+                      "case ReactMultiChildUpdateTypes.INSERT_MARKUP"
+                    );
                     insertLazyTreeChildAt(
                       parentNode,
                       update.content,
@@ -1953,7 +1955,9 @@
                     );
                     break;
                   case ReactMultiChildUpdateTypes.MOVE_EXISTING:
-                    console.log('case ReactMultiChildUpdateTypes.MOVE_EXISTING')
+                    console.log(
+                      "case ReactMultiChildUpdateTypes.MOVE_EXISTING"
+                    );
 
                     moveChild(
                       parentNode,
@@ -1962,15 +1966,15 @@
                     );
                     break;
                   case ReactMultiChildUpdateTypes.SET_MARKUP:
-                    console.log('case ReactMultiChildUpdateTypes.SET_MARKUP')
+                    console.log("case ReactMultiChildUpdateTypes.SET_MARKUP");
                     setInnerHTML(parentNode, update.content);
                     break;
                   case ReactMultiChildUpdateTypes.TEXT_CONTENT:
-                    console.log('case ReactMultiChildUpdateTypes.TEXT_CONTENT')
+                    console.log("case ReactMultiChildUpdateTypes.TEXT_CONTENT");
                     setTextContent(parentNode, update.content);
                     break;
                   case ReactMultiChildUpdateTypes.REMOVE_NODE:
-                    console.log('case ReactMultiChildUpdateTypes.REMOVE_NODE')
+                    console.log("case ReactMultiChildUpdateTypes.REMOVE_NODE");
                     removeChild(parentNode, update.fromNode);
                     break;
                 }
@@ -10558,13 +10562,21 @@
            * This is pretty polymorphic but unavoidable with the current structure we have
            * for `_renderedChildren`.
            */
+          // NOTE: each node has a node[internalInstanceKey] which stores the react component
+          // and each react component has a componentInstance[_nativeNode] that stores the node
+          // associated with this React component
+
           function getRenderedNativeOrTextFromComponent(component) {
             console.func(
               "ReactDOMComponentTree.getRenderedNativeOrTextFromComponent"
             );
             console.log("component:", component);
             var rendered;
+            console.log(
+              "entering a recursive while loop, doing component._renderedComponent"
+            );
             while ((rendered = component._renderedComponent)) {
+              console.log("component._renderedComponent:", rendered);
               component = rendered;
             }
             return component;
@@ -10664,8 +10676,11 @@
           function getClosestInstanceFromNode(node) {
             console.func("ReactDOMComponentTree.getClosestInstanceFromNode");
             console.desc(
-              "that is getting a node and traversing up node.parentNode until a node[internalInstanceKey] is found"
+              "getting a node and traversing up node.parentNode until a node[internalInstanceKey] is found"
             );
+            console.desc(`each node has a node[internalInstanceKey] which stores the react component
+            and each react component has a componentInstance[_nativeNode] that stores the node
+            associated with this React component`);
             console.log("node:", node);
             console.log("internalInstanceKey:", internalInstanceKey);
             if (node[internalInstanceKey]) {
@@ -10711,6 +10726,10 @@
            */
           function getInstanceFromNode(node) {
             console.func("ReactDOMComponentTree.getInstanceFromNode");
+            console.desc(`each node has a node[internalInstanceKey] which stores the react component
+            and each react component has a componentInstance[_nativeNode] that stores the node
+            associated with this React component`);
+            console.sketch("node ---> getClosestInstanceFromNode(node)");
             console.log("node:", node);
             var inst = getClosestInstanceFromNode(node);
             if (inst != null && inst._nativeNode === node) {
@@ -10726,6 +10745,9 @@
            */
           function getNodeFromInstance(inst) {
             console.func("ReactDOMComponentTree.getNodeFromInstance");
+            console.desc(
+              " doing inst = inst._nativeParent until inst._nativeNode exists"
+            );
             console.log("inst:", inst);
             // Without this first invariant, passing a non-DOM-component triggers the next
             // invariant for a missing parent, which is super confusing.
@@ -11182,10 +11204,14 @@
              * @internal
              */
             dangerouslyProcessChildrenUpdates: function (parentInst, updates) {
-              console.func('ReactDOMIDOperations.dangerouslyProcessChildrenUpdates')
-              console.sketch('ReactDOMComponentTree.getNodeFromInstance ---> DOMChildrenOperations.processUpdates')
-              console.log('parentInst:', parentInst);
-              console.log('updates:', updates);
+              console.func(
+                "ReactDOMIDOperations.dangerouslyProcessChildrenUpdates"
+              );
+              console.sketch(
+                "ReactDOMComponentTree.getNodeFromInstance ---> DOMChildrenOperations.processUpdates"
+              );
+              console.log("parentInst:", parentInst);
+              console.log("updates:", updates);
 
               var node = ReactDOMComponentTree.getNodeFromInstance(parentInst);
               DOMChildrenOperations.processUpdates(node, updates);
@@ -16625,7 +16651,7 @@
            */
           function processQueue(inst, updateQueue) {
             console.func("ReactMultiChild.processQueue");
-            console.desc('ReactComponentEnvironment.processChildrenUpdates')
+            console.desc("ReactComponentEnvironment.processChildrenUpdates");
             console.log("inst:", inst);
             console.log("updateQueue:", updateQueue);
             ReactComponentEnvironment.processChildrenUpdates(inst, updateQueue);
@@ -16683,11 +16709,14 @@
                 context
               ) {
                 console.func("ReactMultiChild._reconcilerUpdateChildren");
-                console.sketch('flattenChildren ---> updateChildren')
+                console.sketch("flattenChildren ---> updateChildren");
                 console.log("transaction:", transaction);
-                console.log('prevChildren:', prevChildren);
-                console.log('nextNestedChildrenElements:', nextNestedChildrenElements);
-                console.log('context:', context);
+                console.log("prevChildren:", prevChildren);
+                console.log(
+                  "nextNestedChildrenElements:",
+                  nextNestedChildrenElements
+                );
+                console.log("context:", context);
 
                 var nextChildren;
                 if ("development" !== "production") {
@@ -16860,7 +16889,9 @@
                 context
               ) {
                 console.func("ReactMultiChild._updateChildren");
-                console.sketch('this._reconcilerUpdateChildren ---> this._mountChildAtIndex ---> processQueue(this, updates)')
+                console.sketch(
+                  "this._reconcilerUpdateChildren ---> this._mountChildAtIndex ---> processQueue(this, updates)"
+                );
                 console.log(
                   "nextNestedChildrenElements:",
                   nextNestedChildrenElements
@@ -19077,6 +19108,7 @@
              * @final
              */
             isMounted: function (publicInstance) {
+              2;
               console.func("ReactUpdateQueue.isMounted");
               console.log("publicInstance:", publicInstance);
               if ("development" !== "production") {
@@ -19117,7 +19149,7 @@
              * @internal
              */
             enqueueCallback: function (publicInstance, callback, callerName) {
-              console.func("ReactUpdateQueue.enqueueCallback");
+              console.func("ReactUpdateQueue.enqueueCallback", 10);
               console.log("publicInstance:", publicInstance);
               console.log("callback:", callback);
               console.log("callerName:", callerName);
@@ -19149,7 +19181,7 @@
             },
 
             enqueueCallbackInternal: function (internalInstance, callback) {
-              console.func("ReactUpdateQueue.enqueueCallbackInternal");
+              console.func("ReactUpdateQueue.enqueueCallbackInternal", 10);
               console.log("internalInstance:", internalInstance);
               console.log("callback:", callback);
               if (internalInstance._pendingCallbacks) {
@@ -19358,6 +19390,9 @@
 
           function ReactUpdatesFlushTransaction() {
             console.func("ReactUpdatesFlushTransaction constructor");
+            console.desc(
+              "nulling dirtyComponentsLength, initializing transaction, callbackqueue, this.reconcileTransaction"
+            );
             this.reinitializeTransaction();
             this.dirtyComponentsLength = null;
             this.callbackQueue = CallbackQueue.getPooled();
@@ -19519,6 +19554,7 @@
             while (dirtyComponents.length || asapEnqueued) {
               if (dirtyComponents.length) {
                 var transaction = ReactUpdatesFlushTransaction.getPooled();
+                console.log("transaction:", transaction);
                 transaction.perform(runBatchedUpdates, null, transaction);
                 ReactUpdatesFlushTransaction.release(transaction);
               }
@@ -19543,7 +19579,12 @@
            * list of functions which will be executed once the rerender occurs.
            */
           function enqueueUpdate(component) {
-            console.func("ReactUpdatesFlushTransaction.enqueueUpdate");
+            console.func("ReactUpdatesFlushTransaction.enqueueUpdate", 10);
+            console.sketch(
+              "if (!batchingStrategy.isBatchingUpdates) batchingStrategy.batchedUpdates(enqueueUpdate, component) ---> dirtyComponents.push(component)"
+            );
+            console.desc(`Mark a component as needing a rerender, adding an optional callback to a
+            list of functions which will be executed once the rerender occurs.`);
             console.log("component:", component);
             ensureInjected();
 
@@ -19568,6 +19609,8 @@
            */
           function asap(callback, context) {
             console.func("ReactUpdatesFlushTransaction.asap");
+            console.desc(`Enqueue a callback to be run at the end of the current batching cycle. Throws
+            if no updates are currently being performed.`);
             console.log("callback:", callback);
             console.log("context:", context);
 
@@ -19581,6 +19624,7 @@
                 : invariant(false)
               : void 0;
             asapCallbackQueue.enqueue(callback, context);
+            console.log("asapCallbackQueue");
             asapEnqueued = true;
           }
 
@@ -20856,7 +20900,10 @@
             },
 
             didPutListener: function (inst, registrationName, listener) {
-              console.func("didPutListener");
+              console.func("didPutListener", 10);
+              console.sketch(
+                `ReactDOMComponentTree.getNodeFromInstance(inst) --->onClickListeners[id] = EventListener.listen(node,"click",emptyFunction`
+              );
               console.log("inst:", inst);
               console.log("registrationName:", registrationName);
               console.log("listener:", listener);
@@ -20880,6 +20927,10 @@
             },
 
             willDeleteListener: function (inst, registrationName) {
+              console.func("willDeleteListener");
+              console.log("inst:", inst);
+              console.log("registrationName:", registrationName);
+
               if (registrationName === ON_CLICK_KEY) {
                 var id = inst._rootNodeID;
                 onClickListeners[id].remove();
@@ -21259,6 +21310,7 @@
             stopPropagation: function () {
               console.func("SyntheticEvent.stopPropagation");
               var event = this.nativeEvent;
+              console.log("event:", event);
               if (!event) {
                 return;
               }
@@ -22092,7 +22144,7 @@
              * "PooledClass".
              */
             reinitializeTransaction: function () {
-              console.func("Transaction.reinitializeTransaction");
+              console.func("Transaction.reinitializeTransaction", 10);
               this.transactionWrappers = this.getTransactionWrappers();
               console.log(
                 "this.transactionWrappers:",
@@ -22624,7 +22676,10 @@
            * @return {?DOMElement} The root node of this element.
            */
           function findDOMNode(componentOrElement) {
-            console.func("findDOMNode");
+            console.func("findDOMNode", 10);
+            console.sketch(
+              "var inst = ReactInstanceMap.get(componentOrElement) ---> getNativeComponentFromComposite(inst)"
+            );
             console.log("componentOrElement:", componentOrElement);
             if ("development" !== "production") {
               var owner = ReactCurrentOwner.current;
@@ -22658,6 +22713,10 @@
             );
             if (inst) {
               inst = getNativeComponentFromComposite(inst);
+              console.log(
+                "getNativeComponentFromComposite(inst):",
+                getNativeComponentFromComposite(inst)
+              );
               return inst
                 ? ReactDOMComponentTree.getNodeFromInstance(inst)
                 : null;
@@ -22976,7 +23035,7 @@
           // Currently, all major browsers except Chrome seems to support Lock-keys.
           function modifierStateGetter(keyArg) {
             console.func("modifierStateGetter");
-
+            console.log("keyArg:", keyArg);
             var syntheticEvent = this;
             var nativeEvent = syntheticEvent.nativeEvent;
             if (nativeEvent.getModifierState) {

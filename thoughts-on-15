@@ -578,3 +578,41 @@ engineering,
 still. no idea how React works.. no idea... let's keep on reading the source code .
 
 ---
+
+ReactEvent.dispatchEvent:
+1:
+transaction.perform(handleTopLevelImpl)
+2:
+EventPluginHub.extractEvents
+3:
+EventPluginHub.getListener 
+4:
+ReactEventEmitterMixin.runEventQueueInBatch
+5:
+EventPluginUtils.executeDispatch
+6:
+ReactComponent.setState
+7:
+ReactCompositeComponentMixin.updateComponent
+8:
+ReactCompositeComponentMixin._updateRenderedComponent
+9:
+Calling shouldUpdateReactComponent
+10:
+Calling setTextContent (ACTUAL DOM CHANGING!!!)
+
+
+NOTE: from module 92 up to the last module 167 - those are utils I understand well...
+tomorrow: start from module 146 and above 
+
+thoughts: traverseAllChildrenImpl() is the most unclear function from this entire codebase
+
+reading through the Transaction module code, it seems like the most important module
+in React v15. (FULLY UNDERSTOOD)
+
+reading through the SyntheticEvent module, 
+
+--
+so I read from module 167 up to 92. Now I will read from 1 forwards.
+after that ? I will try again to follow the actions triggered by
+a simple button click with setState,
