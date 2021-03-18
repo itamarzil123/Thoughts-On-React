@@ -528,6 +528,7 @@
            * @return {?string} The string corresponding to this `beforeInput` event.
            */
           function getNativeBeforeInputChars(topLevelType, nativeEvent) {
+            console.func("getNativeBeforeInputChars");
             switch (topLevelType) {
               case topLevelTypes.topCompositionEnd:
                 return getDataFromCustomEvent(nativeEvent);
@@ -643,6 +644,7 @@
             nativeEventTarget
           ) {
             var chars;
+            console.func("extractBeforeInputEvent");
             console.log("topLevelType:", topLevelType);
             console.log("targetInst:", targetInst);
             console.log("nativeEvent:", nativeEvent);
@@ -7136,7 +7138,9 @@
              */
             createClass: function (spec) {
               console.func("ReactClass.createClass()");
-              console.sketch(`spec ---> var Constructor = function (props, context, updater) ---> bindAutoBindMethods() ---> this.getInitialState() ---> getDefaultProps()`);
+              console.sketch(
+                `spec ---> var Constructor = function (props, context, updater) ---> bindAutoBindMethods() ---> this.getInitialState() ---> getDefaultProps()`
+              );
               console.log("spec:", spec);
               console.desc(
                 `that is doing: bindAutoBindMethods(), getInitialState(), new ReactClassComponent(), mixSpecIntoComponent(Constructor, spec);`
@@ -7768,13 +7772,17 @@
 
               var publicProps = this._processProps(this._currentElement.props);
               var publicContext = this._processContext(context);
+              console.log("publicProps:", publicProps);
 
               var Component = this._currentElement.type;
 
               // Initialize the public class
               var inst;
               var renderedElement;
-
+              console.log(
+                "before new Component(publicProps,publicContextReactUpdateQueue), this._instance:",
+                this._instance
+              );
               if (Component.prototype && Component.prototype.isReactComponent) {
                 if ("development" !== "production") {
                   ReactCurrentOwner.current = this;
@@ -7833,7 +7841,10 @@
                   inst = new StatelessComponent(Component);
                 }
               }
-
+              console.log(
+                "after new Component(publicProps,publicContextReactUpdateQueue), this._instance:",
+                this._instance
+              );
               if ("development" !== "production") {
                 // This will throw later in _renderValidatedComponent, but add an early
                 // warning now to help debugging
@@ -7871,7 +7882,12 @@
               inst.updater = ReactUpdateQueue;
 
               this._instance = inst;
-
+              console.log(
+                "this._instance created in ReactCompositeComponentMixin.mountComponent:",
+                this._instance
+              );
+              console.log("this:", this);
+              // so here this.reactInternalInstance._renderedComponent._renderedComponent._nativeNode
               // Store a reference from the instance back to the internal representation
               ReactInstanceMap.set(inst, this);
 
@@ -7965,6 +7981,10 @@
               this._pendingForceUpdate = false;
 
               var markup;
+              console.log(
+                "before this.performInitialMount, this._instance:",
+                this._instance
+              );
               if (inst.unstable_handleError) {
                 markup = this.performInitialMountWithErrorHandling(
                   renderedElement,
@@ -7980,6 +8000,10 @@
                   nativeContainerInfo,
                   transaction,
                   context
+                );
+                console.log(
+                  "generated markup in ReactCompositeComponentMixin.mountComponent by this.performInitialMount:",
+                  markup
                 );
               }
 
@@ -8076,15 +8100,32 @@
               }
 
               // If not a stateless component, we now render
+              console.log(
+                "before this._renderValidatedComponent:",
+                renderedElement,
+                ", this._instance:",
+                this._instance
+              );
               if (renderedElement === undefined) {
                 renderedElement = this._renderValidatedComponent();
               }
+              console.log(
+                "after this._renderValidatedComponent:",
+                renderedElement
+              );
 
               this._renderedNodeType = ReactNodeTypes.getType(renderedElement);
+              console.log(
+                "before this._instantiateReactComponent, renderedElement:",
+                renderedElement
+              );
               this._renderedComponent = this._instantiateReactComponent(
                 renderedElement
               );
-              console.log("this._renderedComponent:", this._renderedComponent);
+              console.log(
+                "after this._instantiateReactComponent, this._renderedComponent:",
+                this._renderedComponent
+              );
               var markup = ReactReconciler.mountComponent(
                 this._renderedComponent,
                 transaction,
@@ -8092,7 +8133,10 @@
                 nativeContainerInfo,
                 this._processChildContext(context)
               );
-              console.log("performInitialMount returning markup:", markup);
+              console.log(
+                "ReactCompositeComponentMixin.performInitialMount returning markup generated by ReactReconciler.mountComponent",
+                markup
+              );
               return markup;
             },
 
@@ -8728,6 +8772,7 @@
               );
 
               var inst = this._instance;
+              console.log("inst:", inst);
               var renderedComponent = inst.render();
               console.log("renderedComponent:", renderedComponent);
               if ("development" !== "production") {
@@ -8741,7 +8786,7 @@
                   renderedComponent = null;
                 }
               }
-              console.log("renderedComponent:", renderedComponent);
+              console.log("returning renderedComponent:", renderedComponent);
               return renderedComponent;
             },
 
@@ -9851,19 +9896,48 @@
                     console.log("div:", div);
                     console.log("type:", type);
                     div.innerHTML = "<" + type + "></" + type + ">";
+                    console.log(
+                      'after div.innerHTML = "<" + type + "></" + type + ">", div:',
+                      div
+                    );
                     el = div.removeChild(div.firstChild);
                   } else {
+                    console.log(
+                      "el before el = el = ownerDocument.createElement(this._currentElement.type)",
+                      el
+                    );
+                    console.log("this._currentElement:", this._currentElement);
+                    console.log("this.ownerDocument:", ownerDocument);
                     el = ownerDocument.createElement(this._currentElement.type);
+                    console.log(
+                      "after el = ownerDocument.createElement(this._currentElement.type); el: ",
+                      el
+                    );
                   }
                 } else {
+                  console.log(
+                    "el before el = ownerDocument.createElementNS(amespaceURI,this._currentElement.type:"
+                  );
                   el = ownerDocument.createElementNS(
                     namespaceURI,
                     this._currentElement.type
                   );
+                  console.log(
+                    "el after el = ownerDocument.createElementNS(amespaceURI,this._currentElement.type:",
+                    el
+                  );
                 }
+                console.log(
+                  "before ReactDOMComponentTree.precacheNode(this, el), el:",
+                  el
+                );
                 ReactDOMComponentTree.precacheNode(this, el);
                 this._flags |= Flags.hasCachedChildNodes;
                 if (!this._nativeParent) {
+                  console.log(
+                    "DOMPropertyOperations.setAttributeForRoot(el), el:",
+                    el
+                  );
                   DOMPropertyOperations.setAttributeForRoot(el);
                 }
                 console.log(
@@ -9876,6 +9950,9 @@
                   transaction
                 );
                 this._updateDOMProperties(null, props, transaction);
+                console.log("el:", el);
+                console.log("DOMLazyTree(el):", DOMLazyTree(el));
+
                 var lazyTree = DOMLazyTree(el);
                 this._createInitialChildren(
                   transaction,
@@ -10100,6 +10177,12 @@
                     context
                   );
                   for (var i = 0; i < mountImages.length; i++) {
+                    console.log(
+                      "before DOMLazyTree.queueChild(lazyTree, mountImages[i]);"
+                    );
+                    console.log("mountImages:", mountImages);
+                    console.log("lazyTree:", lazyTree);
+
                     DOMLazyTree.queueChild(lazyTree, mountImages[i]);
                   }
                 }
@@ -10643,7 +10726,7 @@
             console.desc("node[internalInstanceKey] = nativeInst;");
             console.log("node:", node);
             var nativeInst = getRenderedNativeOrTextFromComponent(inst);
-            nativeInst._nativeNode = node;
+            nativeInst._nativeNode = node; //here _nativeNode
 
             node[internalInstanceKey] = nativeInst;
             console.log("node after precache:", node);
@@ -10703,6 +10786,10 @@
                   (childNode.nodeType === 8 &&
                     childNode.nodeValue === " react-empty: " + childID + " ")
                 ) {
+                  console.log(
+                    "In ReactDOMComponentTree.precacheChildNodes, childNode:",
+                    childNode
+                  );
                   precacheNode(childInst, childNode);
                   continue outer;
                 }
@@ -11012,6 +11099,10 @@
               if (transaction.useCreateElement) {
                 var ownerDocument = nativeContainerInfo._ownerDocument;
                 var node = ownerDocument.createComment(nodeValue);
+                console.log(
+                  "node after ownerDocument.createComment(nodeValue):",
+                  node
+                );
                 ReactDOMComponentTree.precacheNode(this, node);
                 return DOMLazyTree(node);
               } else {
@@ -12368,6 +12459,10 @@
                 var lazyTree = DOMLazyTree(
                   ownerDocument.createDocumentFragment()
                 );
+                console.log(
+                  "before DOMLazyTree.queueChild(lazyTree, DOMLazyTree(openingComment));"
+                );
+
                 DOMLazyTree.queueChild(lazyTree, DOMLazyTree(openingComment));
                 if (this._stringText) {
                   DOMLazyTree.queueChild(
@@ -12376,8 +12471,10 @@
                   );
                 }
                 DOMLazyTree.queueChild(lazyTree, DOMLazyTree(closingComment));
+                console.log("openingComment:", openingComment);
                 ReactDOMComponentTree.precacheNode(this, openingComment);
                 this._closingComment = closingComment;
+                console.log("returning lazyTree:", lazyTree);
                 return lazyTree;
               } else {
                 var escapedText = escapeTextContentForBrowser(this._stringText);
@@ -14120,6 +14217,7 @@
 
           ReactElement.createElement = function (type, config, children) {
             console.func("ReactElement.createElement");
+            console.trace();
             console.log("type:", type);
             console.log("config:", config);
             console.log("children:", children);
@@ -15766,7 +15864,10 @@
               ReactDOMContainerInfo(wrapperInstance, container),
               context
             );
-            console.log("markup to insert into the DOM:", markup);
+            console.log(
+              "in ReactMount.mountComponentIntoNode markup generated by ReactReconciler.mountComponent:",
+              markup
+            );
             if (markerName) {
               console.timeEnd(markerName);
             }
@@ -16272,7 +16373,6 @@
               console.delimeter += 4;
               console.func("ReactMount.render()", 10); // nicknamed: ReactDOM.render()
               console.desc("wrapping ReactMount._renderSubtreeIntoContainer");
-              // console.trace(container);
               console.log("nextElement:", nextElement);
               console.log("container:", container);
               console.log("callback:", callback);
@@ -16400,6 +16500,10 @@
               if (shouldReuseMarkup) {
                 var rootElement = getReactRootElementInContainer(container);
                 if (ReactMarkupChecksum.canReuseMarkup(markup, rootElement)) {
+                  console.log(
+                    "before ReactDOMComponentTree.precacheNode(instance, rootElement):",
+                    rootElement
+                  );
                   ReactDOMComponentTree.precacheNode(instance, rootElement);
                   return;
                 } else {
@@ -16524,6 +16628,7 @@
                 console.log("markup:", markup);
                 setInnerHTML(container, markup);
                 console.log("caching the node");
+                console.log("container.firstChild:", container.firstChild);
                 ReactDOMComponentTree.precacheNode(
                   instance,
                   container.firstChild
@@ -17330,6 +17435,8 @@
             EMPTY: 2,
 
             getType: function (node) {
+              console.func("ReactNodeTypes.getType");
+              console.log("node:", node);
               if (node === null || node === false) {
                 return ReactNodeTypes.EMPTY;
               } else if (ReactElement.isValidElement(node)) {
@@ -18609,6 +18716,10 @@
                 nativeParent,
                 nativeContainerInfo,
                 context
+              );
+              console.log(
+                "generated markup in ReactReconciler.mountComponent by internalInstance.mountComponent:",
+                markup
               );
               if (
                 internalInstance._currentElement &&
@@ -23547,6 +23658,10 @@
               }
             } else if (typeof node === "string" || typeof node === "number") {
               instance = ReactNativeComponent.createInstanceForText(node);
+              console.log(
+                "after ReactNativeComponent.createInstanceForText(node), instance:",
+                instance
+              );
             } else {
               !false
                 ? "development" !== "production"
@@ -23589,7 +23704,10 @@
                 Object.preventExtensions(instance);
               }
             }
-
+            console.log(
+              "returning newly instantiated React instance:",
+              instance
+            );
             return instance;
           }
 
@@ -23644,6 +23762,8 @@
             var isSupported = eventName in document;
 
             if (!isSupported) {
+              console.alertDOM("isEventSupported:", "Changing");
+              console.log('element.setAttribute(eventName, "return;");');
               var element = document.createElement("div");
               element.setAttribute(eventName, "return;");
               isSupported = typeof element[eventName] === "function";
@@ -23905,7 +24025,6 @@
           var setTextContent = function (node, text) {
             console.func("setTextContent", 15);
             console.alertDOM("setTextContent", "changing");
-            console.trace();
             console.log("node:", node);
             console.log("text:", text);
             console.log("node.textContent = text");
@@ -23946,7 +24065,6 @@
 
           function shouldUpdateReactComponent(prevElement, nextElement) {
             console.func("shouldUpdateReactComponent", 10);
-            console.trace();
             console.sketch("return prevElement === nextElement");
             console.log("prevElement:", prevElement);
             console.log("nextElement:", nextElement);

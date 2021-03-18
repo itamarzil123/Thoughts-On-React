@@ -213,9 +213,11 @@
            * @internal
            */
           function run(code, url, options) {
+            console.log('____JSX TRANSFORMER___ RUN')
             var scriptEl = document.createElement("script");
             scriptEl.text = transformCode(code, url, options);
             headEl.appendChild(scriptEl);
+            console.log('____JSX TRANSFORMER___headEl:', headEl)
           }
 
           /**
@@ -10931,6 +10933,10 @@
             }
 
             function parseJSXOpeningElement() {
+              console.log(
+                "_____JSX TRANSFORMER____: parseJSXOpeningElement():"
+              );
+
               var name,
                 attributes = [],
                 selfClosing = false,
@@ -10946,6 +10952,7 @@
               expect("<");
 
               name = parseJSXElementName();
+              console.log("_____JSX TRANSFORMER____: name:", name);
 
               while (
                 index < length &&
@@ -19167,6 +19174,10 @@
             }
 
             // We assume that the React runtime is already in scope
+            console.log("_____JSX TRANSFORMER____: state:", state);
+            console.log("_____JSX TRANSFORMER____: nameObject:", nameObject);
+            console.log("_____JSX TRANSFORMER____: Syntax:", Syntax);
+
             utils.append("React.createElement(", state);
 
             if (
