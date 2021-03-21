@@ -14,6 +14,85 @@
     : ((global = global || self), factory((global.React = {})));
 })(this, function (exports) {
   "use strict";
+  console.options = {
+    checkMask: false,
+  };
+  console.delimeter = 0;
+  console.func = function (text, level) {
+    let styles;
+    if (level === 1) {
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 20px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 15px",
+      ].join(";");
+    } else if (level === 10) {
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 40px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 35px",
+      ].join(";");
+    } else if (level === 15) {
+      styles = [
+        "background: linear-gradient(rgba(54, 130, 201, 0.2), rgba(44, 130, 201, 1))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 35px",
+        "text-align: center",
+        "font-weight: bold",
+        "border: 12px solid black",
+        "font-size: 35px",
+      ].join(";");
+    } else {
+      styles = [
+        "background: linear-gradient(rgba(44, 130, 201, 0.4), rgba(44, 130, 201, 0.8))",
+        "color: white",
+        "display: block",
+        "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+        "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+        "line-height: 20px",
+        "text-align: center",
+        "font-weight: bold",
+        "font-size: 20px",
+      ].join(";");
+    }
+
+    let delimeterStr = "";
+    for (let i = 0; i < console.delimeter; i++) {
+      delimeterStr += " ";
+    }
+    console.log(delimeterStr + "%c ---> Calling %s ", styles, text);
+  };
+
+  console.desc = function (text) {
+    var styles = [
+      "background: linear-gradient(rgba(77, 5, 232,0.4), rgba(77, 5, 232, 0.8))",
+      "color: white",
+      "display: block",
+      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+      "box-shadow: 0 1px 0 rgba(44, 130, 201, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(44, 130, 201, 0.4) inset",
+      "line-height: 20px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 12px",
+    ].join(";");
+
+    console.log("%c ---> [ Description: %s ", styles, text);
+  };
 
   // TODO: this is special because it gets imported during build.
   var ReactVersion = "17.0.1";
@@ -1710,8 +1789,10 @@
   }
 
   function resolveDispatcher() {
+    console.func("resolveDispatcher");
     var dispatcher = ReactCurrentDispatcher.current;
-
+    console.log("ReactCurrentDispatcher:", ReactCurrentDispatcher);
+    console.log("dispatcher", dispatcher);
     if (!(dispatcher !== null)) {
       {
         throw Error(
@@ -1763,7 +1844,10 @@
     return dispatcher.useContext(Context, unstable_observedBits);
   }
   function useState(initialState) {
+    console.func("useState");
+    console.log("initialState:", initialState);
     var dispatcher = resolveDispatcher();
+    console.log("dispatcher:", dispatcher);
     return dispatcher.useState(initialState);
   }
   function useReducer(reducer, initialArg, init) {
@@ -2055,6 +2139,8 @@
       reentry = false;
 
       {
+        console.log("ReactCurrentDispatcher$1.current = previousDispatcher");
+        console.log("previousDispatcher:", previousDispatcher);
         ReactCurrentDispatcher$1.current = previousDispatcher;
         reenableLogs();
       }
@@ -3516,6 +3602,8 @@
     };
   }
   function unstable_clear(callback) {
+    console.func("unstable_clear");
+    console.log("callback:", callback);
     var prevInteractions = interactionsRef.current;
     interactionsRef.current = new Set();
 

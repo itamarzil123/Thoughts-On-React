@@ -79,7 +79,7 @@
       ].join(";");
     }
 
-    delimeterStr = "";
+    let delimeterStr = "";
     for (let i = 0; i < console.delimeter; i++) {
       delimeterStr += " ";
     }
@@ -153,7 +153,7 @@
   };
 
   console.print = function (text) {
-    delimeterStr = "";
+    let delimeterStr = "";
     for (let i = 0; i < console.delimeter; i++) {
       delimeterStr += " ";
     }
@@ -1067,6 +1067,10 @@
              * @return {?string}
              */
             createMarkupForStyles: function (styles, component) {
+              console.func('CSSPropertyOperations.createMarkupForStyles')
+              console.log('styles:', styles);
+              console.log('component:', component);
+
               var serialized = "";
               for (var styleName in styles) {
                 if (!styles.hasOwnProperty(styleName)) {
@@ -1122,6 +1126,8 @@
                   styleName = styleFloatAccessor;
                 }
                 if (styleValue) {
+                  alertDOM('setValueForStyles', 'Changing')
+                  console.log('style[styleName] = styleValue;')
                   style[styleName] = styleValue;
                 } else {
                   var expansion =
@@ -1131,9 +1137,13 @@
                     // Shorthand property that IE8 won't like unsetting, so unset each
                     // component to placate it
                     for (var individualStyleName in expansion) {
+                      alertDOM('setValueForStyles', 'Changing')
+                      console.log('style[individualStyleName] = "";')
                       style[individualStyleName] = "";
                     }
                   } else {
+                    alertDOM('setValueForStyles', 'Changing')
+                    console.log('style[styleName] = "";')
                     style[styleName] = "";
                   }
                 }
@@ -1422,7 +1432,7 @@
             EventPluginHub.enqueueEvents(event);
             EventPluginHub.processEventQueue(false);
             `);
-            console.log("event:", event);
+            console.log("event:", event); //nowhere
             EventPluginHub.enqueueEvents(event);
             EventPluginHub.processEventQueue(false);
           }
@@ -1815,7 +1825,7 @@
             console.log("parentNode:", parentNode);
             console.log("childTree:", childTree);
             console.log("referenceNode:", referenceNode);
-            DOMLazyTree.insertTreeBefore(parentNode, childTree, referenceNode);
+            DOMLazyTree.insertTreeBefore(parentNode, childTree, referenceNode); //nowhere
           }
 
           function moveChild(parentNode, childNode, referenceNode) {
@@ -2069,10 +2079,13 @@
             // appending children won't update the DOM. We need to ensure the fragment
             // is properly populated first, breaking out of our lazy approach for just
             // this level.
+            console.alertDOM('var insertTreeBefore = createMicrosoftUnsafeLocalFunction', 'Changing')
             if (tree.node.nodeType === 11) {
               insertTreeChildren(tree);
+              console.log('parentNode.insertBefore(tree.node, referenceNode);')
               parentNode.insertBefore(tree.node, referenceNode);
             } else {
+              console.log('parentNode.insertBefore(tree.node, referenceNode);')
               parentNode.insertBefore(tree.node, referenceNode);
               insertTreeChildren(tree);
             }

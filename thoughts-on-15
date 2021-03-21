@@ -648,3 +648,14 @@ which tells the story on how React made 'class' a 'className' and 'htmlFor' 'for
 which is actually defined in module 22: HTMLDOMPropertyConfig.
 
 next to deep dive: the object pooling mechanism in React:
+---------
+
+reading react 15 source code from beginning to end, again. thoughts:
+- much clearer than before
+- ReactUpdates.batchedUpdates(runEventInBatch, event) in manualDispatchChangeEvent is not clear.
+  The entire philosophy behind ReactUpdates.batchedUpdates is not clear in this context
+--------------
+Ok, so eventually I didn't understand React v15 after all.. (after all this source code readings)
+I hope at least I got a better grasp (though a very vague one) how it works behind the scenes.
+--------------
+I will now (from tomorrow) start reading React v17 source code. 

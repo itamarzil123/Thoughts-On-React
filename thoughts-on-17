@@ -1,0 +1,165 @@
+What are the differences between React v15 and React v17 ?
+---
+from official React documentation:
+1. React 17 removes the “event pooling” optimization from React
+This is because React reused the event objects between different events for performance in 
+old browsers, and set all event fields to null in between them. 
+With React 16 and earlier, you have to call e.persist() to properly use the event, 
+or read the property you need earlier.
+
+MORE: https://reactjs.org/blog/2020/08/10/react-v17-rc.html#other-breaking-changes
+
+
+---
+so I began with console.func usage in useState.
+from there we can see that useState utilizes resolveDispatcher() and its generated dispatcher
+obj. so React.useState is actually React.(resolveDispatcher()).useState.
+resolveDispatcher is returning ReactCurrentDispatcher.current. not clear why this .current field
+is needed inside ReactCurrentDispatcher.
+---
+the next important piece to understand is:
+  var ReactSharedInternals = {
+    ReactCurrentDispatcher: ReactCurrentDispatcher,
+    ReactCurrentBatchConfig: ReactCurrentBatchConfig,
+    ReactCurrentOwner: ReactCurrentOwner,
+    IsSomeRendererActing: IsSomeRendererActing,
+    assign: assign,
+  };
+
+  and:
+  var ReactSharedInternals$1 = {
+    ReactCurrentDispatcher: ReactCurrentDispatcher,
+    ReactCurrentOwner: ReactCurrentOwner,
+    IsSomeRendererActing: IsSomeRendererActing,
+    ReactCurrentBatchConfig: ReactCurrentBatchConfig,
+    // Used by renderers to avoid bundling object-assign twice in UMD bundles:
+    assign: assign,
+    // Re-export the schedule API(s) for UMD bundles.
+    // This avoids introducing a dependency on a new UMD global in a minor update,
+    // Since that would be a breaking change (e.g. for all existing CodeSandboxes).
+    // This re-export is only required for UMD bundles;
+    // CJS bundles use the shared NPM package.
+    Scheduler: Scheduler,
+    SchedulerTracing: SchedulerTracing,
+  };
+
+  ReactSharedInternals is a 'private', 'internal' group of methods that should not be exposed
+  to the outer world and be used in React only internally ?
+
+  as we can see ReactSharedInternals$1 has an extra Schedular methods which do not appear 
+  in ReactSharedInternals.
+  from the comments: it means: Re-export the schedule API(s).
+  What is this schedule API ? we will research that later.
+  ---
+  it seems like ReactCurrentDispatcher is being initialized with useState, useReducer, etc..
+  inside ReactDOM because I couldn't find it in React. let's check it out.
+  it seems like there is a ReactCurrentDispatcher in React DOM as well:
+  and it is initialized to HooksDispatcherOnUpdateInDEV which is:
+  HooksDispatcherOnMountInDEV.useState = {
+      readContext: function (context, observedBits) {
+        return readContext(context, observedBits);
+      },
+      useCallback: function (callback, deps) {
+        currentHookNameInDev = "useCallback";
+        updateHookTypesDev();
+        return updateCallback(callback, deps);
+      },
+      useContext: function (context, observedBits) {
+        currentHookNameInDev = "useContext";
+        updateHookTypesDev();
+        return readContext(context, observedBits);
+      },
+      useEffect: function (create, deps) {
+        currentHookNameInDev = "useEffect";
+        updateHookTypesDev();
+        return updateEffect(create, deps);
+      },
+      useImperativeHandle: function (ref, create, deps) {
+        currentHookNameInDev = "useImperativeHandle";
+        updateHookTypesDev();
+        return updateImperativeHandle(ref, create, deps);
+      },
+      useLayoutEffect: function (create, deps) {
+        currentHookNameInDev = "useLayoutEffect";
+        updateHookTypesDev();
+        return updateLayoutEffect(create, deps);
+      },
+      useMemo: function (create, deps) {
+        currentHookNameInDev = "useMemo";
+        updateHookTypesDev();
+        var prevDispatcher = ReactCurrentDispatcher$1.current;
+        ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
+
+        try {
+          return updateMemo(create, deps);
+        } finally {
+          ReactCurrentDispatcher$1.current = prevDispatcher;
+        }
+      },
+      useReducer: function (reducer, initialArg, init) {
+        currentHookNameInDev = "useReducer";
+        updateHookTypesDev();
+        var prevDispatcher = ReactCurrentDispatcher$1.current;
+        ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
+
+        try {
+          return updateReducer(reducer, initialArg, init);
+        } finally {
+          ReactCurrentDispatcher$1.current = prevDispatcher;
+        }
+      },
+      useRef: function (initialValue) {
+        currentHookNameInDev = "useRef";
+        updateHookTypesDev();
+        return updateRef();
+      },
+      useState: function (initialState) {
+        currentHookNameInDev = "useState";
+        updateHookTypesDev();
+        var prevDispatcher = ReactCurrentDispatcher$1.current;
+        ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
+
+        try {
+          return updateState(initialState);
+        } finally {
+          ReactCurrentDispatcher$1.current = prevDispatcher;
+        }
+      },
+      useDebugValue: function (value, formatterFn) {
+        currentHookNameInDev = "useDebugValue";
+        updateHookTypesDev();
+        return updateDebugValue();
+      },
+      useDeferredValue: function (value) {
+        currentHookNameInDev = "useDeferredValue";
+        updateHookTypesDev();
+        return updateDeferredValue(value);
+      },
+      useTransition: function () {
+        currentHookNameInDev = "useTransition";
+        updateHookTypesDev();
+        return updateTransition();
+      },
+      useMutableSource: function (source, getSnapshot, subscribe) {
+        currentHookNameInDev = "useMutableSource";
+        updateHookTypesDev();
+        return updateMutableSource(source, getSnapshot, subscribe);
+      },
+      useOpaqueIdentifier: function () {
+        currentHookNameInDev = "useOpaqueIdentifier";
+        updateHookTypesDev();
+        return updateOpaqueIdentifier();
+      },
+      unstable_isNewReconciler: enableNewReconciler,
+    };
+
+    and so useState is actually ReactCurrentDispatcher.current.useState
+    which is actually HooksDispatcherOnMountInDEV.useState, because ReactCurrentDispatcher
+    is initialized in DEV to be HooksDispatcherOnMountInDEV.
+    However the setState inside HooksDispatcherOnMountInDEV is not clear:
+    for example what is the meaning of:
+    ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnMountInDEV;
+
+    ---
+    note about dispatchAction. it is only invoked when the user is actually setting state.
+    not when he does const {something, setSomething} = useState(), but when he does setSomething()
