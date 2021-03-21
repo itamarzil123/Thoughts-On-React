@@ -1,23 +1,23 @@
-What are the differences between React v15 and React v17 ?
----
+-------------------------------------------------------
+What's new in React 17 compared to previous versions ?
+(except hooks, fiber that we will talk about later)
+-------------------------------------------------------
 from official React documentation:
 1. React 17 removes the “event pooling” optimization from React
 This is because React reused the event objects between different events for performance in 
 old browsers, and set all event fields to null in between them. 
 With React 16 and earlier, you have to call e.persist() to properly use the event, 
 or read the property you need earlier.
-
 MORE: https://reactjs.org/blog/2020/08/10/react-v17-rc.html#other-breaking-changes
 
-
 ---
-so I began with console.func usage in useState.
-from there we can see that useState utilizes resolveDispatcher() and its generated dispatcher
+looking at console.logs put inside method calls,
+we can see that useState utilizes resolveDispatcher() and its generated dispatcher
 obj. so React.useState is actually React.(resolveDispatcher()).useState.
 resolveDispatcher is returning ReactCurrentDispatcher.current. not clear why this .current field
 is needed inside ReactCurrentDispatcher.
 ---
-the next important piece to understand is:
+the next important piece to follow is:
   var ReactSharedInternals = {
     ReactCurrentDispatcher: ReactCurrentDispatcher,
     ReactCurrentBatchConfig: ReactCurrentBatchConfig,
@@ -44,9 +44,9 @@ the next important piece to understand is:
   };
 
   ReactSharedInternals is a 'private', 'internal' group of methods that should not be exposed
-  to the outer world and be used in React only internally ?
+  to the outer world and be used in React only internally.
 
-  as we can see ReactSharedInternals$1 has an extra Schedular methods which do not appear 
+ReactSharedInternals$1 has an extra Schedular methods which do not appear 
   in ReactSharedInternals.
   from the comments: it means: Re-export the schedule API(s).
   What is this schedule API ? we will research that later.

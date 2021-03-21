@@ -1,17 +1,18 @@
-in These 'thoughts-on-React' documents I share my journey of trying to understand what's
-going on inside React.
+in These 'thoughts-on-React' bunch of documents I share my journey of trying to understand what's
+going on inside React. I hope you will find anything useful.
+Please be patient (those thoughts were written for me only and then only editted for public use)
 
 ------------------------------------------------------------
 The module resolving that is used in React v0.14, v0.3, v15:
 ------------------------------------------------------------
 
-    a very mechanical, hard to follow and reason about, ES3 styled module resolution system
-    besides the IFEE, the factory function that it accepts, and the entire structure that 
-    describes an array of tuples: each tuple is a React module, and its dependencies which are 
-    the indexes of other React modules that it depends upon. since I believe it is un friendly
-    piece of code and would not like to fully dive in it in this introduction document,
-    I will skip it (you can follow the console logs when running react in this project and get a better understanding)
-    The important take from this primitive module resolving system is that it sucessfully delivers a working module system,
-    (though IIFE based modules can be built in better ways).
-    In practice, the first module that is being used and starts the entire React engine is: 90.
+a very mechanical, hard to follow and reason about, ES3 styled module resolution system
+besides the IFEE, the factory function that it accepts, and the entire structure that 
+describes an array of tuples: each tuple is a React module, and its dependencies which are 
+the indexes of other React modules that it depends upon. since I believe it is un friendly
+piece of code and would not like to fully dive in it in this introduction document,
+I will skip it (you can follow the console logs when running react in this project and get a better understanding)
+The important take from this primitive module resolving system is that it sucessfully delivers a working module system,
+(though IIFE based modules can be built in better ways).
+In practice, the first module that is being used and starts the entire React engine is: 90.
     
