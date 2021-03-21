@@ -1,42 +1,51 @@
 React-15: (vs previous versions v0.14, v0.3)
 --------------------------------
 
-
 ABOUT REACT IN GENERAL:
 What is React ? it's a javascript abstraction of the DOM. it adds layers to the native event system
 native markup, native DOM API, therefore creating a unified interface and a change detection mechanism
-between the native DOM and your javascript world. 
+between the native DOM and the javascript world. 
 
 React wrapps the native Event system with its own Event system called React Event System with actors
-like 'EventPlugins', 'SynthenticEvent' etc . . doing event normalization across browsers and environments
-and also making the native event system easy to deal with inside React internal API.
+such as 'EventPlugins', 'SynthenticEvent' etc . . doing event normalization across browsers and environments
+and also making the native event system extractable from within the React internal APIs.
 
 it's smallest building block is a component. A React application is nothing but a tree of functions
-that communicate through state and props. each of these functions has its own representation of the DOM,
-it's own UI, and so it's called a React Component because it is not only a function that receives props,state
+that communicate with each other through state and props. each of these functions has its own representation of the DOM,
+it's own UI, and so it's called a React Component because it is not only a function object that receives props,state
 and communicate with props state, but it is also a UI unit. 
 
-Reacy component lifecycle includes being born as a function (constructor), being mounted, being updated, and
+Reacy component lifecycle includes being born as a function (constructor), being mounted (injected into the DOM), being updated, and
 eventually being unmounted from the DOM. React public API reveals some lifecycle methods for the React user.
 
 The most popular usage of React is using JSX which is a transformer from <Componet props/> syntax to 
-component(props) syntax.
+component(props) syntax. tools like Babel / JSXTransformer can transform/compile JSX into
+plain javascript function calls. (for example React.createElement('div', props, children))
+in the form of React elements tree, which can also can be easily transformed into a real DOM tree
+by extracting each React element 'type' property and doing document.createElement(type); 
 
 React 'change detection mechanism' and constant reconciliation (dom update) process is based on checking if 
-the markup of a component is different than the real DOM markup after any change in props, state
-which is related to the component.
+the markup of a component has changed -> aka is different from its previous 'state'. in some situations a new chunk of the
+DOM is being created and the previous is totally destroyed. in other situations (when the element
+hasn't changed) only the props of a given node is updated and is being propagated down the tree.
+ 
+React main philosophy is be immutable when you want to change your state,
+and do setState(newState) as your only tool for state modifications. In that aspect React is totally not Reactive,
+because its change detection lives inside the developer's mind and not inside the React system.
+setState triggers change, rerender and the entire Event reset / DOM reset / Components tree reset
+depending on the case.
 
-React patterns, or 'opinion' is to be immutable and change state only in immutable manners.
+In these 'thoughts-on' documents I refer to React versions 0.3, 0.14, v15 and v17, and in this
+specific one I refer to React v15;
 
 --------------------------
-React v15 vs v0.3, 0.14:
+React v15 changeLog (vs previous versions like v0.3, v0.14):
 --------------------------
 from the official changeLog:
-         document.createElement is in and data-reactid is out
+         document.createElement is in and data-Reactid is out
          No more extra <span>s
          React.cloneElement() now resolves defaultProps
          Function components can now return null too
-
          Deprecated APIs are removed from the React top-level export:
          findDOMNode, render, renderToString, renderToStaticMarkup, and unmountComponentAtNode.
          As a reminder, they are now available on ReactDOM and ReactDOMServer.
@@ -44,13 +53,11 @@ from the official changeLog:
          Deprecated component instance methods are removed: setProps, replaceProps, and getDOMNode.
          React-specific properties on DOM refs (e.g. this.refs.div.props) were deprecated,
          and are removed now
-my observations:
 
-1. $$typeof: Symbol(react.element) is now holding the id of a React component
+extra observations:
 
-2. data-reactroot is used (as opposed to ReactRootId[] in v0.3, v0.14)
-
-
+1. $$typeof: Symbol(React.element) is now holding the id of a React component
+2. data-Reactroot is used (as opposed to ReactRootId[] in v0.3, v0.14)
 3. the updater in a React component in v15 has the following fields:
       enqueueCallback: ƒ (publicInstance, callback, callerName)
       enqueueCallbackInternal: ƒ (internalInstance, callback)
@@ -61,7 +68,6 @@ my observations:
       isMounted: ƒ (publicInstance)
       validateCallback: ƒ (callback, callerName)
       __proto__: Object
-
 4. all the AccumulateDispatch methods survived v15 (existed from v0.3)
 
 0. this.updater inside ReactClass is the same as in v0.14. this.updater is the object inside ReactClass
@@ -80,11 +86,12 @@ my observations:
    markup has been injected to the DOM. the queue itself is a list of React components ready to be notified
    after their DOM has been injected. callbackQueue holds _callbacks and _contexts. and for example
    notifyAll will call each callback with the matching context. (callback.call(context))
-5. reading through lines 1200+ it seems like React overall suffers from tightling coupling of different units
+5. reading through lines 1200+ it seems like React overall suffers from severe tight coupling of different unrelated-enough units
    such as the React Event system and the DOM utils and the React API (or namings), etc  . . .
-   the way React is written is not modular. the way the reader reads the code is very not clear,
-   too much complexity, and too much chaos. not clear which are the basic units and which are the bigger/higher
-   units of engineering.
+   the way React is written is not modular in v15 (improved alot in v16 and v17). the way the reader is forced to read the code is abusive,
+   too much complexity, chaos. not clear which are the basic units and which are the bigger/higher
+   units of engineering. some of it is because we are using the CDN (one play js file) version
+   and non of the modern tooling (no real modules etc..)
 6. module 28: React policies still exist apparently (as in v0.3 and v.14) except for additions:
    DEFINE_MANY_MERGED,
    ReactClassInterface I believe is the new ReactCompositeComponentInterface
@@ -95,8 +102,9 @@ my observations:
 8. shouldUpdateReactComponent: in v15 React offers its own implementations while in previous versions
    it only relied on the user's shouldUpdateReactComponent
 
-NOTES:
-    key code snippets:
+-----------------------------------------------------------------------------
+IMPORTANT ENTITIES TO GET TO KNOW WELL BEFORE FURTHER DIVING INTO REACT:
+
     ReactDOMComponentTree.getNodeFromInstance,
     ReactDOMComponentTree.getClosestInstanceFromNode,
     DOMLazyTree,
@@ -114,7 +122,6 @@ NOTES:
     createElement,
     ReactReconciler,
     ReactInstrumentation
-
 
 
 
@@ -137,42 +144,23 @@ NOTES:
            */
           function executeDispatchesInOrder
 
-
-
-
-NOTES: even in versions 0.14, 0.3, and in 15, still it all feels like a magic.
-How exactly React works internally ?
-
-
-
-
-
-
-
-
-
 NOTES:
     The DOM CompositionEvent represents events that occur due to the user indirectly entering text.
 
+-------------------------------------------------------
+LET'S TEST REACT AND TRY TO FIGURE OUT WHAT'S GOING ON:
+-------------------------------------------------------
 
-
-
-
-
-
-
-
-TESTS:
 ----------
     1
 ----------
 a simple <button onClick={() => console.log('click')}></button>
 yields the following sequence of method invocations:
- 1. before any event click is triggered, when React launches, trapBubbledEvent() is called
-    and it is putting 'click' event listener on document
+ 1. before any event click is triggered, when React launches trapBubbledEvent()
+    which is putting 'click' event listener on document
     and dispatchEvent is the handler for this click event
-    When React sees 'onClick' on a virtual DOM element, its EventPluginHub is delegating the handling to:
-    SimpleEventPlugin, putting a listener on the element. 
+    When React sees 'onClick' on a virtual DOM element, its EventPluginHub is delegating the handling to
+    a specific 'Event Plugin' called SimpleEventPlugin, putting a listener on the element. 
 
 2. the user clicks on the Hello World button and trigger the following sequence:
 
@@ -284,7 +272,7 @@ what this code is causing React to do ?
                __proto__: Object
 3. NOTE: new Button() is different than new Component().
    apparently React.CreateElement patches it with: 
-   $$typeof: Symbol(react.element) as well as hiding this.updater from it
+   $$typeof: Symbol(React.element) as well as hiding this.updater from it
    Apparently <Button /> is going through some phases like React.createElement which further manipulates it:
       ---> Calling ReactElementValidator.getDeclarationErrorAddendum 
       ---> Calling ReactElement.createElement 
@@ -365,10 +353,11 @@ simple component with a button an onMouseMove inside:
 12-PooledClass.standardReleaser() -> instance.destructor(); -> topLevelCallbackBookKeeping is the instance
 
 
-IDEAS FOR IMPROVEMENT:
+IDEAS FOR IMPROVEMENT (some implemented in React V16, V17):
    - functions like transaction, or accumulate*, or PooledClass arguments, all built in a way that they can
-     accept limited number of arguments. those functions are not written in a flexible, maintainable wanner. 
-   - the entire architecture (interfaces, inheritence, etc) is terrible and much too verbose
+     accept limited number of arguments. those functions are not written in a flexible, maintainable manner,
+     the excuse is performance, but I don't but it. 
+   - the entire architecture (interfaces, inheritence, etc) is terrible and much too verbose (improved much in V16, V17)
    - remove all terrible accumulateDispatch methods and create one setupEventListeners method that does everything
    - I like ReactDefaultInjection purpose as the main 'dependency injection' system but I dislike its verbosity.
    - renaming: listen -> listenDuringBubble, capure -> listenDuringCapture
@@ -381,40 +370,18 @@ IDEAS FOR IMPROVEMENT:
    - transaction.perform -> too verbose and shapeless
 
 
--------------------------
-10/3/21: One month later:
--------------------------
-Now in this session I'm going to look at the ES5 React15 version as well as in the more modern
-typescript variation of React15.
-
-Ok. so half an hour to gain a better understanding of the terrible ES3/5 React15 module resolution
-system. besides the IFEE, the factory function that it accepts, and the entire model that 
-describes an array of tuples: each tuple is a React module, and its dependencies which are 
-the indexes of other React modules that it depends upon. since I believe it is a terrible
-piece of code and would not like to fully dive in it, I will skip it since the important thing is
-the mechanism which I feel I understand well, and not the inner details like 
-what is e[90][e][s][34] and what module it resolves exactly in each step.
-But I will mention that it seems like 90 is the first module that is being resolved, and 90
-is the UMD module system resolver, so apperently this React15 variation is UMD-centric
-
-looking at the code, trying to figure out what's going on, still fails and the majority of the
-code is unclear to me. I will now try to look at the console logs I generated previously
-and see if it helps:
-
-so CreateDOMFactory(tag) is simply binding ReactElement.createElement for this tag.
-and so whenever a react component is created, ReactElement.createElement is used to create
+CreateDOMFactory(tag) is simply binding ReactElement.createElement for a specific DOM tag.
+and so whenever a React component is created, ReactElement.createElement is used to create
 the associated html tag to this component.
 ReactDOMFactories is a list of ReactElement.createElement functions, for each one of the
 html tags.
 From the comments: Creates a mapping from supported HTML tags to `ReactDOMComponent` classes
 
 A look at the React application generated code: There is a lot alot of code.
-React.createClass is creating a new react component from a blueprint and with the user
-given render, getInitialState, etc .. methods. doing a lot of validation on the react component,
+React.createClass is creating a new React component from a blueprint and with the user
+given render, getInitialState, etc .. methods. doing a lot of validation on the React component,
 and doing ReactElement.createElement, but as soon as
----
 ReactDOM.render() is shooting, the entire React engine is going crazy and from 0 to 300 Kps,
-with no order, and in a chaotic manner.
 it does createElement() for the <Component />
 it does ReactMount.render() which is doing _renderSubtreeIntoContainer()
 which is doing a lookup for the root element in the container,
@@ -436,9 +403,6 @@ then initializing the React Event system for this application components:
 ReactDOMComponent.enqueuePutListener(),
 then ReactUpdatesFlushTransaction.flushBatchedUpdate()
 ---
-
-WOW !!! It is very clear the entire mechanism is sick. I read the order of the things that
-happen when ReactDOM.render happens (or ReactMount.render()), but still, it all feels vague to me.
 ReactMount._renderNewRootComponent() seems very important in this 'root render install'
 which leads to the need to understand batchedMountComponentIntoNode(),
 which leads to the need to understand mountComponentIntoNode(),
@@ -460,22 +424,8 @@ which leads to the need to understand:
                 and that's it, I'm lost.
 
 
-
----
-PAUSE
----
-
-It seems like I'm stuck. things are too tough to follow, it is very hard to understand React flow,
-nature of things. For example, a setState after a button click triggers thousands of function
-calls. It is very hard to understand the big picture. Before diving into how specific functions
-do what they do and why they do it, I need to see the bigger picture, there I will
-make console.func one that gives me more details. another parameter, how important it is, 
-the more the function is important, the bigger font it will have. Another parameter should be
-a more global one regarding all console logs, when console.mod === 'HIGH-LEVEL', then only
-the most important (labeled 10), functions should be console logged.
-
 so let's test this functionality first. What are the most important function calls that are 
-happenning when the user clicks a button that setStates ?
+happenning when the user clicks a button that does setState() ?
 
 ReactEventListener.dispatchEvent
 ReactUpdates.ReactUpdatesFlushTransaction.batchedUpdates 
@@ -493,28 +443,11 @@ ReactCompositeComponentMixin._updateRenderedComponent
 ReactDOMComponent._updateDOMChildren
 shouldUpdateReactComponent  
 
-OK added, it's better, but still, it is not clear enough what's the connection between
-function calls. + let's add another level: 1 for the least important function calls.
-what are the least important function calls happen when button click triggers setState.
-- it is also very helpful if in each function calls, besides the general description, 
-  there will also be an ascii sketch of the flow of actions done within this function.
-  for example: 
-  ReactEventListener.dispatchEvent:
-  TopLevelCallbackBookKeeping.getPooled ---> ReactUpdates.batchedUpdates ---> TopLevelCallbackBookKeeping.release
 
-Yeah, so the last additions to the logger are great, but I'm missing details, like a third kind
-of description (besides console.desc, console.sketch):
 
----
-
-so in general I have no clue of whats going on inside React BatchedUpdates mechanisms,
-will come back to it some other time.
-
-Now, let's think of another layer of logging that will make things clearer:
-- anytime the DOM is changed, use a big font and show the change ? a special kind of 
-log with moving cool border effect !
-
----
+-----------------------------------------------------------
+some notes about the actual dom changing within text nodes
+-----------------------------------------------------------
 
 let's take a simple DOM actualy changing, when button click triggers setState that changes
 the state of age from 0 to 10, then eventually the dom node will be updated:
@@ -523,8 +456,8 @@ node.textContent = 10, but the console.trace looks like that:
 setTextContent (setting the node.textContent)
 replaceDelimitedText
    (doing something with comment nodes and calling setTextContent)
-   in this case, openingComment is <!-- react-text: 4 -->
-   closingComment is <!-- /react-text -->
+   in this case, openingComment is <!-- React-text: 4 -->
+   closingComment is <!-- /React-text -->
    and the stringText is 10
    and so replaceDelimitedText will create an actual dom text node from 10
    by calling createTextNode, or putting the 10 somewhere else.
@@ -575,9 +508,6 @@ dispatchEvent -> transaction.perform -> _updateRenderedComponent -> _reconcilerU
 thoughts: ReactDOMTextComponent with all the 'comment node' logic is a terrible piece of 
 engineering, 
 
-still. no idea how React works.. no idea... let's keep on reading the source code .
-
----
 
 ReactEvent.dispatchEvent:
 1:
@@ -601,39 +531,19 @@ Calling shouldUpdateReactComponent
 10:
 Calling setTextContent (ACTUAL DOM CHANGING!!!)
 
-
-NOTE: from module 92 up to the last module 167 - those are utils I understand well...
-tomorrow: start from module 146 and above 
-
-thoughts: traverseAllChildrenImpl() is the most unclear function from this entire codebase
-
-reading through the Transaction module code, it seems like the most important module
-in React v15. (FULLY UNDERSTOOD)
-
-reading through the SyntheticEvent module, 
-
---
-so I read from module 167 up to 92. Now I will read from 1 forwards.
-after that ? I will try again to follow the actions triggered by
-a simple button click with setState,
-
---
-CallbackQueue is the next module I am about to read (yes again).
-yeah, very simple module. simple a list of callbacks, contexts with enqueue option, reset option,
+CallbackQueue:
+It is simply a list of callbacks, contexts with enqueue option, reset option,
 and notifyall to iterate on the callbacks and calling them with the contexts.
 except that it also has pooling added to. (for avoiding garbage collection exaushting)
 --
-ChangeEventPlugin.runEventInBatch is the next method I'm investigating:
+ChangeEventPlugin.runEventInBatch:
 --
-one last look at sequence of actions triggered by a button click that setStates
-still.. not clear to me... tomorrow we will try yet another way of deep diving React v15.
 
-actually something nice I found now:
 DOMProperty.DOMPropertyInjection.injectDOMPropertyConfig:
 
-react-15.js:138  ---> [ Description: Inject some specialized knowledge about the DOM. 
+React-15.js:138  ---> [ Description: Inject some specialized knowledge about the DOM. 
 This takes a config object with the following properties: 
-react-15.js:2235 domPropertyConfig: 
+React-15.js:2235 domPropertyConfig: 
       DOMAttributeNames:
       acceptCharset: "accept-charset"
       className: "class"
@@ -647,15 +557,6 @@ react-15.js:2235 domPropertyConfig:
 which tells the story on how React made 'class' a 'className' and 'htmlFor' 'for'
 which is actually defined in module 22: HTMLDOMPropertyConfig.
 
-next to deep dive: the object pooling mechanism in React:
----------
-
-reading react 15 source code from beginning to end, again. thoughts:
-- much clearer than before
-- ReactUpdates.batchedUpdates(runEventInBatch, event) in manualDispatchChangeEvent is not clear.
-  The entire philosophy behind ReactUpdates.batchedUpdates is not clear in this context
---------------
-Ok, so eventually I didn't understand React v15 after all.. (after all this source code readings)
-I hope at least I got a better grasp (though a very vague one) how it works behind the scenes.
---------------
-I will now (from tomorrow) start reading React v17 source code. 
+-------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
