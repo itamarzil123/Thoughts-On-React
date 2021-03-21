@@ -94,6 +94,21 @@
     console.log("%c ---> [ Description: %s ", styles, text);
   };
 
+  console.init = function (text) {
+    var styles = [
+      "background: linear-gradient(#D33106, #571402)",
+      "color: white",
+      "display: block",
+      "text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)",
+      "box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset",
+      "line-height: 40px",
+      "text-align: center",
+      "font-weight: bold",
+      "font-size: 15px",
+    ].join(";");
+    console.log("%c Initializing %s ", styles, text);
+  };
+
   // TODO: this is special because it gets imported during build.
   var ReactVersion = "17.0.1";
 
@@ -837,6 +852,8 @@
    */
 
   var ReactElement = function (type, key, ref, self, source, owner, props) {
+    console.func("ReactElement");
+    console.log("type:", type);
     var element = {
       // This tag allows us to uniquely identify this as a React Element
       $$typeof: REACT_ELEMENT_TYPE,
@@ -895,6 +912,11 @@
    */
 
   function createElement(type, config, children) {
+    console.func("createElement");
+    console.log("type:", type);
+    console.log("config:", config);
+    console.log("children:", children);
+
     var propName; // Reserved names are extracted
 
     var props = {};

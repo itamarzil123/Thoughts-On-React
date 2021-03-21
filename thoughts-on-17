@@ -10,6 +10,26 @@ With React 16 and earlier, you have to call e.persist() to properly use the even
 or read the property you need earlier.
 MORE: https://reactjs.org/blog/2020/08/10/react-v17-rc.html#other-breaking-changes
 
+
+-------------------------------------------------------------
+High level view of the flow in react 17:
+-------------------------------------------------------------
+so JSXTransformer is making the JSX we wrote inside the MyComponent in index-17.js file.
+creating a new javascript file (see console in devtools of the app), which contains
+the function MyComponent with its render logic as React.createElement(...,...) calls.
+and then. we call ReactDOM.render(...,...) and so the first thing that happens is a call
+to ReactDOM.render(), and only after that calls to React.createElement().
+Well actually, this is almost true.
+because the first line of code to be executed is:
+ReactDOM.render(<MyComponent />, document.getElementById("react-app")) }}}
+and <MyComponent /> is actually React.createElement(MyComponent, null),
+React.createElement will be called and evaluated before ReactDOM.render
+
+
+
+
+---
+useState flow 
 ---
 looking at console.logs put inside method calls,
 we can see that useState utilizes resolveDispatcher() and its generated dispatcher
@@ -163,3 +183,12 @@ ReactSharedInternals$1 has an extra Schedular methods which do not appear
     ---
     note about dispatchAction. it is only invoked when the user is actually setting state.
     not when he does const {something, setSomething} = useState(), but when he does setSomething()
+    ---
+
+    Fiber:
+    Fiber is the datastructure that is used in React 17 to wrap the virtual DOM with just another
+    layer. a node is from now a FiberNode, and work is not a monolith anymore but is distributed.
+    workInProgress is used to communicate the next 'unit of work' between different pieces in
+    the React engine. 
+
+

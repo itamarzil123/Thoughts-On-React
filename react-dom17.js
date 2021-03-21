@@ -17756,6 +17756,11 @@
   var renderLanes = NoLanes; // The work-in-progress fiber. I've named it differently to distinguish it from
   // the work-in-progress hook.
 
+  console.init("var currentlyRenderingFiber$1 = null;");
+  console.desc(`Hooks are stored as a linked list on the fiber's memoizedState field. The
+  current hook list is the list that belongs to the current fiber. The
+  work-in-progress hook list is a new list that will be added to the
+  work-in-progress fiber.`);
   var currentlyRenderingFiber$1 = null; // Hooks are stored as a linked list on the fiber's memoizedState field. The
   // current hook list is the list that belongs to the current fiber. The
   // work-in-progress hook list is a new list that will be added to the
@@ -17788,13 +17793,15 @@
 
   function mountHookTypesDev() {
     {
+      console.func("mountHookTypesDev");
       var hookName = currentHookNameInDev;
-
+      console.log("hookName:", hookName);
       if (hookTypesDev === null) {
         hookTypesDev = [hookName];
       } else {
         hookTypesDev.push(hookName);
       }
+      console.log("hookTypesDev after pushing:", hookTypesDev);
     }
   }
 
@@ -17935,8 +17942,11 @@
     secondArg,
     nextRenderLanes
   ) {
+    console.func("renderWithHooks");
     renderLanes = nextRenderLanes;
+    console.log("renderLanes:", renderLanes);
     currentlyRenderingFiber$1 = workInProgress;
+    console.log("currentlyRenderingFiber$1:", currentlyRenderingFiber$1);
 
     {
       hookTypesDev = current !== null ? current._debugHookTypes : null;
@@ -17974,7 +17984,14 @@
         // This dispatcher does that.
         ReactCurrentDispatcher$1.current = HooksDispatcherOnMountWithHookTypesInDEV;
       } else {
+        console.init(
+          "ReactCurrentDispatcher$1.current = HooksDispatcherOnMountWithHookTypesInDEV;"
+        );
+        console.desc(
+          "ReactCurrentDispatcher$1.current = null, to collapse the app"
+        );
         ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
+        console.log("ReactCurrentDispatcher$1:", ReactCurrentDispatcher$1);
       }
     }
 
@@ -18194,6 +18211,7 @@
   }
 
   function mountReducer(reducer, initialArg, init) {
+    console.func("mountReducer");
     var hook = mountWorkInProgressHook();
     var initialState;
 
@@ -19471,6 +19489,7 @@
         return mountRef(initialValue);
       },
       useState: function (initialState) {
+        console.func("HooksDispatcherOnMountWithHookTypesInDEV.useState");
         currentHookNameInDev = "useState";
         updateHookTypesDev();
         var prevDispatcher = ReactCurrentDispatcher$1.current;
@@ -19568,6 +19587,7 @@
         return updateRef();
       },
       useState: function (initialState) {
+        console.func("HooksDispatcherOnUpdateInDEV.useState");
         currentHookNameInDev = "useState";
         updateHookTypesDev();
         var prevDispatcher = ReactCurrentDispatcher$1.current;
@@ -20183,6 +20203,8 @@
     nextProps,
     renderLanes
   ) {
+    console.func("updateForwardRef");
+    console.log("workInProgress:", workInProgress);
     // TODO: current can be non-null here even if the component
     // hasn't yet mounted. This happens after the first render suspends.
     // We'll need to figure out if this is fine or can cause issues.
@@ -20581,6 +20603,8 @@
     nextProps,
     renderLanes
   ) {
+    console.func("updateFunctionComponent");
+    console.log("workInProgress:", workInProgress);
     {
       if (workInProgress.type !== workInProgress.elementType) {
         // Lazy component props can't be validated in createElement
@@ -20758,6 +20782,8 @@
     hasContext,
     renderLanes
   ) {
+    console.func("finishClassComponent");
+    console.log("workInProgress:", workInProgress);
     // Refs should update even if shouldComponentUpdate returns false
     markRef(current, workInProgress);
     var didCaptureError = (workInProgress.flags & DidCapture) !== NoFlags;
@@ -20975,6 +21001,8 @@
     updateLanes,
     renderLanes
   ) {
+    console.func("mountLazyComponent");
+    console.log("workInProgress:", workInProgress);
     if (_current !== null) {
       // A lazy component only mounts if it suspended inside a non-
       // concurrent tree, in an inconsistent state. We want to treat it like
@@ -21155,6 +21183,8 @@
     Component,
     renderLanes
   ) {
+    console.func("mountIndeterminateComponent");
+    console.log("workInProgress:", workInProgress);
     if (_current !== null) {
       // An indeterminate component only mounts if it suspended inside a non-
       // concurrent tree, in an inconsistent state. We want to treat it like
@@ -22543,6 +22573,8 @@
     var updateLanes = workInProgress.lanes;
 
     {
+      console.func("beginWork");
+      console.log("workInProgress:", workInProgress);
       if (workInProgress._debugNeedsRemount && current !== null) {
         // This will restart the begin phase with a new fiber.
         return remountFiber(
@@ -25849,6 +25881,10 @@
   }
 
   function scheduleUpdateOnFiber(fiber, lane, eventTime) {
+    console.func("scheduleUpdateOnFiber");
+    console.log("fiber:", fiber);
+    console.log("lane:", lane);
+    console.log("eventTime:", eventTime);
     checkForNestedUpdates();
     warnAboutRenderPhaseUpdatesInDEV(fiber);
     var root = markUpdateLaneFromFiberToRoot(fiber, lane);
@@ -26060,6 +26096,8 @@
   // goes through Scheduler.
 
   function performConcurrentWorkOnRoot(root) {
+    console.func("performConcurrentWorkOnRoot");
+    console.log("root:", root);
     // Since we know we're in a React event, we can clear the current
     // event time. The next update will compute a new event time.
     currentEventTime = NoTimestamp;
@@ -26296,6 +26334,8 @@
   // through Scheduler
 
   function performSyncWorkOnRoot(root) {
+    console.func("performSyncWorkOnRoot");
+    console.log("root:", root);
     if (!((executionContext & (RenderContext | CommitContext)) === NoContext)) {
       {
         throw Error("Should not already be working.");
@@ -26538,6 +26578,10 @@
   }
 
   function prepareFreshStack(root, lanes) {
+    console.func("prepareFreshStack");
+    console.log("root:", root);
+    console.log("lanes:", lanes);
+
     root.finishedWork = null;
     root.finishedLanes = NoLanes;
     var timeoutHandle = root.timeoutHandle;
@@ -26560,7 +26604,9 @@
     }
 
     workInProgressRoot = root;
+    console.desc("workInProgress before createWorkInProgress:", workInProgress);
     workInProgress = createWorkInProgress(root.current, null);
+    console.desc("workInProgress after createWorkInProgress:", workInProgress);
     workInProgressRootRenderLanes = subtreeRenderLanes = workInProgressRootIncludedLanes = lanes;
     workInProgressRootExitStatus = RootIncomplete;
     workInProgressRootFatalError = null;
@@ -26726,6 +26772,10 @@
   }
 
   function renderRootSync(root, lanes) {
+    console.func("renderRootSync");
+    console.log("root:", root);
+    console.log("lanes:", lanes);
+
     var prevExecutionContext = executionContext;
     executionContext |= RenderContext;
     var prevDispatcher = pushDispatcher(); // If the root or lanes have changed, throw out the existing stack
@@ -26778,6 +26828,10 @@
   /** @noinline */
 
   function workLoopSync() {
+    console.log("workLoopSync");
+    console.desc(
+      "Already timed out, so perform work without checking if we need to yield."
+    );
     // Already timed out, so perform work without checking if we need to yield.
     while (workInProgress !== null) {
       performUnitOfWork(workInProgress);
@@ -26838,6 +26892,8 @@
   }
 
   function performUnitOfWork(unitOfWork) {
+    console.func("performUnitOfWork");
+    console.log("unitOfWork:", unitOfWork);
     // The current, flushed, state of this fiber is the alternate. Ideally
     // nothing should rely on this, but relying on it here means that we don't
     // need an additional field on the work in progress.
@@ -28100,6 +28156,8 @@
     var dummyFiber = null;
 
     beginWork$1 = function (current, unitOfWork, lanes) {
+      console.func("beginWork$1");
+      console.log("unitOfWork:", unitOfWork);
       // If a component throws an error, we replay it again in a synchronously
       // dispatched event, so that the debugger will treat it as an uncaught
       // error See ReactErrorUtils for more information.
@@ -28710,6 +28768,8 @@
     updatedFamilies,
     staleFamilies
   ) {
+    console.func("scheduleFibersWithFamiliesRecursively");
+    console.log("fiber:", fiber);
     {
       var alternate = fiber.alternate,
         child = fiber.child,
@@ -29075,6 +29135,10 @@
   } // This is used to create an alternate fiber to do work on.
 
   function createWorkInProgress(current, pendingProps) {
+    console.func("createWorkInProgress");
+    console.log("current:", current);
+    console.log("pendingProps:", pendingProps);
+
     var workInProgress = current.alternate;
 
     if (workInProgress === null) {
@@ -29609,6 +29673,7 @@
     this.finishedLanes = NoLanes;
     this.entangledLanes = NoLanes;
     this.entanglements = createLaneMap(NoLanes);
+    console.func("FiberRootNode constructor", 10);
 
     {
       this.mutableSourceEagerHydrationData = null;
@@ -29638,7 +29703,11 @@
   }
 
   function createFiberRoot(containerInfo, tag, hydrate, hydrationCallbacks) {
+    console.func("createFiberRoot");
+    console.log("containerInfo:", containerInfo);
+    console.log("tag:", tag);
     var root = new FiberRootNode(containerInfo, tag, hydrate);
+    console.log("root created in createFiberRoot:", root);
     // stateNode is any.
 
     var uninitializedFiber = createHostRootFiber(tag);
@@ -29787,9 +29856,11 @@
   }
 
   function createContainer(containerInfo, tag, hydrate, hydrationCallbacks) {
+    console.func("createContainer");
     return createFiberRoot(containerInfo, tag, hydrate);
   }
   function updateContainer(element, container, parentComponent, callback) {
+    console.func("updateContainer");
     {
       onScheduleRoot(container, element);
     }
@@ -30215,13 +30286,21 @@
   }
 
   function ReactDOMBlockingRoot(container, tag, options) {
+    console.func("ReactDOMBlockingRoot");
+    console.log("container:", container);
+    console.log("tag:", tag);
+    console.log("options:", options);
+
     this._internalRoot = createRootImpl(container, tag, options);
   }
 
   ReactDOMRoot.prototype.render = ReactDOMBlockingRoot.prototype.render = function (
     children
   ) {
+    console.func("ReactDOMRoot.prototype.render");
+    console.log("children:", children);
     var root = this._internalRoot;
+    console.log("this._internalRoot:", this._internalRoot);
 
     {
       if (typeof arguments[1] === "function") {
@@ -30270,6 +30349,10 @@
   };
 
   function createRootImpl(container, tag, options) {
+    console.func("createRootImpl");
+    console.log("container:", container);
+    console.log("tag:", tag);
+    console.log("options:", options);
     // Tag is either LegacyRoot or Concurrent Root
     var hydrate = options != null && options.hydrate === true;
     var hydrationCallbacks =
@@ -30280,6 +30363,7 @@
         options.hydrationOptions.mutableSources) ||
       null;
     var root = createContainer(container, tag, hydrate);
+    console.log("created root in createRootImpl:", root);
     markContainerAsRoot(root.current, container);
     var containerNodeType = container.nodeType;
 
@@ -30299,6 +30383,10 @@
     return root;
   }
   function createLegacyRoot(container, options) {
+    console.func("createLegacyRoot");
+    console.log("container:", container);
+    console.log("options:", options);
+
     return new ReactDOMBlockingRoot(container, LegacyRoot, options);
   }
   function isValidContainer(node) {
@@ -30389,6 +30477,10 @@
   }
 
   function legacyCreateRootFromDOMContainer(container, forceHydrate) {
+    console.func("legacyCreateRootFromDOMContainer");
+    console.log("container:", container);
+    console.log("forceHydrate:", forceHydrate);
+
     var shouldHydrate =
       forceHydrate || shouldHydrateDueToLegacyHeuristic(container); // First clear any existing content.
 
@@ -30460,6 +30552,13 @@
     callback
   ) {
     {
+      console.func("legacyRenderSubtreeIntoContainer");
+      console.log("container:", container);
+      console.log(
+        "container._reactRootContainer:",
+        container._reactRootContainer
+      );
+
       topLevelUpdateWarnings(container);
       warnOnInvalidCallback$1(
         callback === undefined ? null : callback,
@@ -30477,6 +30576,7 @@
         container,
         forceHydrate
       );
+      console.log("newly created root:", root);
       fiberRoot = root._internalRoot;
 
       if (typeof callback === "function") {
@@ -30489,6 +30589,7 @@
       } // Initial mount should not be batched.
 
       unbatchedUpdates(function () {
+        console.func("unbatchedUpdates");
         updateContainer(children, fiberRoot, parentComponent, callback);
       });
     } else {
@@ -30545,6 +30646,7 @@
     }
   }
   function hydrate(element, container, callback) {
+    console.func("hydrate");
     if (!isValidContainer(container)) {
       {
         throw Error("Target container is not a DOM element.");
@@ -30574,6 +30676,12 @@
     );
   }
   function render(element, container, callback) {
+    console.func("render", 10);
+    console.trace();
+    console.log("element:", element);
+    console.log("container:", container);
+    console.log("callback:", callback);
+
     if (!isValidContainer(container)) {
       {
         throw Error("Target container is not a DOM element.");
