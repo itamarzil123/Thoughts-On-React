@@ -1,6 +1,28 @@
+*******************************************************************************************
+*******************         I N T R O D U C T I O N                    ********************
+*******************************************************************************************
+
 in These 'thoughts-on-React' bunch of documents I share my journey of trying to understand what's
 going on inside React. I hope you will find anything useful.
+In addition to reading the 'thoughts-on' documents, 
+uou can also run the simple examples (which are fully detailed console logs)
 Please be patient (those thoughts were written for me only and then only editted for public use)
+
+I'm waiting for your thoughts on React internals, send me ideas or thoughts you had,
+help me improve my understanding, etc ..
+
+You can reach me at:
+
+
+            itamarzil123@hotmail.com / @ItamarSilverst1 in twitter      
+
+                                      Good Luck !
+
+*******************************************************************************************
+*******************         T H O U G H T S    O N    R E A C T        ********************
+*******************************************************************************************
+
+
 
 ------------------------------------------------------------
 The module resolving that is used in React v0.14, v0.3, v15:
