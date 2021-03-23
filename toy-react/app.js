@@ -1,6 +1,6 @@
 /** @jsx rehacked.transform */
 
-import Rehacked from "./rehacked";
+import Rehacked from "./src/rehacked";
 
 const Button = function () {
   return (

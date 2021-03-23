@@ -2,14 +2,14 @@
 import Rehacked from "./rehacked";
 
 const Button = function () {
-  return rehacked.transform(
+  return Rehacked.transform(
     "div",
     null,
-    rehacked.transform("button", null, "click me")
+    Rehacked.transform("button", null, "click me")
   );
 };
 
 Rehacked.render(
-  rehacked.transform(Button, null),
+  Rehacked.transform(Button, null),
   document.getElementById("root")
 );

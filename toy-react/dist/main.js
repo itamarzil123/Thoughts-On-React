@@ -1,0 +1,1 @@
+(()=>{"use strict";const o={transform(o,n,l){console.log("a:",o),console.log("b:",n),console.log("c:",l)},render(o,n){console.log("a:",o),console.log("b:",n)}};o.render(o.transform((function(){return o.transform("div",null,o.transform("button",null,"click me"))}),null),document.getElementById("root"))})();
