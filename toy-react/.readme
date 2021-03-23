@@ -1,0 +1,6 @@
+How to run an app in rehacked:
+------------------------------
+
+compile app.js in root into ouput app.js:
+    npx babel app.js --out-dir lib
+run lib/index.html

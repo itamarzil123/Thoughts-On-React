@@ -9,3 +9,5 @@ const Button = function () {
     </div>
   );
 };
+
+Rehacked.render(<Button />, document.getElementById("root"));
