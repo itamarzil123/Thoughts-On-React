@@ -67,7 +67,10 @@ function update(thisClassComponent, nativeNode) {
 
   if (_container) {
     let _renderedComponent = thisClassComponent.render();
-    nativeNode.appendChild(_renderedComponent);
+    let parent = nativeNode.parentNode;
+    console.log("_renderedComponent:", _renderedComponent);
+    nativeNode.parentNode.removeChild(nativeNode);
+    parent.appendChild(_renderedComponent);
   } else {
     document.body.appendChild(nativeNode);
   }
