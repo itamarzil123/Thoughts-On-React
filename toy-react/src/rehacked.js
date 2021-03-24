@@ -1,35 +1,21 @@
 export default {
-  transform(a, b, c) {
-    if (typeof a === "function") {
-      console.log("transform is dealing with a component. calling it as a function");
-      console.log("the function is:", a);
-      let res = a();
-      console.log("returning: ", res);
+  transform(elementType, props, ...children) {
+    if (typeof elementType === "function") {
+      let res = elementType(); // or elementType.call(this, children) ?!
+
       return res;
     } else {
-      console.log("a:", a);
-      console.log("b:", b);
-      console.log("c:", c);
-      let el;
-
-      if (a === "div" || a === "button") {
-        console.log("creating div or button");
-        el = document.createElement(a);
-      } else {
-        console.log("creating text node");
-        el = document.createTextNode(a);
-        console.log("text node created:", el);
-      }
-
-      if (c.nodeType) {
-        el.appendChild(c);
-      } else {
-        let newTextNode = document.createTextNode(c);
-        el.appendChild(newTextNode);
-      }
-
-      console.log("returning: ", el);
-      return el;
+      let newNode = document.createElement(elementType);
+      console.log("children:", children);
+      children.forEach(el => {
+        if (el.nodeType) {
+          newNode.appendChild(el);
+        } else {
+          let newTextNode = document.createTextNode(el);
+          newNode.appendChild(newTextNode);
+        }
+      });
+      return newNode;
     }
   },
 
