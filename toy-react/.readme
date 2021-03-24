@@ -1,6 +1,7 @@
-How to run an app in rehacked:
-------------------------------
+How to run a Rehacked app:
+---------------------------
 
+npm install
 npm run app ( in root )
 and then open /dist/index.html
 
