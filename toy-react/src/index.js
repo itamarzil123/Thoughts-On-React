@@ -27,7 +27,8 @@ class MyClassComponent extends Reoco.Component {
 
 const Buttons = function () {
   return Reoco.transform("div", null, Reoco.transform(Button, {
-    text: "click me"
+    text: "click me",
+    onClick: () => console.log("event")
   }), Reoco.transform(Button, {
     text: "click me 2"
   }), Reoco.transform(MyClassComponent, {

@@ -26,7 +26,7 @@ class MyClassComponent extends Reoco.Component {
 const Buttons = function () {
   return (
     <div>
-      <Button text="click me"></Button>
+      <Button text="click me" onClick={() => console.log("event")}></Button>
       <Button text="click me 2"></Button>
       <MyClassComponent text="myClassComponent with text prop"></MyClassComponent>
     </div>

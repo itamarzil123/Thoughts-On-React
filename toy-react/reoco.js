@@ -23,18 +23,33 @@ function createClassComponent(Class, props) {
   return newClassComponentInstance;
 }
 
+function mountClassComponentEventListeners(instance) {
+  // if (instance.props.onClick) {
+  //   console.log("onClick event recognized in class component");
+  // }
+}
+
+function mountFunctionComponentEventListeners(res, props) {
+  console.log("res:", res);
+  console.log("props:", props);
+
+  if (props && props.onClick) {
+    console.log("onClick event recognized in function component");
+    res.addEventListener("click", props.onClick);
+  }
+}
+
 export default {
   Component,
   transform(elementType, props, ...children) {
-    console.log("props:", props);
-    console.log("elementType:", elementType);
     if (elementType.prototype instanceof Component) {
-      console.log("elementType instanceof Component true");
       let newClassComponent = createClassComponent(elementType, props);
+      mountClassComponentEventListeners(newClassComponent);
       let res = newClassComponent.render();
       return res;
     } else if (typeof elementType === "function") {
       let res = elementType(props); // or elementType.call(this, children) ?!
+      mountFunctionComponentEventListeners(res, props);
       return res;
     } else {
       let newNode = document.createElement(elementType);
