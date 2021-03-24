@@ -18,9 +18,10 @@ class MyClassComponent extends Reoco.Component {
     this.handleClick = newState => {
       console.log("inside handleClick: newState:", newState);
       this.setState(newState);
+      console.log("this.state:", newState);
     };
 
-    this.state = state;
+    this.state = "initial state";
     this.props = props;
   }
 

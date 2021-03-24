@@ -8,6 +8,7 @@ Enjoy !
 
 TODOS:
 - fix script that opens dev server at 8080 and not 1234 with the old app
-- add setState
-- add reconciliation
-- add event listeners
+- each component should have a link to its parent: component._nativeParentNode
+  so that whenever reconciliation happens we need to update and then component._nativeParentNode.appendChild(newRenderedChild)
+- add reconciliation diffing
+- add more event listeners, validation, etc ...

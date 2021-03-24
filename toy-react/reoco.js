@@ -10,12 +10,13 @@ class Component {
   setState(newState) {
     console.log("inside Component.setState:", newState);
     this.state = newState;
+    update(this._nativeNode);
     // this.render();
   }
 }
 
 function createClassComponent(Class, props) {
-  let newClassComponentInstance = new Class(null, props);
+  let newClassComponentInstance = new Class("null", props);
   if (!_components[newClassComponentInstance.id]) {
     _components.push(newClassComponentInstance);
   }
@@ -38,6 +39,23 @@ function mountFunctionComponentEventListeners(res, props) {
   }
 }
 
+function render(node, container) {
+  if (container) {
+    container.appendChild(node);
+    _container = container;
+  } else {
+    document.body.appendChild(node);
+  }
+}
+
+function update(node) {
+  if (_container) {
+    _container.appendChild(node);
+  } else {
+    document.body.appendChild(node);
+  }
+}
+
 export default {
   Component,
   transform(elementType, props, ...children) {
@@ -47,28 +65,24 @@ export default {
       let res = newClassComponent.render();
       return res;
     } else if (typeof elementType === "function") {
-      let res = elementType(props); // or elementType.call(this, children) ?!
+      let res = elementType(props); // TODO: or elementType.call(this, children) ?!
       mountFunctionComponentEventListeners(res, props);
       return res;
     } else {
       let newNode = document.createElement(elementType);
       children.forEach((el) => {
-        if (el.nodeType) {
+        console.log("el:", el);
+        if (el && el.nodeType) {
           newNode.appendChild(el);
-        } else {
+        } else if (el) {
           let newTextNode = document.createTextNode(el);
           newNode.appendChild(newTextNode);
+        } else {
         }
       });
       mountFunctionComponentEventListeners(newNode, props);
       return newNode;
     }
   },
-  render(node, container) {
-    if (container) {
-      container.appendChild(node);
-    } else {
-      document.body.appendChild(node);
-    }
-  },
+  render,
 };

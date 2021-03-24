@@ -14,13 +14,14 @@ const Button = function (props) {
 class MyClassComponent extends Reoco.Component {
   constructor(state, props) {
     super(state, props);
-    this.state = state;
+    this.state = "initial state";
     this.props = props;
   }
 
   handleClick = (newState) => {
     console.log("inside handleClick: newState:", newState);
     this.setState(newState);
+    console.log("this.state:", newState);
   };
 
   render() {
