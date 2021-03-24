@@ -1,6 +1,13 @@
-How to run a Rehacked app ?
+How to run a Reoco app ?
 ---------------------------
 
 npm run app
 
 Enjoy !
+
+
+TODOS:
+- fix script that opens dev server at 8080 and not 1234 with the old app
+- add setState
+- add reconciliation
+- add event listeners

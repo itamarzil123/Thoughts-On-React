@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack",
-    "app": "npx babel index.js --out-dir src && npx babel rehacked.js --out-dir src && npm run start && npm run openbrowser",
+    "app": "npx babel index.js --out-dir src && npx babel reoco.js --out-dir src && npm run start && npm run openbrowser",
     "openbrowser": "concurrently \"http-server -a localhost -p 1234\" \"http-server -o /dist\""
   },
   "author": "",
