@@ -14,13 +14,24 @@ const Button = function (props) {
 class MyClassComponent extends Reoco.Component {
   constructor(state, props) {
     super(state, props);
+
+    this.handleClick = newState => {
+      console.log("inside handleClick: newState:", newState);
+      this.setState(newState);
+    };
+
     this.state = state;
     this.props = props;
   }
 
   render() {
     console.log("this:", this);
-    return Reoco.transform("div", null, " ", this.props.text);
+    return Reoco.transform("button", {
+      onClick: () => {
+        console.log("---> click event fired inside class component render");
+        this.handleClick("updated state");
+      }
+    }, " ", this.props.text, ", this.state: ", this.state);
   }
 
 }
@@ -28,7 +39,9 @@ class MyClassComponent extends Reoco.Component {
 const Buttons = function () {
   return Reoco.transform("div", null, Reoco.transform(Button, {
     text: "click me",
-    onClick: () => console.log("event")
+    onClick: () => {
+      console.log("---> click event fired in function component");
+    }
   }), Reoco.transform(Button, {
     text: "click me 2"
   }), Reoco.transform(MyClassComponent, {

@@ -17,16 +17,37 @@ class MyClassComponent extends Reoco.Component {
     this.state = state;
     this.props = props;
   }
+
+  handleClick = (newState) => {
+    console.log("inside handleClick: newState:", newState);
+    this.setState(newState);
+  };
+
   render() {
     console.log("this:", this);
-    return <div> {this.props.text}</div>;
+    return (
+      <button
+        onClick={() => {
+          console.log("---> click event fired inside class component render");
+          this.handleClick("updated state");
+        }}
+      >
+        {" "}
+        {this.props.text}, this.state: {this.state}
+      </button>
+    );
   }
 }
 
 const Buttons = function () {
   return (
     <div>
-      <Button text="click me" onClick={() => console.log("event")}></Button>
+      <Button
+        text="click me"
+        onClick={() => {
+          console.log("---> click event fired in function component");
+        }}
+      ></Button>
       <Button text="click me 2"></Button>
       <MyClassComponent text="myClassComponent with text prop"></MyClassComponent>
     </div>

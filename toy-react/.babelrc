@@ -3,8 +3,13 @@
       [
         "@babel/plugin-transform-react-jsx",
         {
-          "pragma": "transform"
-            
+          "pragma": "transform"     
+        }
+      ],
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
         }
       ]
     ]

@@ -8,10 +8,9 @@ class Component {
     this.id = ++_currentComponentId;
   }
   setState(newState) {
+    console.log("inside Component.setState:", newState);
     this.state = newState;
-  }
-  render() {
-    return <div> rendered Component </div>;
+    // this.render();
   }
 }
 
@@ -61,6 +60,7 @@ export default {
           newNode.appendChild(newTextNode);
         }
       });
+      mountFunctionComponentEventListeners(newNode, props);
       return newNode;
     }
   },
