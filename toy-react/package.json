@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack",
-    "app": "npx babel index.js --out-dir src && npm run start"
+    "app": "npx babel index.js --out-dir src && npx babel rehacked.js --out-dir src && npm run start"
   },
   "author": "",
   "license": "ISC",
