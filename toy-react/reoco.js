@@ -1,16 +1,25 @@
 let _components = [];
 let _currentComponentId = 0;
+let _container = null;
+let _rootNode = null;
+let _tree = null;
 
 class Component {
-  constructor(state, props) {
+  constructor(state, props, nativeNode) {
     this.state = state;
     this.props = props;
     this.id = ++_currentComponentId;
+    this._nativeNode = nativeNode;
+  }
+
+  getComponentNativeNode() {
+    const nativeNode = document.getElementById(this.id);
+    return nativeNode;
   }
   setState(newState) {
     console.log("inside Component.setState:", newState);
     this.state = newState;
-    update(this._nativeNode);
+    update(this, this.getComponentNativeNode());
     // this.render();
   }
 }
@@ -18,6 +27,7 @@ class Component {
 function createClassComponent(Class, props) {
   let newClassComponentInstance = new Class("null", props);
   if (!_components[newClassComponentInstance.id]) {
+    // TODO: huh ? always true
     _components.push(newClassComponentInstance);
   }
   return newClassComponentInstance;
@@ -40,6 +50,8 @@ function mountFunctionComponentEventListeners(res, props) {
 }
 
 function render(node, container) {
+  console.log("node in render:", node);
+  _rootNode = node;
   if (container) {
     container.appendChild(node);
     _container = container;
@@ -48,11 +60,16 @@ function render(node, container) {
   }
 }
 
-function update(node) {
+function update(thisClassComponent, nativeNode) {
+  console.log("reconciling...");
+  console.log("thisClassComponent:", thisClassComponent);
+  console.log("nativeNode:", nativeNode);
+
   if (_container) {
-    _container.appendChild(node);
+    let _renderedComponent = thisClassComponent.render();
+    nativeNode.appendChild(_renderedComponent);
   } else {
-    document.body.appendChild(node);
+    document.body.appendChild(nativeNode);
   }
 }
 
@@ -63,6 +80,9 @@ export default {
       let newClassComponent = createClassComponent(elementType, props);
       mountClassComponentEventListeners(newClassComponent);
       let res = newClassComponent.render();
+
+      res.setAttribute("id", newClassComponent.id);
+
       return res;
     } else if (typeof elementType === "function") {
       let res = elementType(props); // TODO: or elementType.call(this, children) ?!
