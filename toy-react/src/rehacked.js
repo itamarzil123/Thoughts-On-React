@@ -1,12 +1,13 @@
 export default {
   transform(elementType, props, ...children) {
+    console.log("props:", props);
+
     if (typeof elementType === "function") {
-      let res = elementType(); // or elementType.call(this, children) ?!
+      let res = elementType(props); // or elementType.call(this, children) ?!
 
       return res;
     } else {
       let newNode = document.createElement(elementType);
-      console.log("children:", children);
       children.forEach(el => {
         if (el.nodeType) {
           newNode.appendChild(el);

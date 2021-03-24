@@ -2,15 +2,20 @@
 
 import Rehacked from "./rehacked.js";
 
-const Button = function () {
-  return <button>click me</button>;
+const Button = function (props) {
+  console.log("props inside Button:", props);
+  if (props) {
+    return <button>{props.text}</button>;
+  } else {
+    return <button> without props </button>;
+  }
 };
 
 const Buttons = function () {
   return (
     <div>
-      <Button>click me</Button>
-      <Button>click me 2</Button>
+      <Button text="click me"></Button>
+      <Button text="click me 2"></Button>
     </div>
   );
 };
